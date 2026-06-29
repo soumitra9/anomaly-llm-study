@@ -30,6 +30,9 @@ from anodet.utils.io import read_json
 C1_TOL = 0.02
 C2_MIN = 0.80
 C3_MIN_IN_BAND = 24
+# C3 band = max(+/-1 published std, +/-C3_ABS_FLOOR). The floor (pre-results refinement, 2026-06-29) avoids a
+# zero-width band on the 6 datasets whose published SE is ~0; matches C1's aggregate tolerance. See GATE_SPEC.md.
+C3_ABS_FLOOR = 0.02
 N_DATASETS = 30
 
 
@@ -61,6 +64,7 @@ def compute_verdict(
     c1_tol: float = C1_TOL,
     c2_min: float = C2_MIN,
     c3_min_in_band: int = C3_MIN_IN_BAND,
+    c3_abs_floor: float = C3_ABS_FLOOR,
     n_datasets: int = N_DATASETS,
 ) -> dict:
     """Return a verdict dict: per-criterion pass/fail + values + coverage + overall PASS/FAIL/PRELIMINARY."""
@@ -99,7 +103,8 @@ def compute_verdict(
     if shared:
         rho = float(spearmanr([ours[d] for d in shared], [ref_pd[d]["mean"] for d in shared]).correlation)
         in_band = sum(
-            abs(ours[d] - ref_pd[d]["mean"]) <= ref_pd[d].get("std", 0.0) for d in shared
+            abs(ours[d] - ref_pd[d]["mean"]) <= max(ref_pd[d].get("std", 0.0), c3_abs_floor)
+            for d in shared
         )
         out["criteria"]["C2_rank"] = {"spearman": rho, "min": c2_min, "n_shared": len(shared),
                                       "pass": rho >= c2_min, "status": "active"}

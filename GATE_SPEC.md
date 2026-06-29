@@ -17,9 +17,19 @@ deliberate, pre-registered reduction for the free-Kaggle budget; it widens our v
 - **C1 — aggregate mean.** `|mean_AUROC(ours, 360M, 30 ODDS) − mean_AUROC(AnoLLM published)| ≤ 0.02`.
   (Strict reproduction is ~1 pt; the 2 pt band pre-allows our 3-split / r=10 variance. Not to be widened post hoc.)
 - **C2 — rank correlation.** `Spearman ρ(ours per-dataset, published per-dataset) ≥ 0.80` across the 30 datasets.
-- **C3 — per-dataset band.** `≥ 24/30` datasets fall within AnoLLM's published `±1 std` band.
+- **C3 — per-dataset band.** `≥ 24/30` datasets fall within AnoLLM's published band, where
+  `band = max(±1 published std, ±0.02)`.
   - If trustworthy per-dataset published numbers cannot be sourced (see `configs/anollm_reference.yaml`), C3 is
     reported as **informational only** and the gate rests on C1 (+ C2 if per-dataset point estimates exist).
+
+  **Pre-results refinement (2026-06-29, before any of our gate results existed).** While *sourcing the
+  reference* (not our results), we found the paper reports per-dataset standard *error* (Table 11), and for 6
+  "easy" datasets (http, musk, mulcross, shuttle, satellite, satimage-2) the 360M SE is 0.000 → a literal
+  `±1 std` band has **zero width**, making C3 require a near-exact match there. We therefore add a `±0.02`
+  absolute floor to the band. This is a legitimate refinement, not goalpost-moving: it is (a) decided before
+  any of our results existed, (b) driven by a property of the *published* SEs, not our data, (c) documented
+  here, and (d) the 0.02 floor equals C1's aggregate tolerance, so per-dataset and aggregate use the same
+  reproduction tolerance. C1 and C2 are unchanged.
 
 **PASS ⇔ C1 ∧ C2 ∧ C3** (with C3's informational caveat above).
 
