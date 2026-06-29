@@ -1,20 +1,52 @@
 # AnoLLM published AUROC reference — the reproduction target for the M1 gate (GATE_SPEC.md).
 #
-# SOURCING RULE (A1, gate-blocking): per-dataset numbers must be transcribed EYES-ON from the AnoLLM
-# ICLR-2025 paper's per-dataset table and SECOND-CHECKED, with the exact source location recorded below.
-# NO fabricated numbers and NO aggregate-derived approximations standing in for per-dataset values.
+# SOURCE (eyes-on, exact): AnoLLM, Tsai et al., ICLR 2025 (proceedings PDF hash 165bbd0a...).
+#   - per-dataset MEAN AUC-ROC  : Table 10, page 26, column "AnoLLM / 360M" (SmolLM-360M backbone).
+#   - per-dataset STANDARD ERROR: Table 11, page 27, column "AnoLLM / 360M" (SE over 5 random splits).
+# Extracted via pdftotext (exact digits, not image OCR) and cross-checked against the rendered table.
+# SELF-CHECK: mean of the 30 per-dataset values below = 0.8651, matching the paper's reported Average 0.865.
+# MODEL MATCH: our gate runs SmolLM-360M, so we use the paper's 360M column directly (no version mismatch).
 #
-# Until per_dataset is populated, verdict.py treats C2/C3 as INFORMATIONAL and the gate rests on C1.
+# NOTE on `std`: the paper reports standard ERROR (SE over 5 splits). The run-to-run std = SE*sqrt(5)
+# (n=5). We store both `se` (as published) and `std` (= SE*sqrt(5)) for the GATE_SPEC C3 +/-1std band.
+# CAVEAT: many 360M SEs are ~0, so the +/-1std band collapses for several datasets -> C3 is stringent;
+# see GATE_SPEC / the verdict notes (the gate leans on C1 mean + C2 rank; C3 is the strict supplementary check).
+# ForestCover (paper) == covertype (our ODDS name).
 
 model: smol-360
 metric: auroc
 dataset_suite: odds-30
+n_splits_ref: 5
+aggregate_mean: 0.865   # Table 10 Average, 360M (also matches Table 3a size ablation)
 
-# VERIFIED aggregate (AnoLLM Table 3a size-ablation; ODDS AUC-ROC for SmolLM-360M).
-# Source: anollm-verified-facts (ICLR-2025 PDF, verified 2026-06-28). Used by C1 only.
-aggregate_mean: 0.865
-
-# PER-DATASET published AUROC (+ std across their 5 seeds). PENDING eyes-on transcription.
-# Schema:  <dataset>: {mean: <float>, std: <float>}
-per_dataset_source: "PENDING — fork check in progress; else AnoLLM ICLR-2025 appendix per-dataset table (record table/page here)"
-per_dataset: {}
+per_dataset:
+  annthyroid:         {mean: 0.931, se: 0.001, std: 0.0022}
+  arrhythmia:         {mean: 0.822, se: 0.004, std: 0.0089}
+  breastw:            {mean: 0.993, se: 0.001, std: 0.0022}
+  cardio:             {mean: 0.873, se: 0.004, std: 0.0089}
+  ecoli:              {mean: 0.804, se: 0.014, std: 0.0313}
+  covertype:          {mean: 0.835, se: 0.008, std: 0.0179}   # paper: ForestCover
+  glass:              {mean: 0.797, se: 0.014, std: 0.0313}
+  heart:              {mean: 0.799, se: 0.009, std: 0.0201}
+  http:               {mean: 1.000, se: 0.000, std: 0.0000}
+  ionosphere:         {mean: 0.924, se: 0.006, std: 0.0134}
+  letter_recognition: {mean: 0.867, se: 0.003, std: 0.0067}
+  lymphography:       {mean: 0.993, se: 0.002, std: 0.0045}
+  mammography:        {mean: 0.876, se: 0.001, std: 0.0022}
+  mulcross:           {mean: 1.000, se: 0.000, std: 0.0000}
+  musk:               {mean: 1.000, se: 0.000, std: 0.0000}
+  optdigits:          {mean: 0.939, se: 0.005, std: 0.0112}
+  pendigits:          {mean: 0.964, se: 0.004, std: 0.0089}
+  pima:               {mean: 0.654, se: 0.006, std: 0.0134}
+  satellite:          {mean: 0.877, se: 0.000, std: 0.0000}
+  satimage-2:         {mean: 0.999, se: 0.000, std: 0.0000}
+  seismic:            {mean: 0.746, se: 0.002, std: 0.0045}
+  shuttle:            {mean: 1.000, se: 0.000, std: 0.0000}
+  smtp:               {mean: 0.929, se: 0.001, std: 0.0022}
+  speech:             {mean: 0.470, se: 0.004, std: 0.0089}
+  thyroid:            {mean: 0.983, se: 0.001, std: 0.0022}
+  vertebral:          {mean: 0.408, se: 0.024, std: 0.0537}
+  vowels:             {mean: 0.938, se: 0.006, std: 0.0134}
+  wbc:                {mean: 0.952, se: 0.004, std: 0.0089}
+  wine:               {mean: 0.851, se: 0.016, std: 0.0358}
+  yeast:              {mean: 0.730, se: 0.010, std: 0.0224}
