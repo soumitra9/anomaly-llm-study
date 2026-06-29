@@ -1,9 +1,9 @@
 """Determinism + traceability-core tests: seeding, atomic I/O, hashing, bootstrap."""
 import numpy as np
 
-from src.metrics import auroc, bootstrap_ci
-from src.utils.io import array_hash, atomic_write_json, read_json
-from src.utils.seeding import rng
+from anodet.metrics import auroc, bootstrap_ci
+from anodet.utils.io import array_hash, atomic_write_json, read_json
+from anodet.utils.seeding import rng
 
 
 def test_rng_same_seed_label_identical():
