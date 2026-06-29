@@ -22,7 +22,7 @@ from anodet.scoring.prompted_score import expected_score, parse_failure_rate, pa
 INSTRUCT_ALIASES = {
     "smol-instruct": "HuggingFaceTB/SmolLM-135M-Instruct",
     "smol-360-instruct": "HuggingFaceTB/SmolLM-360M-Instruct",
-    "qwen3-4b-instruct": "Qwen/Qwen2.5-3B-Instruct",  # placeholder; verify exact Qwen3 tag at run time
+    "qwen3-4b-instruct": "Qwen/Qwen3-4B-Instruct-2507",  # verified HF id (non-thinking instruct variant)
 }
 
 _SYSTEM = "You are a security anomaly detector."
