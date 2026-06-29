@@ -1,5 +1,5 @@
 """Grid runner: expansion, resumption (skip complete cells), manifest reconciliation."""
-from src.eval.grid import (
+from anodet.eval.grid import (
     assert_grid_complete,
     expand_grid,
     pending_cells,

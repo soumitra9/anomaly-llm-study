@@ -1,7 +1,7 @@
 """Property tests for the operational metrics — these protect the headline numbers (PLAN §10)."""
 import numpy as np
 
-from src.metrics import (
+from anodet.metrics import (
     auprc,
     auroc,
     clopper_pearson,
@@ -87,7 +87,7 @@ def test_topk_tie_at_boundary_is_stable():
 
 # --- reweighting sanity: upweighting subsampled negatives lowers precision toward true rate ---
 def test_importance_weight_lowers_precision_under_subsampling():
-    from src.metrics import make_importance_weights
+    from anodet.metrics import make_importance_weights
 
     # 10 positives, 10 sampled negatives, but 1000 negatives in the population
     y = np.array([1] * 10 + [0] * 10)

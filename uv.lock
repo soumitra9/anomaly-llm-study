@@ -3,7 +3,10 @@ revision = 3
 requires-python = "==3.10.*"
 
 [manifest]
-overrides = [{ name = "torch", specifier = "==2.3.1" }]
+overrides = [
+    { name = "pyod", specifier = "==2.0.1" },
+    { name = "torch", specifier = "==2.3.1" },
+]
 
 [[package]]
 name = "absl-py"
@@ -131,6 +134,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "peft" },
+    { name = "pyod" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "scipy" },
@@ -155,6 +159,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.26,<2" },
     { name = "pandas", specifier = ">=2.2,<2.3" },
     { name = "peft", specifier = "==0.11.1" },
+    { name = "pyod", specifier = "==2.0.1" },
     { name = "pyyaml", specifier = ">=6" },
     { name = "scikit-learn", specifier = ">=1.6,<1.7" },
     { name = "scipy", specifier = ">=1.13,<1.14" },
@@ -1286,7 +1291,7 @@ wheels = [
 
 [[package]]
 name = "pyod"
-version = "1.0.0"
+version = "2.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
@@ -1295,10 +1300,8 @@ dependencies = [
     { name = "numpy" },
     { name = "scikit-learn" },
     { name = "scipy" },
-    { name = "six" },
-    { name = "statsmodels" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/68/3f/9a89f5b727ca12a33530bd4e7a87d367e26c5ff4e8181a934655bc73a35c/pyod-1.0.0.tar.gz", hash = "sha256:7b3875c91dc6bc629c297f8ec2b59200fa8b1cbca986dfe4abd21e75560818af", size = 118773, upload-time = "2022-04-23T22:44:51.495Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/af/4529584c562fcbce45f80e2f847a5cbefd8d6eb20d1af57c673f77bb3060/pyod-2.0.1.tar.gz", hash = "sha256:8fc23333d3d5161d59aa7ed4ba02fd9f25d21adc96f72a9017ae931bd76b04b2", size = 163824, upload-time = "2024-06-22T04:42:15.549Z" }
 
 [[package]]
 name = "pyparsing"

@@ -17,8 +17,8 @@ from typing import Callable, Iterable
 
 import yaml
 
-from src.utils.io import atomic_write_json
-from src.utils.run_metadata import cell_key, cell_path, is_complete
+from anodet.utils.io import atomic_write_json
+from anodet.utils.run_metadata import cell_key, cell_path, is_complete
 
 
 def load_config(path: str | Path) -> dict:
@@ -91,7 +91,7 @@ def run_grid(
     run_cell: Callable[[dict], tuple[dict, str, dict]],
 ) -> int:
     """Run all pending cells. `run_cell(cell)` returns (metrics, status, extra). Returns #run."""
-    from src.utils.run_metadata import RunMetadata, write_result
+    from anodet.utils.run_metadata import RunMetadata, write_result
 
     pend = pending_cells(cfg, results_root)
     for cell in pend:

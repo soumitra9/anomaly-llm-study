@@ -20,7 +20,7 @@ import numpy as np
 from scipy.stats import beta
 from sklearn.metrics import average_precision_score, roc_auc_score, roc_curve
 
-from src.utils.seeding import rng
+from anodet.utils.seeding import rng
 
 _ArrayLike = np.ndarray
 

@@ -1,7 +1,7 @@
 """Mode-B numeric helpers: expected-value scorer (tie-free) + integer-parse fallback."""
 import numpy as np
 
-from src.scoring.prompted_score import expected_score, parse_failure_rate, parse_int_score
+from anodet.scoring.prompted_score import expected_score, parse_failure_rate, parse_int_score
 
 
 def test_expected_score_mass_and_uniform():
