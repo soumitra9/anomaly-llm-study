@@ -14,6 +14,16 @@ dependencies = [
     "scikit-learn>=1.6,<1.7",
     "pandas>=2.2,<2.3",
     "pyyaml>=6",
+    "torch==2.3.1",
+    "transformers==4.48.2",
+    "peft==0.11.1",
+    "datasets==2.20.0",
+    "accelerate>=1.14.0",
+    "setuptools>=82.0.1",
+    "ucimlrepo>=0.0.7",
+    "gensim>=4.4.0",
+    "feature-engine>=1.9.4",
+    "adbench>=0.1.11",
 ]
 
 [dependency-groups]
@@ -22,6 +32,10 @@ dev = ["pytest>=8"]
 # Application-style project (not an installable wheel); modules imported as `src.<area>...`.
 [tool.uv]
 package = false
+# AnoLLM's published stack is a loose pip stack: adbench -> rtdl pins torch<2, but the code runs
+# on torch 2.3.1 (which AnoLLM itself force-installs over the pin). Override so uv resolves a single
+# env, faithfully mirroring AnoLLM's actual environment. Documented for traceability.
+override-dependencies = ["torch==2.3.1"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
