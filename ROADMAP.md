@@ -76,8 +76,13 @@ All **provisional** → must be re-validated on real data in **Phase B** after t
 - [ ] **A7 deep baselines (DeepOD) — DEFERRED**: deepod not in the uv env; adding it mid-gate-campaign risks
       the pinned torch/pyod stack the Kaggle gate depends on. Off critical path (classical panel covers the
       beats-best-classical tally). Revisit in M3.
-- [ ] **PENDING (gate-blocking for C2/C3):** transcribe AnoLLM per-dataset ODDS AUROC (eyes-on, 2nd-checked)
-      into `configs/anollm_reference.yaml` before the verdict.
+- [x] **AnoLLM per-dataset reference transcribed** (eyes-on, 2nd-checked) into `configs/anollm_reference.yaml`
+      from ICLR-2025 Table 10 (mean) + Table 11 (SE), 360M column; self-check mean=0.8651 == paper Avg 0.865.
+- [x] **C3 band ±0.02 floor** (pre-results refinement, documented in `GATE_SPEC.md`) — 6 datasets had published
+      SE=0 → zero-width band. Verdict tooling now fully unblocked (C1∧C2∧C3). 54 tests green.
+
+**Gate verdict is fully prepared** — when the 90 cells complete, the loop runs `uv run python -m
+anodet.eval.verdict` for an automatic C1∧C2∧C3 judgment vs the pre-registered spec.
 
 ---
 
