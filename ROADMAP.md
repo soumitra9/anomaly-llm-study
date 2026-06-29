@@ -5,15 +5,18 @@ lands. Companions: [`PLAN.md`](PLAN.md) = the research design (the science); app
 `~/.claude/plans/lets-now-very-meticulously-optimized-badger.md`; long-form state =
 agent memory `project-state.md`. If those ever disagree, **this file + git history win for status.**
 
-_Last updated: 2026-06-29._
+_Last updated: 2026-06-29 (trial complete; M2 built)._
 
 ---
 
 ## TL;DR — current state
-Foundations + reproduction runner are **built, tested, committed, and pushed** (5 commits,
-`github.com/soumitra9/anomaly-llm-study`). We are **in the M1 reproduction gate**: a 3-dataset Kaggle GPU
-**trial is running** to validate the CUDA path before the full 30-set gate. Everything downstream
-(Exp 2–6) waits on the gate passing.
+Foundations + reproduction runner + **the full Exp 2 / M2 stack** are built, tested, and committed
+(7 commits, `github.com/soumitra9/anomaly-llm-study`). The 3-dataset Kaggle GPU **trial COMPLETED**:
+breastw CUDA AUROC **0.991** + wine 0.865 validate the CUDA path; lymphography exposed a real bug
+(content-hash forced `dtype=float` → crashed on string categoricals like `'deformed'`) — **found &
+fixed** (`io.frame_hash`, commit `51c00bb`, verified locally on lymphography). **Next decision: push the
+fix to GitHub + launch the full 30-set gate.** M2 build (Exp 2 runner, mode-B runner, ODDS loaders,
+classical panel) is done ahead of the gate.
 
 ---
 
@@ -44,15 +47,23 @@ two headline findings (likelihood-vs-prompted A/B and semantic transfer both run
 - [x] Kaggle path prepped (`scripts/kaggle_gate.py`, `scripts/KAGGLE.md`)
 - [x] Code on GitHub; Kaggle MCP working; account phone-verified (notebook internet on)
 - [x] Trial v1 → caught "no internet" failure in 33s; root-caused to phone verification
-- [ ] **Trial v2 (`anollm-repro-trial-v2`) completes** → poll, download JSONs, check CUDA-path AUROC ← *NOW*
+- [x] **Trial v2 (`anollm-repro-trial-v2`) COMPLETE** — breastw CUDA AUROC **0.991**, wine 0.865 (CUDA
+      path validated); lymphography crashed → real bug found & fixed (`io.frame_hash`, commit `51c00bb`)
+- [ ] **Push fix to GitHub** (Kaggle clones from there) ← *NEXT*
 - [ ] Full 30-set gate (`kaggle_gate --full`: 30 ODDS × 5 splits × SmolLM-135M/360M)
 - [ ] Compare to AnoLLM published (mean AUROC within ~1pt + per-dataset rank corr + ±std band) → **verdict**
 
 ## Immediate next actions (in order)
-1. Poll trial v2 → on COMPLETE, fetch results + verify (on ERROR, read log, fix, re-run).
-2. If sane → launch full gate; if not → debug the Kaggle env before anything else.
-3. **(parallel, free, anytime)** build `anodet/scoring/prompted.py` (mode-B runner) — preps M2.
+1. **Push** the frame_hash fix + M2 build to GitHub so the Kaggle gate clones working code.
+2. Launch full gate (`kaggle_gate --full`); resumable per-cell JSON across the 30 GPU-h/wk quota.
+3. Compare to AnoLLM published → gate verdict (the hard stop for everything downstream).
 4. **(housekeeping)** revoke the 2 GitHub tokens shared in chat (no longer needed — tokenless clone).
+
+## M2 build — DONE ahead of the gate (commit `2f0ed17`)
+- [x] `anodet/scoring/prompted.py` committed (mode-B expected-value runner; was complete, untracked)
+- [x] `anodet/eval/exp2.py` + `configs/exp2.yaml` (360-cell A/B grid; CLI validated on CPU)
+- [x] `anodet/data/` loaders (`odds`, `serialize`, `odds_names`) + `anodet/baselines/classical.py` (PyOD panel)
+- [x] tests extended → 30 green; smoke_pipeline still green (IForest 0.991 / mode-A 0.978 / mode-B 0.090)
 
 ---
 
