@@ -19,7 +19,7 @@ import numpy as np
 from anodet import _fork
 from anodet.metrics import auprc, auprc_gain, auroc, recall_at_fpr
 from anodet.scoring.likelihood import r_sensitivity, run_likelihood
-from anodet.utils.io import array_hash
+from anodet.utils.io import array_hash, frame_hash
 from anodet.utils.run_metadata import RunMetadata, write_result
 
 
@@ -89,7 +89,7 @@ def reproduce_cell(
         precision="bf16" if out["device"] == "cuda" else "fp32",
         r_permutations=out["r"],
         split_index_hash=array_hash(np.asarray(X_test.index)),
-        dataset_content_hash=array_hash(np.asarray(X_test.values, dtype=float)),
+        dataset_content_hash=frame_hash(X_test),  # type-robust: handles text columns (e.g. lymphography)
     )
     meta.env["device_used"] = out["device"]
     write_result(
