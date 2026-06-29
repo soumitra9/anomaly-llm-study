@@ -65,6 +65,20 @@ two headline findings (likelihood-vs-prompted A/B and semantic transfer both run
 - [x] `anodet/data/` loaders (`odds`, `serialize`, `odds_names`) + `anodet/baselines/classical.py` (PyOD panel)
 - [x] tests extended → 30 green; smoke_pipeline still green (IForest 0.991 / mode-A 0.978 / mode-B 0.090)
 
+## Phase A — build-everything-non-GPU ahead of the gate — DONE (commits `6a741a3`..`73bf49d`, 53 tests green)
+All **provisional** → must be re-validated on real data in **Phase B** after the verdict.
+- [x] **GATE_SPEC.md** pre-registered (C1 mean Δ≤0.02, C2 Spearman≥0.80, C3 ≥24/30 band) BEFORE any verdict
+- [x] **A1** `anodet/eval/verdict.py` + `configs/anollm_reference.yaml` (per-dataset numbers PENDING eyes-on)
+- [x] **A2–A4** `anodet/analysis/{aggregate,stats,figures}.py` + `Makefile` + `make_tables/figures.py`
+- [x] **A5** `anodet/data/{creditcard,unsw}.py` (split/leakage-screen/reweight)
+- [x] **A6** `anodet/triage/two_stage.py` + `anodet/eval/{exp3_security,exp3b_names,exp4_serialization}.py`
+- [x] paper framing prose (`paper/01_intro,02_related_work,03_method.md`)
+- [ ] **A7 deep baselines (DeepOD) — DEFERRED**: deepod not in the uv env; adding it mid-gate-campaign risks
+      the pinned torch/pyod stack the Kaggle gate depends on. Off critical path (classical panel covers the
+      beats-best-classical tally). Revisit in M3.
+- [ ] **PENDING (gate-blocking for C2/C3):** transcribe AnoLLM per-dataset ODDS AUROC (eyes-on, 2nd-checked)
+      into `configs/anollm_reference.yaml` before the verdict.
+
 ---
 
 ## Decisions locked (don't relitigate)
