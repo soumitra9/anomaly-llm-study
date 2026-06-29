@@ -1,0 +1,40 @@
+# Exp 2 — model generation x scoring mode on ODDS (RQ2, RQ3).
+# Cartesian grid: models x modes x datasets x seeds. Driven by anodet.eval.grid + anodet.eval.exp2.
+# "seeds" are ODDS split indices (seed == split_idx; 3 of the 5 splits) — split-variance per PLAN §7.
+# Qwen3-14B's ~12-set subset is a separate paid-burst config (M5), not here.
+experiment: exp2_odds
+axes:
+  models: [smol-360, qwen3-4b]      # likelihood -> base backbone (LoRA-FT); prompted -> "<model>-instruct"
+  modes: [likelihood, prompted]
+  seeds: [0, 1, 2]                  # ODDS split indices
+  datasets:
+    - wine
+    - breastw
+    - cardio
+    - ecoli
+    - lymphography
+    - vertebral
+    - wbc
+    - yeast
+    - heart
+    - glass
+    - ionosphere
+    - letter_recognition
+    - mammography
+    - pendigits
+    - pima
+    - satellite
+    - satimage-2
+    - thyroid
+    - vowels
+    - shuttle
+    - seismic
+    - optdigits
+    - annthyroid
+    - http
+    - smtp
+    - mulcross
+    - covertype
+    - musk
+    - arrhythmia
+    - speech
