@@ -1,0 +1,34 @@
+# Example experiment config (Exp 2 — model × scoring-mode on ODDS).
+# The runner takes the Cartesian product of these axis-lists (NO Hydra, NO per-combo files).
+# `models`/`datasets` use logical names resolved by configs/model and configs/dataset.
+experiment: exp2_odds
+
+axes:
+  models:
+    - smollm-360m-instruct
+    - qwen3-4b-instruct
+  modes:
+    - likelihood   # mode A: LoRA fine-tune instruct checkpoint, then NLL over r permutations
+    - prompted     # mode B: same frozen instruct weights, expected-value over level logprobs
+  datasets:
+    # full 30-set ODDS list for the free small models (preserves CD diagram + comparability);
+    # the 14B paid burst uses a ~12-set subset in a separate config.
+    - wine
+    - breastw
+    - cardio
+    - lympho
+    - pima
+    # ... (remaining ODDS sets appended in M2)
+  seeds: [0, 1, 2]   # 3 seeds (PLAN §9b)
+
+scoring:
+  likelihood:
+    r_permutations: 10        # confirmatory default; per-permutation NLLs cached for free r-curve
+    lora: { rank: 16, alpha: 32, target_modules: auto, max_steps: 2000, lr: 5.0e-5 }
+  prompted:
+    elicitation: expected_value   # Σ p(k)·k over level tokens
+    temperature: 0.0
+
+eval:
+  # cost-driven test subsampling + importance reweighting handled in src/data (PLAN §2c)
+  cap_scored_rows: 40000

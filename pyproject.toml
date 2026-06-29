@@ -1,0 +1,28 @@
+[project]
+name = "anomaly-llm-study"
+version = "0.1.0"
+description = "Replication + extension study: tabular LLM anomaly detection — scoring mode, scale, operating regime"
+readme = "README.md"
+# AnoLLM's published stack is Python 3.10; pin to match for the reproduction (M1).
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    # M0 light core (utils, metrics, configs, tests). The heavy AnoLLM stack
+    # (torch 2.3.1, transformers 4.48.2, peft, pyod, deepod, ...) is added in M1.
+    # numpy pinned <2 deliberately: the AnoLLM/tf-keras stack added in M1 is not numpy-2 safe.
+    "numpy>=1.26,<2",
+    "scipy>=1.13,<1.14",
+    "scikit-learn>=1.6,<1.7",
+    "pandas>=2.2,<2.3",
+    "pyyaml>=6",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+# Application-style project (not an installable wheel); modules imported as `src.<area>...`.
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
