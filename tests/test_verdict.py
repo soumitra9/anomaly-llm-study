@@ -51,6 +51,18 @@ def test_c1_fail_gives_fail(tmp_path):
     assert v["verdict"] == "FAIL"
 
 
+def test_c3_abs_floor_handles_zero_width_band(tmp_path):
+    # published std=0 (e.g. http/musk): literal +-1std band has zero width; the +-0.02 floor rescues
+    # near-matches and still rejects clear misses.
+    _cell(tmp_path, "http", 0.995)       # 0.005 off, within the 0.02 floor -> in band
+    _cell(tmp_path, "satellite", 0.80)   # 0.077 off, beyond the floor -> out of band
+    pub = {"http": {"mean": 1.0, "std": 0.0}, "satellite": {"mean": 0.877, "std": 0.0}}
+    ref = _ref(tmp_path, 0.9385, pub)
+    v = compute_verdict(str(tmp_path), ref, n_datasets=2, c2_min=0.0, c3_min_in_band=1)
+    assert v["criteria"]["C3_band"]["in_band"] == 1   # http in, satellite out
+    assert v["criteria"]["C3_band"]["of"] == 2
+
+
 def test_no_reference_per_dataset_is_informational(tmp_path):
     _cell(tmp_path, "wine", 0.87)
     ref = _ref(tmp_path, 0.865, {})  # no per_dataset
