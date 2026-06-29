@@ -1,8 +1,9 @@
 """Determinism + traceability-core tests: seeding, atomic I/O, hashing, bootstrap."""
 import numpy as np
+import pandas as pd
 
 from anodet.metrics import auroc, bootstrap_ci
-from anodet.utils.io import array_hash, atomic_write_json, read_json
+from anodet.utils.io import array_hash, atomic_write_json, frame_hash, read_json
 from anodet.utils.seeding import rng
 
 
@@ -30,6 +31,17 @@ def test_atomic_write_roundtrip_and_redaction(tmp_path):
 def test_array_hash_stable_and_sensitive():
     assert array_hash(np.arange(10)) == array_hash(np.arange(10))
     assert array_hash(np.arange(10)) != array_hash(np.arange(11))
+
+
+def test_frame_hash_handles_text_columns():
+    # regression: lymphography has string values ('deformed') -> np.asarray(..., float) raised.
+    df = pd.DataFrame({"a": [1, 2, 3], "shape": ["deformed", "oval", "deformed"]})
+    h1 = frame_hash(df)
+    h2 = frame_hash(df.copy())
+    assert h1 == h2  # stable across object identity (not pointer-based)
+    df2 = df.copy()
+    df2.loc[0, "shape"] = "oval"
+    assert frame_hash(df2) != h1  # content-sensitive
 
 
 def test_bootstrap_ci_deterministic():

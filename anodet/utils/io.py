@@ -89,3 +89,17 @@ def array_hash(arr: np.ndarray, *, algo: str = "sha256") -> str:
     h.update(str(a.shape).encode())
     h.update(a.tobytes())
     return f"{algo}:{h.hexdigest()}"
+
+
+def frame_hash(df, *, algo: str = "sha256") -> str:
+    """Stable content hash of a (possibly mixed-type) DataFrame.
+
+    Robust to TEXTUAL columns: a plain `np.asarray(df.values, dtype=float)` raises on string
+    categoricals (e.g. lymphography's 'deformed'), and an object-dtype `.tobytes()` would hash
+    pointer addresses (non-deterministic). `pd.util.hash_pandas_object` gives a deterministic
+    per-row uint64 over mixed types; we hash those. Index excluded (content only).
+    """
+    import pandas as pd
+
+    row_hashes = pd.util.hash_pandas_object(df, index=False).to_numpy()
+    return array_hash(np.ascontiguousarray(row_hashes), algo=algo)
