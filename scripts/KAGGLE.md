@@ -34,19 +34,31 @@ uv run python -m scripts.kaggle_gate --datasets lymphography,wine,breastw --mode
 Expect sane AUROC (breastw ≈ 0.98–0.99, in AnoLLM's ballpark). Confirms CUDA fine-tune + NLL scoring
 works remotely. Per-cell JSON lands in `results/raw/exp1_repro/`.
 
-## Step 3 — FULL gate (only after the trial passes)
+## Step 3 — FULL gate (only after the trial passes) — CHUNKED across sessions
+The full gate is 30 ODDS × 5 splits × {smol, smol-360} = 300 cells at max_steps 2000 / r 21 — far more
+than one 12 h Kaggle session (and more than the 30 GPU-h/week quota). Run it in **time-budgeted chunks
+that exit cleanly** so `SaveAndRunAll` always commits its output (a session killed at the 12 h wall is
+marked timed-out and may LOSE its output):
 ```bash
-uv run python -m scripts.kaggle_gate --full     # 30 ODDS x 5 splits x {smol, smol-360}
+uv run python -m scripts.kaggle_gate --full --time-budget-secs 36000   # ~10h, leaves buffer < 12h wall
 ```
+- **Resumption (real):** the runner skips any cell whose per-cell JSON is already `status==complete`
+  (`is_complete` check). So each session continues where the last stopped — *provided prior results are
+  present at start*.
+- **Cross-session persistence:** download `results/raw/exp1_repro/*.json` from each session's output,
+  then feed them back into the next session — attach them as a Kaggle **Dataset** input and copy
+  `/kaggle/input/<slug>/*.json` into `results/raw/exp1_repro/` before running. A fresh `git clone` has no
+  prior results, so without this the runner re-does everything.
+
 Then compare per-dataset AUROC/AUPRC to AnoLLM's published tables (PLAN §7 gate: aggregate mean within
-~1 pt + per-dataset rank correlation + per-dataset band vs published ±std). Download
-`results/raw/exp1_repro/` as the notebook output and sync into the repo.
+~1 pt + per-dataset rank correlation + per-dataset band vs published ±std).
 
 ## Notes
 - Single-process is fine on 1 GPU — `anodet/_fork.py` inits a 1-rank gloo group (the shipped
   `train_anollm.py` torchrun/nccl multi-GPU path is NOT needed).
 - `USE_TF=0` is set automatically by `_fork.setup_env()`.
-- Resumable: re-running skips cells whose JSON is already `complete` (survives the 12 h session limit).
+- `--max-cells N` and `--time-budget-secs S` both stop launching NEW cells cleanly (exit 0 → output
+  commits). Use the time budget on Kaggle; max-cells is handy for local smoke.
 
 ## Decision needed: code delivery (A vs B)
 Option A needs the project pushed to a **public `soumitra9` GitHub repo** once (`gh` not installed
