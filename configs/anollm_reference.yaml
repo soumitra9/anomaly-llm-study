@@ -1,0 +1,20 @@
+# AnoLLM published AUROC reference — the reproduction target for the M1 gate (GATE_SPEC.md).
+#
+# SOURCING RULE (A1, gate-blocking): per-dataset numbers must be transcribed EYES-ON from the AnoLLM
+# ICLR-2025 paper's per-dataset table and SECOND-CHECKED, with the exact source location recorded below.
+# NO fabricated numbers and NO aggregate-derived approximations standing in for per-dataset values.
+#
+# Until per_dataset is populated, verdict.py treats C2/C3 as INFORMATIONAL and the gate rests on C1.
+
+model: smol-360
+metric: auroc
+dataset_suite: odds-30
+
+# VERIFIED aggregate (AnoLLM Table 3a size-ablation; ODDS AUC-ROC for SmolLM-360M).
+# Source: anollm-verified-facts (ICLR-2025 PDF, verified 2026-06-28). Used by C1 only.
+aggregate_mean: 0.865
+
+# PER-DATASET published AUROC (+ std across their 5 seeds). PENDING eyes-on transcription.
+# Schema:  <dataset>: {mean: <float>, std: <float>}
+per_dataset_source: "PENDING — fork check in progress; else AnoLLM ICLR-2025 appendix per-dataset table (record table/page here)"
+per_dataset: {}
