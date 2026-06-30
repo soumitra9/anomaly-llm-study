@@ -82,7 +82,7 @@ def run_one(
             **common_meta,
             "checkpoint_kind": "base",
             "lora": out["lora"],
-            "precision": "bf16" if out["device"] == "cuda" else "fp32",
+            "precision": out["precision"],
             "r_permutations": out["r"],
             "serialization_template_hash": _h(_SERIALIZE_FMT),
         }

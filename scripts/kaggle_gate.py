@@ -34,7 +34,8 @@ def main():
     p.add_argument("--splits", type=int, default=1, help="number of splits (0..n-1); gate uses 5")
     p.add_argument("--max-steps", type=int, default=2000)
     p.add_argument("--r", type=int, default=21)
-    p.add_argument("--batch-size", type=int, default=32)
+    p.add_argument("--batch-size", type=int, default=None,
+                   help="override per-dataset batch from configs/anollm_hparams.yaml (default: use config)")
     p.add_argument("--device", default="cuda")
     p.add_argument("--full", action="store_true", help="all 30 ODDS x 5 splits x {smol,smol-360}")
     p.add_argument("--results-root", default="results")

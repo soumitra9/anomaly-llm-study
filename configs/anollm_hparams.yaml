@@ -1,0 +1,44 @@
+# AnoLLM per-dataset hyperparameters — SmolLM-360M, ODDS benchmark.
+# SOURCE (eyes-on, exact): AnoLLM ICLR-2025 PDF, Table 7, page 24, "SmolLM-360M" column
+# (extracted via pdftotext, second-checked against the rendered table).
+# Two fields per dataset: batch_size, use_lora. AnoLLM full-fine-tunes most datasets but uses LoRA
+# (r=16, alpha=32, all attn+MLP modules) for the widest ones (arrhythmia/musk/speech). Using these makes
+# our reproduction faithful AND fits memory (their batches assume a 48GB A6000 — we run a 48GB A40).
+# ForestCover (paper) == covertype (our ODDS name). Lymphography/Seismic here are the ODDS rows (not mixed-type).
+# NOTE: the Kaggle session-1 gate ran lora=False/batch=32 for all; that matches Table 7 for the 4 datasets it
+# completed (wine/breastw/ecoli/lymphography all = 32/No), so those 10 cells stay valid.
+
+model: smol-360
+suite: odds-30
+# dataset: {batch_size, use_lora}
+hparams:
+  annthyroid:         {batch_size: 16,  use_lora: false}
+  arrhythmia:         {batch_size: 2,   use_lora: true}
+  breastw:            {batch_size: 32,  use_lora: false}
+  cardio:             {batch_size: 32,  use_lora: false}
+  ecoli:              {batch_size: 32,  use_lora: false}
+  covertype:          {batch_size: 48,  use_lora: false}   # paper: ForestCover
+  glass:              {batch_size: 32,  use_lora: false}
+  heart:              {batch_size: 32,  use_lora: false}
+  http:               {batch_size: 128, use_lora: false}
+  ionosphere:         {batch_size: 32,  use_lora: false}
+  letter_recognition: {batch_size: 32,  use_lora: false}
+  lymphography:       {batch_size: 32,  use_lora: false}
+  mammography:        {batch_size: 32,  use_lora: false}
+  mulcross:           {batch_size: 96,  use_lora: false}
+  musk:               {batch_size: 8,   use_lora: true}
+  optdigits:          {batch_size: 16,  use_lora: false}
+  pendigits:          {batch_size: 32,  use_lora: false}
+  pima:               {batch_size: 32,  use_lora: false}
+  satellite:          {batch_size: 32,  use_lora: false}
+  satimage-2:         {batch_size: 32,  use_lora: false}
+  seismic:            {batch_size: 16,  use_lora: false}
+  shuttle:            {batch_size: 32,  use_lora: false}
+  smtp:               {batch_size: 128, use_lora: false}
+  speech:             {batch_size: 2,   use_lora: true}
+  thyroid:            {batch_size: 32,  use_lora: false}
+  vertebral:          {batch_size: 32,  use_lora: false}
+  vowels:             {batch_size: 32,  use_lora: false}
+  wbc:                {batch_size: 32,  use_lora: false}
+  wine:               {batch_size: 32,  use_lora: false}
+  yeast:              {batch_size: 32,  use_lora: false}
