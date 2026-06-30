@@ -52,7 +52,8 @@ def run_likelihood(
     experiment_dir: Optional[str] = None,
 ) -> dict:
     """Fine-tune + NLL-score. Returns {'mean': (n_test,), 'per_permutation': (n_test, r),
-    'lora': cfg|None, 'device': str, 'r': int, 'precision': str, 'batch_size': int}."""
+    'lora': cfg|None, 'device': str, 'r': int, 'precision': str, 'batch_size': int (final TRAIN batch),
+    'score_batch_size': int (final SCORE batch — inference-only, score-neutral, lifted for throughput)}."""
     _fork.ensure_dist()
     import torch
 
@@ -72,7 +73,14 @@ def run_likelihood(
         if lora else None
     )
 
-    # OOM-retry: AnoLLM's batches assume a 48GB card; on a smaller GPU halve the batch and retry (floor 1).
+    # AnoLLM's per-dataset batch (Table 7) is sized for *training* memory on a 48GB card. Scoring is
+    # inference-only (no grads/optimizer) and each row's NLL is computed independently (causal LM +
+    # attention mask), so the scoring batch is numerically irrelevant to every score. We therefore lift
+    # it to SCORE_BATCH for throughput — this is free and matters most for the wide LoRA sets (speech/
+    # arrhythmia/musk) whose tiny train batch (2/8) otherwise makes batch-matched scoring ~10-20x slower.
+    SCORE_BATCH = 32
+
+    # (1) construct + fine-tune, with OOM-retry that shrinks the TRAIN batch (floor 1).
     bs = int(batch_size)
     while True:
         try:
@@ -89,7 +97,6 @@ def run_likelihood(
                 anollm.model = anollm.model.float()  # bf16 checkpoint -> fp32 for MPS/CPU
             with tempfile.TemporaryDirectory() as dtmp:
                 anollm.fit(X_train, X_train.columns.to_list(), use_wandb=False, processed_data_dir=dtmp)
-                per_perm = anollm.decision_function(X_test, n_permutations=r, batch_size=bs, device=device)
             break
         except Exception as e:  # noqa: BLE001 — narrow to OOM below, re-raise everything else
             if not _is_oom(e) or bs <= 1:
@@ -97,8 +104,24 @@ def run_likelihood(
             if device == "cuda":
                 torch.cuda.empty_cache()
             new_bs = max(1, bs // 2)
-            print(f"[oom-retry] batch {bs} OOM on {model_name} -> retrying at {new_bs}", flush=True)
+            print(f"[oom-retry/fit] train batch {bs} OOM on {model_name} -> retrying at {new_bs}", flush=True)
             bs = new_bs
+
+    # (2) score, with an INDEPENDENT OOM-retry that shrinks only the SCORE batch (never refits). The
+    # elevated batch is score-neutral, so a score-time OOM just retries smaller — it cannot change a value.
+    score_bs = max(bs, SCORE_BATCH)
+    while True:
+        try:
+            per_perm = anollm.decision_function(X_test, n_permutations=r, batch_size=score_bs, device=device)
+            break
+        except Exception as e:  # noqa: BLE001
+            if not _is_oom(e) or score_bs <= 1:
+                raise
+            if device == "cuda":
+                torch.cuda.empty_cache()
+            new_bs = max(1, score_bs // 2)
+            print(f"[oom-retry/score] score batch {score_bs} OOM on {model_name} -> retrying at {new_bs}", flush=True)
+            score_bs = new_bs
 
     return {
         "mean": np.asarray(per_perm).mean(axis=1),
@@ -108,6 +131,7 @@ def run_likelihood(
         "r": int(r),
         "precision": precision,
         "batch_size": bs,
+        "score_batch_size": score_bs,
     }
 
 
