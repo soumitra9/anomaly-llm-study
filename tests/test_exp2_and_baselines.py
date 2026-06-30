@@ -27,7 +27,7 @@ def _patch(monkeypatch, captured=None):
     def fake_run_likelihood(model, Xtr, Xte, **kw):
         n = len(Xte)
         return {"mean": np.linspace(0, 1, n), "per_permutation": np.tile(np.linspace(0, 1, n), (3, 1)).T,
-                "lora": {"rank": 8}, "device": "cpu", "r": 3}
+                "lora": {"rank": 8}, "device": "cpu", "r": 3, "precision": "fp32", "batch_size": 8}
 
     def fake_run_prompted(model, Xte, **kw):
         return {"scores": np.linspace(0, 1, len(Xte)), "distinct_levels": 5, "device": "cpu"}

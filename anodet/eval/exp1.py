@@ -17,6 +17,7 @@ from typing import Optional
 import numpy as np
 
 from anodet import _fork
+from anodet.data.hparams import get_hparams
 from anodet.metrics import auprc, auprc_gain, auroc, recall_at_fpr
 from anodet.scoring.likelihood import r_sensitivity, run_likelihood
 from anodet.utils.io import array_hash, frame_hash
@@ -47,13 +48,20 @@ def reproduce_cell(
     binning: str = "standard",
     max_steps: int = 2000,
     r: int = 21,
-    lora: bool = False,
-    batch_size: int = 32,
+    lora: Optional[bool] = None,
+    batch_size: Optional[int] = None,
     device: Optional[str] = None,
     results_root: str = "results",
 ) -> dict:
     _fork.setup_env()
     _, data_utils = _fork.import_fork()
+
+    # Per-dataset (batch, lora) from AnoLLM Table 7 (faithful + fits memory); explicit args override.
+    cfg_bs, cfg_lora = get_hparams(dataset)
+    if batch_size is None:
+        batch_size = cfg_bs
+    if lora is None:
+        lora = cfg_lora
 
     args = _Args(
         dataset=dataset, setting=setting, data_dir=str(_fork.DATA_DIR),
@@ -86,7 +94,7 @@ def reproduce_cell(
         hf_revision=None,  # filled at run time in M-gate (resolve HF revision hash)
         checkpoint_kind="base",  # Exp 1 reproduces AnoLLM's base + (full or lora) FT
         lora=out["lora"],
-        precision="bf16" if out["device"] == "cuda" else "fp32",
+        precision=out["precision"],
         r_permutations=out["r"],
         split_index_hash=array_hash(np.asarray(X_test.index)),
         dataset_content_hash=frame_hash(X_test),  # type-robust: handles text columns (e.g. lymphography)
@@ -96,7 +104,8 @@ def reproduce_cell(
         results_root, meta, metrics=metrics, status="complete",
         n_rows_scored=int(len(y_test)), n_rows_expected=int(len(y_test)),
         extra={"setting": setting, "binning": binning, "n_splits": n_splits,
-               "max_steps": max_steps, "test_anomaly_rate": float(y_test.mean())},
+               "max_steps": max_steps, "batch_size": out["batch_size"],
+               "test_anomaly_rate": float(y_test.mean())},
     )
     return metrics
 
@@ -111,8 +120,10 @@ def _cli():
     p.add_argument("--binning", default="standard")
     p.add_argument("--max-steps", type=int, default=2000)
     p.add_argument("--r", type=int, default=21)
-    p.add_argument("--lora", action="store_true")
-    p.add_argument("--batch-size", type=int, default=32)
+    p.add_argument("--lora", action=argparse.BooleanOptionalAction, default=None,
+                   help="override per-dataset LoRA from configs/anollm_hparams.yaml (default: use config)")
+    p.add_argument("--batch-size", type=int, default=None,
+                   help="override per-dataset batch from configs/anollm_hparams.yaml (default: use config)")
     p.add_argument("--device", default=None)
     p.add_argument("--results-root", default="results")
     a = p.parse_args()
