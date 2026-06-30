@@ -35,30 +35,34 @@ def prepare_creditcard(
 ) -> dict:
     """Split + subsample + reweight. Returns X_train, X_test, y_test, sample_weight, hashes, base_rate.
 
-    Train uses NORMALS only (uncontaminated, AnoLLM protocol). Test = held-out normals (optionally
-    subsampled) + all held-out frauds; `sample_weight` upweights subsampled negatives to the true base rate.
+    AnoLLM protocol (uncontaminated): train = (1-test_frac) of the NORMALS only; test = the remaining
+    normals (optionally subsampled) + **ALL** anomalies; `sample_weight` upweights subsampled negatives back
+    to the true base rate. We split *normals* (not all rows) so every anomaly lands in test — splitting all
+    rows would drop the train-half's anomalies.
     """
+    feat = [c for c in df.columns if c != LABEL]
+    normals = df[df[LABEL] == 0]
+    anomalies = df[df[LABEL] == 1]  # every anomaly goes to test (uncontaminated training)
+
     if split == "temporal":
-        df = df.sort_values(TIME).reset_index(drop=True)
-        cut = int(len(df) * (1 - test_frac))
-        train_df, test_df = df.iloc[:cut], df.iloc[cut:]
+        normals = normals.sort_values(TIME)
+        cut = int(len(normals) * (1 - test_frac))
+        train_norm, test_norm = normals.iloc[:cut], normals.iloc[cut:]
     elif split == "random":
         rng = np.random.default_rng(seed)
-        perm = rng.permutation(len(df))
-        cut = int(len(df) * (1 - test_frac))
-        train_df, test_df = df.iloc[perm[:cut]], df.iloc[perm[cut:]]
+        perm = rng.permutation(len(normals))
+        cut = int(len(normals) * (1 - test_frac))
+        train_norm, test_norm = normals.iloc[perm[:cut]], normals.iloc[perm[cut:]]
     else:
         raise ValueError(f"split must be 'temporal' or 'random' (got {split!r})")
 
-    feat = [c for c in df.columns if c != LABEL]
-    X_train = train_df[train_df[LABEL] == 0][feat].reset_index(drop=True)  # normals only
+    X_train = train_norm[feat].reset_index(drop=True)  # normals only
 
-    pos = test_df[test_df[LABEL] == 1]
-    neg = test_df[test_df[LABEL] == 0]
-    n_neg_total = len(neg)
+    n_neg_total = len(test_norm)
+    test_neg = test_norm
     if max_test_neg is not None and n_neg_total > max_test_neg:
-        neg = neg.sample(n=max_test_neg, random_state=seed)
-    test = pd.concat([pos, neg]).sample(frac=1, random_state=seed).reset_index(drop=True)
+        test_neg = test_norm.sample(n=max_test_neg, random_state=seed)
+    test = pd.concat([anomalies, test_neg]).sample(frac=1, random_state=seed).reset_index(drop=True)
     y_test = test[LABEL].to_numpy().astype(int)
     X_test = test[feat].reset_index(drop=True)
     # importance weights: scale the (subsampled) negatives back to n_neg_total
@@ -68,7 +72,7 @@ def prepare_creditcard(
         "X_train": X_train, "X_test": X_test, "y_test": y_test, "sample_weight": weights,
         "split": split, "content_hash": frame_hash(X_test),
         "true_base_rate": float((df[LABEL] == 1).mean()),
-        "n_neg_total": int(n_neg_total), "n_neg_scored": int(len(neg)),
+        "n_neg_total": int(n_neg_total), "n_neg_scored": int(len(test_neg)),
     }
 
 
