@@ -22,6 +22,7 @@ def test_creditcard_prepare(split):
     out = creditcard.prepare_creditcard(_cc_df(), split=split, max_test_neg=30, seed=1)
     assert "Class" not in out["X_train"].columns          # label excluded from features
     assert set(np.unique(out["y_test"])) <= {0, 1}
+    assert int(out["y_test"].sum()) == 12  # ALL anomalies land in test (uncontaminated protocol)
     assert out["sample_weight"].shape == out["y_test"].shape
     assert out["n_neg_scored"] <= 30 and out["n_neg_total"] >= out["n_neg_scored"]
     assert 0 < out["true_base_rate"] < 1
