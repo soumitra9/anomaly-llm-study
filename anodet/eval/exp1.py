@@ -105,6 +105,7 @@ def reproduce_cell(
         n_rows_scored=int(len(y_test)), n_rows_expected=int(len(y_test)),
         extra={"setting": setting, "binning": binning, "n_splits": n_splits,
                "max_steps": max_steps, "batch_size": out["batch_size"],
+               "score_batch_size": out["score_batch_size"],
                "test_anomaly_rate": float(y_test.mean())},
     )
     return metrics
