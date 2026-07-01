@@ -1,0 +1,45 @@
+# Qwen2.5-3B per-dataset TRAIN batch sizes for M2 Exp 2 (likelihood mode, LoRA).
+# DERIVATION (not from a paper — Qwen is our scale-up extension; AnoLLM used SmolLM only):
+#   qwen_batch = min(32, max(2, smol_batch // 2))
+# Rationale: Qwen2.5-3B is ~8x SmolLM-360M's params, so a SmolLM batch that fits 46GB won't at 3B.
+# Halving SmolLM's Table-7 batch (configs/anollm_hparams.yaml), capped at 32, floored at 2, is the
+# empirically-anchored starting point:
+#   - cardio: smol 32 -> qwen 16  (2026-07-01 smoke: batch 16 trained fine on A40)
+#   - speech: smol  2 -> qwen  2  (smoke: batch 4 OOM'd -> 2 fit at ~45GB)
+# These are STARTING batches only. run_likelihood / run_prompted both have OOM-retry (halve, floor 1),
+# so an under-estimate self-corrects at runtime and is recorded in the cell's final batch_size — a cell
+# can never hard-fail on memory. Prompted mode reuses these (inference is lighter, so they're conservative).
+model: qwen2.5-3b
+suite: odds-30
+# dataset: {batch_size}  (use_lora is always true for M2 likelihood — set in exp2.run_one)
+hparams:
+  annthyroid:         {batch_size: 8}
+  arrhythmia:         {batch_size: 2}
+  breastw:            {batch_size: 16}
+  cardio:             {batch_size: 16}
+  covertype:          {batch_size: 24}
+  ecoli:              {batch_size: 16}
+  glass:              {batch_size: 16}
+  heart:              {batch_size: 16}
+  http:               {batch_size: 32}
+  ionosphere:         {batch_size: 16}
+  letter_recognition: {batch_size: 16}
+  lymphography:       {batch_size: 16}
+  mammography:        {batch_size: 16}
+  mulcross:           {batch_size: 32}
+  musk:               {batch_size: 4}
+  optdigits:          {batch_size: 8}
+  pendigits:          {batch_size: 16}
+  pima:               {batch_size: 16}
+  satellite:          {batch_size: 16}
+  satimage-2:         {batch_size: 16}
+  seismic:            {batch_size: 8}
+  shuttle:            {batch_size: 16}
+  smtp:               {batch_size: 32}
+  speech:             {batch_size: 2}
+  thyroid:            {batch_size: 16}
+  vertebral:          {batch_size: 16}
+  vowels:             {batch_size: 16}
+  wbc:                {batch_size: 16}
+  wine:               {batch_size: 16}
+  yeast:              {batch_size: 16}

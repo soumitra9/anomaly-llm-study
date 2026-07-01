@@ -18,6 +18,13 @@ import pandas as pd
 from anodet import _fork
 from anodet.scoring.prompted_score import expected_score, parse_failure_rate, parse_int_score
 
+
+def _is_oom(exc: BaseException) -> bool:
+    """True iff `exc` is a CUDA out-of-memory error (typed or message-based). Mirrors likelihood._is_oom."""
+    import torch
+
+    return isinstance(exc, getattr(torch.cuda, "OutOfMemoryError", ())) or "out of memory" in str(exc).lower()
+
 # Instruct aliases (mode B needs instruction-followers; base SmolLM is poor at this — use -Instruct)
 INSTRUCT_ALIASES = {
     "smol-instruct": "HuggingFaceTB/SmolLM-135M-Instruct",
@@ -79,23 +86,45 @@ def run_prompted(
     levels = np.arange(n_levels)
 
     prompts = [_build_prompt(tok, r, n_levels, paraphrase) for r in serialize_rows(X_test)]
-    scores, parsed = [], []
-    with torch.no_grad():
-        for i in range(0, len(prompts), batch_size):
-            enc = tok(prompts[i:i + batch_size], return_tensors="pt", padding=True).to(device)
-            logits = lm(**enc).logits[:, -1, :]  # left-padded -> last col is the next-token position
-            for b in range(logits.shape[0]):
-                lp = logits[b, digit_ids].float().cpu().numpy()
-                scores.append(expected_score(levels, lp))
-            if also_parse_integer:
-                gen = lm.generate(**enc, max_new_tokens=4, do_sample=False,
-                                  pad_token_id=tok.pad_token_id)
-                for b in range(gen.shape[0]):
-                    txt = tok.decode(gen[b, enc["input_ids"].shape[1]:], skip_special_tokens=True)
-                    parsed.append(parse_int_score(txt, 0, n_levels - 1))
+
+    def _score_pass(bs: int) -> tuple[list, list]:
+        """One full forward pass at batch `bs`. Deterministic — a restart after OOM is score-identical."""
+        scores, parsed = [], []
+        with torch.no_grad():
+            for i in range(0, len(prompts), bs):
+                enc = tok(prompts[i:i + bs], return_tensors="pt", padding=True).to(device)
+                logits = lm(**enc).logits[:, -1, :]  # left-padded -> last col is the next-token position
+                for b in range(logits.shape[0]):
+                    lp = logits[b, digit_ids].float().cpu().numpy()
+                    scores.append(expected_score(levels, lp))
+                if also_parse_integer:
+                    gen = lm.generate(**enc, max_new_tokens=4, do_sample=False,
+                                      pad_token_id=tok.pad_token_id)
+                    for b in range(gen.shape[0]):
+                        txt = tok.decode(gen[b, enc["input_ids"].shape[1]:], skip_special_tokens=True)
+                        parsed.append(parse_int_score(txt, 0, n_levels - 1))
+        return scores, parsed
+
+    # OOM-retry: prompted scoring is inference-only and deterministic, so on a CUDA OOM we halve the
+    # batch (floor 1) and re-run the whole pass — the batch is score-neutral (each row scored independently),
+    # exactly as in run_likelihood's scoring. Mirrors the fix so the widest Qwen sets can't hard-fail.
+    bs = int(batch_size)
+    while True:
+        try:
+            scores, parsed = _score_pass(bs)
+            break
+        except Exception as e:  # noqa: BLE001 — narrow to OOM below, re-raise everything else
+            if not _is_oom(e) or bs <= 1:
+                raise
+            if device == "cuda":
+                torch.cuda.empty_cache()
+            new_bs = max(1, bs // 2)
+            print(f"[oom-retry/prompted] batch {bs} OOM on {name} -> retrying at {new_bs}", flush=True)
+            bs = new_bs
 
     s = np.asarray(scores)
-    out = {"scores": s, "distinct_levels": int(np.unique(np.round(s, 6)).size), "device": device}
+    out = {"scores": s, "distinct_levels": int(np.unique(np.round(s, 6)).size),
+           "device": device, "batch_size": bs}
     if also_parse_integer:
         out["parsed_scores"] = parsed
         out["parse_failure_rate"] = parse_failure_rate(parsed)
