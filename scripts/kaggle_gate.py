@@ -35,7 +35,10 @@ def main():
     p.add_argument("--max-steps", type=int, default=2000)
     p.add_argument("--r", type=int, default=21)
     p.add_argument("--batch-size", type=int, default=None,
-                   help="override per-dataset batch from configs/anollm_hparams.yaml (default: use config)")
+                   help="override per-dataset (micro) batch from configs/anollm_hparams.yaml (default: use config)")
+    p.add_argument("--grad-accum", type=int, default=1,
+                   help="gradient accumulation steps; effective batch = per-dataset batch * grad_accum. "
+                        "AnoLLM published ODDS used 4 GPUs -> pass 4 to reproduce their effective batch.")
     p.add_argument("--device", default="cuda")
     p.add_argument("--full", action="store_true", help="all 30 ODDS x 5 splits x {smol,smol-360}")
     p.add_argument("--results-root", default="results")
@@ -78,7 +81,7 @@ def main():
                     break
                 try:
                     m = reproduce_cell(ds, model, split_idx=split, n_splits=5, max_steps=a.max_steps,
-                                       r=a.r, batch_size=a.batch_size, device=a.device,
+                                       r=a.r, batch_size=a.batch_size, grad_accum=a.grad_accum, device=a.device,
                                        results_root=a.results_root)
                     rows.append((model, ds, split, m["auroc"], m["auprc"]))
                     n_new += 1
