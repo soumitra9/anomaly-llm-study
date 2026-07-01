@@ -91,11 +91,14 @@ def import_fork():
     return AnoLLM, data_utils
 
 
-# Canonical model aliases (mirror train_anollm.py get_args)
+# Canonical model aliases (mirror train_anollm.py get_args).
+# Likelihood mode (A) fine-tunes the BASE backbone; prompted mode (B) uses the instruct sibling
+# (see anodet.scoring.prompted.INSTRUCT_ALIASES). Qwen3-4B is our M2 scale-up extension (AnoLLM used SmolLM only).
 MODEL_ALIASES = {
     "smol": "HuggingFaceTB/SmolLM-135M",
     "smol-360": "HuggingFaceTB/SmolLM-360M",
     "smol-1.7b": "HuggingFaceTB/SmolLM-1.7B",
+    "qwen3-4b": "Qwen/Qwen3-4B-Base",  # base backbone for mode-A LoRA FT; instruct sibling in prompted.INSTRUCT_ALIASES
 }
 
 
