@@ -11,6 +11,20 @@
 
 ---
 
+> **⚠️ DELTAS SINCE v1.0 (2026-07-01) — the research design below stands; these execution assumptions changed.**
+> For current status/config always defer to `ROADMAP.md`, `RUNLOG.md`, `FLEET.md`, and memory `project-state.md`.
+> - **Compute platform:** free Kaggle GPU → **RunPod A40 fleets** (Kaggle P100 retired: emulated bf16 too slow +
+>   OOMs). All "free Kaggle / Kaggle-vLLM / 12h-session / weekly-quota" text below is superseded by RunPod A40
+>   ($0.44/hr, double-confirm gated). Kaggle MCP is still used, but only for **dataset download** (e.g. creditcard).
+> - **Engine:** the "Kaggle-vLLM single engine" plan → **HF Transformers everywhere** (no vLLM in v1); cross-engine
+>   parity is therefore moot.
+> - **Scale-up model:** **Qwen3-4B → Qwen2.5-3B** (Qwen3 arch needs transformers≥4.51, incompatible with pinned
+>   4.48.2). Any "Qwen3-4B" below = Qwen2.5-3B.
+> - **Status:** M1 gate DONE (partial repro); **M2 Exp-2 A/B fleet running** (SmolLM-360M @2000 steps + Qwen2.5-3B
+>   @1000 steps × 30 ODDS × 3 seeds). max_steps for Qwen reduced to 1000 (2000 over-trains — see RUNLOG D0).
+
+---
+
 ## 0. Corrections & reframing incorporated
 
 **From primary-source verification (v0.1):**
