@@ -10,7 +10,7 @@ DEST="$(cd "$(dirname "$0")/.." && pwd)/results/raw/exp2_odds"
 INT="${1:-300}"
 SSHOPT="-i $KEY -o StrictHostKeyChecking=no -o ConnectTimeout=15"
 
-for cyc in $(seq 1 24); do   # ~2h then re-arm
+for cyc in $(seq 1 220); do  # ~18h — covers the full fleet run (no re-arm needed)
   while read -r H P L; do
     [ -z "$H" ] && continue
     out=$(ssh $SSHOPT -p "$P" root@"$H" '
@@ -28,7 +28,7 @@ for cyc in $(seq 1 24); do   # ~2h then re-arm
     prev=$(cat /tmp/fw_cells_$L 2>/dev/null || echo -1); pc=$(cat /tmp/fw_stallc_$L 2>/dev/null || echo 0)
     if [ "$c" = "$prev" ] && [ "$d" != "DONE" ]; then
       pc=$((pc+1)); echo "$pc" > /tmp/fw_stallc_$L
-      if [ "$pc" -ge 9 ] && [ ! -f /tmp/fw_stall_$L ]; then echo "[watch] $(date -u +%H:%M) STALL? $L cells=$c unchanged ~45min"; touch /tmp/fw_stall_$L; fi
+      if [ "$pc" -ge 14 ] && [ ! -f /tmp/fw_stall_$L ]; then echo "[watch] $(date -u +%H:%M) STALL? $L cells=$c unchanged ~70min (verify log-growth before acting — wide cells are legitimately slow)"; touch /tmp/fw_stall_$L; fi
     else
       echo 0 > /tmp/fw_stallc_$L; rm -f /tmp/fw_stall_$L
     fi
