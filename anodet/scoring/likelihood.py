@@ -48,6 +48,7 @@ def run_likelihood(
     lr: float = 5e-5,
     r: int = 21,
     batch_size: int = 32,
+    grad_accum: int = 1,
     device: Optional[str] = None,
     experiment_dir: Optional[str] = None,
 ) -> dict:
@@ -63,7 +64,11 @@ def run_likelihood(
     # Precision by HARDWARE capability (see _select_precision): bf16 only on Ampere+; else fp16 on CUDA; fp32 off-GPU.
     cap_major = torch.cuda.get_device_capability()[0] if device == "cuda" else 0
     prec_update, precision = _select_precision(device, cap_major)
-    train_kwargs = dict(max_steps=max_steps, learning_rate=lr, report_to=[], **prec_update)
+    # gradient_accumulation_steps replicates AnoLLM's multi-GPU EFFECTIVE batch on ONE GPU: their published
+    # ODDS runs used torchrun --nproc_per_node=4 with per-GPU batch B, so effective batch = 4*B. On a single
+    # A40 that batch OOMs for full-FT; micro-batch B + accum 4 gives the identical averaged gradient, memory-safe.
+    train_kwargs = dict(max_steps=max_steps, learning_rate=lr, report_to=[],
+                        gradient_accumulation_steps=int(grad_accum), **prec_update)
 
     model_name = _fork.resolve_model(model)
     # LoRA config AnoLLM hardcodes (r=8, alpha=32, smolLM proj modules) — recorded for provenance
@@ -131,6 +136,8 @@ def run_likelihood(
         "r": int(r),
         "precision": precision,
         "batch_size": bs,
+        "grad_accum": int(grad_accum),
+        "effective_batch": bs * int(grad_accum),
         "score_batch_size": score_bs,
     }
 

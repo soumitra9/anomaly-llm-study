@@ -50,6 +50,7 @@ def reproduce_cell(
     r: int = 21,
     lora: Optional[bool] = None,
     batch_size: Optional[int] = None,
+    grad_accum: int = 1,
     device: Optional[str] = None,
     results_root: str = "results",
 ) -> dict:
@@ -76,7 +77,7 @@ def reproduce_cell(
 
     out = run_likelihood(
         model, X_train, X_test, text_columns=text_cols, max_length_dict=max_len,
-        lora=lora, max_steps=max_steps, r=r, batch_size=batch_size, device=device,
+        lora=lora, max_steps=max_steps, r=r, batch_size=batch_size, grad_accum=grad_accum, device=device,
     )
 
     metrics = _metrics(y_test, out["mean"])
@@ -105,6 +106,7 @@ def reproduce_cell(
         n_rows_scored=int(len(y_test)), n_rows_expected=int(len(y_test)),
         extra={"setting": setting, "binning": binning, "n_splits": n_splits,
                "max_steps": max_steps, "batch_size": out["batch_size"],
+               "grad_accum": out["grad_accum"], "effective_batch": out["effective_batch"],
                "score_batch_size": out["score_batch_size"],
                "test_anomaly_rate": float(y_test.mean())},
     )
@@ -124,14 +126,17 @@ def _cli():
     p.add_argument("--lora", action=argparse.BooleanOptionalAction, default=None,
                    help="override per-dataset LoRA from configs/anollm_hparams.yaml (default: use config)")
     p.add_argument("--batch-size", type=int, default=None,
-                   help="override per-dataset batch from configs/anollm_hparams.yaml (default: use config)")
+                   help="override per-dataset (micro) batch from configs/anollm_hparams.yaml (default: use config)")
+    p.add_argument("--grad-accum", type=int, default=1,
+                   help="gradient accumulation steps; effective batch = batch_size * grad_accum. "
+                        "AnoLLM's published ODDS runs used 4 GPUs (effective 4x) -> set 4 to reproduce.")
     p.add_argument("--device", default=None)
     p.add_argument("--results-root", default="results")
     a = p.parse_args()
     m = reproduce_cell(
         a.dataset, a.model, split_idx=a.split_idx, n_splits=a.n_splits, setting=a.setting,
         binning=a.binning, max_steps=a.max_steps, r=a.r, lora=a.lora,
-        batch_size=a.batch_size, device=a.device, results_root=a.results_root,
+        batch_size=a.batch_size, grad_accum=a.grad_accum, device=a.device, results_root=a.results_root,
     )
     print(f"[exp1] {a.dataset} {a.model} split{a.split_idx}: "
           f"AUROC={m['auroc']:.3f} AUPRC={m['auprc']:.3f} "
