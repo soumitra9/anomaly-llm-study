@@ -9,11 +9,13 @@ _Last updated: 2026-06-29 (trial complete; M2 built)._
 
 ---
 
-## TL;DR — current state (2026-06-30, evening; HEAD `d2b6061`)
-Foundations + Exp 2/M2 stack + all non-GPU code built, tested (**63 green**), pushed. **M1 gate is
-EXECUTING on a 5-pod RunPod A40 fleet** (Kaggle P100 RETIRED — emulated bf16 too slow + OOMs; see
-`POSTMORTEM.md`). 90 cells = 30 ODDS × 3 splits, SmolLM-360M, likelihood, max_steps=2000, r=10, ~$11 total,
-self-healing to 90/90. Fleet map/dashboard: `FLEET.md` + `scripts/fleet_status.sh`.
+## TL;DR — current state (2026-07-01; HEAD `9207575` + uncommitted M2 de-risk overlay)
+**M1 gate COMPLETE** (90/90, ~$21): C1 mean PASS + C2 rank PASS; C3 band 19/30 (code-vs-paper, not our error) →
+credible PARTIAL reproduction, no re-gate. **M2 Exp-2 fleet is EXECUTING** on a 6-pod RunPod A40 fleet
+(launched 2026-07-01 ~17:20Z): 360 cells = 2 models × 2 modes × 30 ODDS × 3 seeds. Config from D0: SmolLM-360M
+@2000 steps, **Qwen2.5-3B @1000 steps** (2000 over-trains: cardio 0.831 vs 0.841 @1000, 3× cheaper). Tests
+**70 green**. Fleet map + recovery playbook: `FLEET.md`; ops scripts `scripts/{exp2_fleet,pod_bootstrap,fleet_pull,fleet_watch}.sh`.
+Checkpoint = per-cell JSON rsync'd to local every 5 min (balance-loss resumable). ETA ~15-18h, ~$35-45.
 Two A40-era fixes landed: **precision-by-capability + per-dataset batch/OOM-retry** (`5d63344`), and a
 **scoring-batch decouple** proven AUROC-neutral (`d2b6061`, dAUROC 0.0008). Data-staging resolved: 27/30 ODDS
 via adbench; arrhythmia/mulcross/seismic staged from working mirrors (ODDS Stony Brook site is TLS-broken —
