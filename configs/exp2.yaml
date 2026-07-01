@@ -4,7 +4,7 @@
 # Qwen3-14B's ~12-set subset is a separate paid-burst config (M5), not here.
 experiment: exp2_odds
 axes:
-  models: [smol-360, qwen3-4b]      # likelihood -> base backbone (LoRA-FT); prompted -> "<model>-instruct"
+  models: [smol-360, qwen2.5-3b]    # likelihood -> base backbone (LoRA-FT); prompted -> "<model>-instruct". Qwen2.5-3B (Qwen3 needs transformers>=4.51, incompatible w/ pinned 4.48.2)
   modes: [likelihood, prompted]
   seeds: [0, 1, 2]                  # ODDS split indices
   datasets:
