@@ -98,7 +98,7 @@ MODEL_ALIASES = {
     "smol": "HuggingFaceTB/SmolLM-135M",
     "smol-360": "HuggingFaceTB/SmolLM-360M",
     "smol-1.7b": "HuggingFaceTB/SmolLM-1.7B",
-    "qwen3-4b": "Qwen/Qwen3-4B-Base",  # base backbone for mode-A LoRA FT; instruct sibling in prompted.INSTRUCT_ALIASES
+    "qwen2.5-3b": "Qwen/Qwen2.5-3B",  # M2 scale-up base backbone (Qwen3 arch unsupported by pinned transformers 4.48.2); instruct sibling in prompted.INSTRUCT_ALIASES
 }
 
 
