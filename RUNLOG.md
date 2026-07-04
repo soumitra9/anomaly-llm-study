@@ -10,6 +10,20 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
+## 2026-07-04 · M2 Exp-2 · ✅ COMPLETE (360/360) + analyzed
+- **Result:** 360/360 cells, 0 failures. All pods torn down (list-pods empty); results triple-saved
+  (`results/raw/exp2_odds/` + `results/backups/exp2_odds_FINAL_360cells.tgz` + all 6 pods' logs local).
+- **Cost (real RunPod billing): $90.42** (07-01→07-04) — ~35% over the ~$60-70 estimate. Driver: Qwen2.5-3B
+  likelihood r=10 scoring on huge test sets (http/covertype/mulcross ~3-7h/cell; p6 ran ~73h). `results/exp2_cost.json`.
+- **Analysis (`aggregate`→`stats`→`figures`):** table `results/tables/exp2_odds.csv`, CD diagram
+  `results/figures/exp2_cd_diagram.png`.
+  - Friedman p=6e-12. Avg ranks: smol-L 1.62, qwen-L 1.65 (tied, within CD=0.856), smol-P 3.20, qwen-P 3.53.
+  - **RQ2 (mode):** likelihood ≫ prompted, BOTH models (smol Δ+0.276 p_holm 4.7e-8; qwen Δ+0.354 p_holm 2.6e-7; both reject H0).
+  - **RQ3 (scale):** Qwen-3B vs SmolLM-360M likelihood Δ≈0.000, p_holm 0.77, NOT significant — 8× scale gives no likelihood gain.
+- **Ops incident:** teardown auto-gate was a detached nohup (harness-untracked → never notified me) AND timed out at 33h < p6's ~73h → p6 idled until caught manually. Fix for M3: completion-triggered teardown via a **cron guardian** (re-invokes me → MCP delete; proven to fire), scope-locked to budget up front (never budget-kill mid-run).
+
+---
+
 ## 2026-07-01 · M2 Exp-2 FLEET · 6× RunPod A40 · 🟢 RUNNING (launched ~17:20Z)
 - **Fleet:** 6× A40 SECURE ($2.64/hr total), CA-MTL-1. Base 9207575 + scp'd overlay (exp2_fleet.py,
   qwen_hparams.yaml, prompted.py). Map/IDs/shards + recovery playbook in `FLEET.md`.
