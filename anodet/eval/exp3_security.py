@@ -45,8 +45,13 @@ def _operational_metrics(y, scores, weight, *, n_top: int = 100) -> dict:
 
 def run_one(dataset: str, model: str, mode: str, *, data_dir: str = "data",
             n_levels: int = 10, batch_size: int = 16, device: Optional[str] = None,
-            n_top: int = 100, **load_kw) -> tuple[dict, str, dict]:
-    """One security cell. mode in {prompted, classical:<name>, likelihood}. Returns (metrics, status, extra)."""
+            n_top: int = 100, r: int = 10, max_steps: int = 1000, **load_kw) -> tuple[dict, str, dict]:
+    """One security cell. mode in {prompted, classical:<name>, likelihood}. Returns (metrics, status, extra).
+
+    `r`/`max_steps` apply to likelihood (mode A) only — threaded to run_likelihood so the M3 config (r=10,
+    Qwen @1000 steps per D0) is honored instead of run_likelihood's r=21 default. `**load_kw` (seed, split)
+    goes to the dataset loader.
+    """
     data = _load(dataset, data_dir, **load_kw)
     y, w = data["y_test"], data.get("sample_weight")
 
@@ -59,8 +64,8 @@ def run_one(dataset: str, model: str, mode: str, *, data_dir: str = "data",
         scores = run_baseline(mode.split(":", 1)[1], data["X_train"], data["X_test"])
     elif mode == "likelihood":
         from anodet.scoring.likelihood import run_likelihood
-        scores = run_likelihood(model, data["X_train"], data["X_test"], lora=True,
-                                device=device)["mean"]
+        scores = run_likelihood(model, data["X_train"], data["X_test"], lora=True, r=r,
+                                max_steps=max_steps, batch_size=batch_size, device=device)["mean"]
     else:
         raise ValueError(f"unknown mode {mode!r}")
 
