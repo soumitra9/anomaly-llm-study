@@ -16,7 +16,7 @@ from anodet.data.odds_names import anonymize, apply_semantic
 from anodet.metrics import auroc
 
 
-def run_one(dataset: str = "pima", arm: str = "semantic", model: str = "qwen3-4b", *,
+def run_one(dataset: str = "pima", arm: str = "semantic", model: str = "qwen2.5-3b", *,
             split_idx: int = 0, n_levels: int = 10, batch_size: int = 16,
             device: Optional[str] = None) -> tuple[dict, str, dict]:
     """One arm ('semantic'|'anon'). Returns (metrics, status, extra)."""

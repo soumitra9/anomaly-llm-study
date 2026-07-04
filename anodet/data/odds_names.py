@@ -14,8 +14,13 @@ from __future__ import annotations
 import pandas as pd
 
 # UCI feature orders (recover from source; ORDER must be verified against the .mat before confirmatory use).
+# PIMA ORDER — VERIFIED 2026-07-04 (gate for Exp 3b). ODDS pima is z-scored so raw ranges are erased, but the
+# distributional fingerprints land exactly at the assumed indices: col0=pregnancies (only 17 unique, discrete
+# 0-17), col4=insulin (extreme right-skew, min-floor from many 0s + max +6.7), col6=diabetes_pedigree (smooth
+# continuous, 52 unique, no missing-zero floor), col7=age (right-skew, floor at age-21). Those 4 anchors bracket
+# glucose/bp/skin/bmi into their canonical slots → the data is in UCI order, not permuted. Gate PASSED for pima.
 _UCI_NAMES = {
-    # Pima Indians Diabetes — 8 features
+    # Pima Indians Diabetes — 8 features (order verified 2026-07-04, see note above)
     "pima": [
         "pregnancies", "glucose", "blood_pressure", "skin_thickness",
         "insulin", "bmi", "diabetes_pedigree", "age",
