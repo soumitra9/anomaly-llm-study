@@ -94,8 +94,8 @@ def run_likelihood(
                 experiment_dir=experiment_dir or tempfile.mkdtemp(prefix="anollm_"),
                 batch_size=bs,
                 efficient_finetuning="lora" if lora else "",
-                max_length_dict=max_length_dict,
-                textual_columns=text_columns or [],
+                max_length_dict=max_length_dict or {},  # fork does `name not in max_length_dict` -> None crashes;
+                textual_columns=text_columns or [],       # {} = compute per-column max length from data (M3 loaders)
                 **train_kwargs,
             )
             if device != "cuda":
