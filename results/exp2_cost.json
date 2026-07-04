@@ -1,0 +1,3 @@
+{"experiment":"exp2_odds","gpu":"RunPod A40 SECURE x6","period":"2026-07-01..2026-07-04",
+ "billing_usd":90.42,"by_day":{"07-01":28.84,"07-02":42.83,"07-03":10.76,"07-04":8.00},
+ "note":"Cost ~35% over the ~$60-70 estimate; driver = Qwen2.5-3B likelihood r=10 scoring on huge test sets (http/covertype/mulcross ~3-7h/cell). p6 ran ~73h.","cells":360}
