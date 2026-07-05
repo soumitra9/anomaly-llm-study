@@ -25,6 +25,35 @@ def test_two_stage_beats_classical_at_budget():
     assert res["uplift_two_stage_vs_classical"]["precision_at_k"] > 0
 
 
+def test_two_stage_no_tie_block_below_shortlist():
+    """Non-shortlist rows must NOT all share one constant score (old bug: single giant tie collapses ROC)."""
+    from anodet.triage.two_stage import two_stage_scores
+
+    n = 50
+    rng = np.random.default_rng(0)
+    classical = rng.random(n)
+    llm = rng.random(n)
+    k = 10
+    two = two_stage_scores(classical, llm, k=k)
+
+    cand = set(np.argpartition(-classical, k - 1)[:k])
+    non_cand = [i for i in range(n) if i not in cand]
+    # All shortlist scores must strictly exceed all non-shortlist scores
+    assert two[list(cand)].min() > two[non_cand].max()
+    # Non-shortlist scores must NOT all be identical (no tie-block collapse)
+    assert len(np.unique(two[non_cand])) > 1
+
+
+def test_two_stage_constant_inputs():
+    """Should not crash or produce NaN when all classical or llm scores are identical."""
+    from anodet.triage.two_stage import two_stage_scores
+
+    n = 10
+    two = two_stage_scores(np.ones(n), np.ones(n), k=5)
+    assert not np.isnan(two).any()
+    assert len(two) == n
+
+
 # ----------------------------- Exp 3 security dispatch (mocked) -----------------------------
 
 def _sec_data(n=60):

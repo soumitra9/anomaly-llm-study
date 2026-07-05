@@ -12,10 +12,11 @@ therefore not "the gap has closed" but a more precise, unresolved question:
 
 We address this as an **honest replication and extension** of AnoLLM, not a new detector. Our contributions:
 
-1. **A controlled, same-model likelihood-vs-prompted A/B on open-weight models.** Prior work conflates model
-   choice with scoring method. We hold the model weights fixed and vary only the scoring mode — (A) negative
-   log-likelihood over column permutations vs (B) a prompted, continuous *expected-value* score over verbalizer
-   tokens — isolating the effect of the scoring mechanism (RQ2, RQ3).
+1. **A controlled, same-family likelihood-vs-prompted A/B on open-weight models.** Prior work conflates model
+   choice with scoring method. We hold model family and size fixed and compare (A) base-backbone + LoRA
+   fine-tuned likelihood scoring vs (B) a frozen instruction-tuned sibling scored by prompted expected value —
+   isolating scoring mode while controlling scale (RQ2, RQ3). A dissolving arm (instruct-checkpoint likelihood)
+   empirically bounds the checkpoint-difference confound.
 2. **Re-evaluation under realistic operating conditions on security data** — extreme class imbalance and
    **fixed-false-positive-rate** budgets on credit-card fraud and UNSW-NB15 — where AUROC alone is misleading
    (RQ4), plus a semantic-column-name ablation (RQ3b) and a serialization-order ablation (RQ5).

@@ -19,18 +19,37 @@ from anodet.metrics import precision_at_k, recall_at_fpr, recall_at_k
 def two_stage_scores(classical: np.ndarray, llm: np.ndarray, *, k: int) -> np.ndarray:
     """Combined score: classical picks the top-k shortlist; within it the LLM order decides; the rest rank below.
 
-    Implemented as: rank candidates by LLM score (kept in the top band), push non-candidates strictly below by
-    subtracting an offset larger than any LLM score. Preserves a single 1-D score usable by every metric.
+    Scores are built in three bands to preserve rank resolution everywhere:
+      top band   — shortlist candidates, ordered by LLM score
+      bottom band — non-candidates, ordered by their classical rank (shifted below the top band)
+
+    Preserving classical order in the bottom band avoids collapsing all non-candidates into a single
+    tied constant, which causes recall_at_fpr to degrade when the 1%-FPR operating point falls below
+    the shortlist boundary (coarse ROC step over one giant tie block).
     """
     classical, llm = np.asarray(classical, float), np.asarray(llm, float)
     n = len(classical)
     k = max(0, min(k, n))
     cand = np.argpartition(-classical, k - 1)[:k] if k > 0 else np.array([], dtype=int)
-    out = llm.copy().astype(float)
+
+    # Normalise both score arrays to [0, 1] for band arithmetic (handles constant inputs gracefully).
+    def _norm(x: np.ndarray) -> np.ndarray:
+        lo, hi = x.min(), x.max()
+        return (x - lo) / (hi - lo) if hi > lo else np.zeros_like(x)
+
+    llm_n = _norm(llm)
+    cls_n = _norm(classical)
+
+    out = np.empty(n, dtype=float)
     mask = np.ones(n, dtype=bool)
     mask[cand] = False
+
+    # Top band: [1, 2) — LLM ordering within shortlist
+    out[cand] = 1.0 + llm_n[cand]
+    # Bottom band: [0, 1) — classical ordering outside shortlist (preserves rank, never ties with top band)
     if mask.any():
-        out[mask] = llm.min() - 1.0 - (llm.max() - llm.min())  # strictly below any candidate's LLM score
+        out[mask] = cls_n[mask]
+
     return out
 
 

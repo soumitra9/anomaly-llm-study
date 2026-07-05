@@ -2,7 +2,7 @@
 
 **LLMs for tabular anomaly detection.** *AnoLLM* (Tsai et al., ICLR 2025) fine-tunes small language models
 (SmolLM-135M/360M) and scores rows by mean negative log-likelihood over random column permutations, reporting
-competitiveness with classical detectors on ODDS. It does **not** run a same-model likelihood-vs-prompted
+competitiveness with classical detectors on ODDS. It does **not** run a same-family likelihood-vs-prompted
 comparison, does not sweep open-weight model scale for *prompted* scoring, and evaluates primarily by AUROC
 rather than fixed-FPR operational metrics. *AD-LLM* (Yang et al., ACL Findings 2025) and related studies find
 contemporary LLMs often underperform classical methods — motivating our operating-regime framing rather than a
@@ -17,7 +17,8 @@ we test only whether a domain-informed order helps, **not** CausalTAD's causal-d
 classical+deep baseline panel (IForest, PCA, kNN, ECOD; DeepSVDD, RCA, SLAD, GOAD, NeuTraL, ICL, DTE, REPEN),
 which we adopt for comparability.
 
-**What is new here.** To our knowledge no prior work provides (i) a same-model, open-weight
-likelihood-vs-prompted A/B, (ii) an evaluation under extreme imbalance and fixed-FPR alert budgets on security
-data, and (iii) a constructive classical→LLM two-stage triage result. We position the paper as replication +
-extension, stated plainly.
+**What is new here.** To our knowledge no prior work provides (i) a controlled same-family, same-size
+open-weight likelihood-vs-prompted A/B (with an empirical bound on the checkpoint-difference confound),
+(ii) an evaluation under extreme imbalance and fixed-FPR alert budgets on security data, and (iii) a
+constructive classical→LLM two-stage triage result. We position the paper as replication + extension,
+stated plainly.

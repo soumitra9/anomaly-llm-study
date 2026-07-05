@@ -41,4 +41,26 @@ done; `creditcard-random` + `unsw` ahead. `exp3b_names` (6 cells, pima semantic 
 Results on-pod only (`/workspace/results/raw/exp3_security/`); not yet rsync'd local.
 See `FLEET.md` + plan `~/.claude/plans/i-need-to-plan-ancient-dawn.md` (★★ POST-M2 section).
 
-## Later — M4 (Exp 4/5/6, ~free) → M5 (opt Qwen3-14B A100 burst) → M6 (final stats) → paper
+## Post-M3 findings (2026-07-05) — three confounds addressed before M4
+
+Code review identified three items actioned before M4:
+
+1. **`two_stage_scores` tie-block fixed** (was: all non-shortlist rows collapsed to one constant →
+   coarse/pessimistic ROC at operating points below the shortlist boundary). Fixed: non-shortlist rows now
+   preserve classical rank in a lower band. Two regression tests added. 76 tests green.
+
+2. **"Same-model" claim reworded** to "same-family, same-size" everywhere (paper/01-03, PLAN.md).
+   Mode A uses base+LoRA; mode B uses frozen instruct — two variables change. Checkpoint confound
+   empirically bounded by a planned **dissolving arm** (instruct-likelihood, ~$3–5).
+
+3. **Serialization confound documented**: ODDS uses standard binning; Exp 3 security data uses raw
+   floats. RQ4's within-experiment comparisons remain internally valid. Cross-experiment narrative
+   bounded by a planned **binned-creditcard arm** (folds into Exp 4, ~$2–3).
+
+**Also planned (CPU, $0):** classical baselines on creditcard-temporal without `Time` feature.
+
+## M3.5 (after M3) → M4 → M5 (opt) → M6 → paper
+
+M3.5 = three cheap spot-checks (dissolving arm + binned arm + drop-Time classical) on one pod, ~$5–8.
+Then M4 (Exp 4/5/6 — serialization order+binning, Pareto, two-stage triage).
+M5 = optional Qwen3-14B A100 burst (~$25–45). M6 = final stats + paper.

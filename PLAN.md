@@ -43,9 +43,11 @@
    improve, or invert under (a) prompted scoring, (b) modern scale, and (c) the conditions security
    actually cares about — extreme imbalance and fixed-FPR alert budgets?**
 7. **Prompted scoring is NOT a novel contribution** (Li et al. 2024, AD-LLM, the GPT-4 blog). The
-   contribution is the **first controlled, same-model A/B between likelihood and prompted scoring on
-   open-weight models, under operational + security metrics**, plus the constructive two-stage result
-   (Exp 6). Frame honestly; cite and differentiate all prior prompted-tabular work.
+   contribution is the **first controlled, same-family same-size A/B between likelihood and prompted scoring
+   on open-weight models, under operational + security metrics**, plus the constructive two-stage result
+   (Exp 6). Note: mode A uses the base checkpoint + LoRA; mode B uses the frozen instruct sibling — same
+   family and size, different recipe. A dissolving arm (instruct-checkpoint likelihood) empirically bounds
+   this checkpoint confound. Frame honestly; cite and differentiate all prior prompted-tabular work.
 8. **Operational metrics are not a contribution** — they are the correct protocol. The contribution is
    the *finding they enable* (e.g., AUROC-competitive LLMs collapsing under Recall@1%FPR / cost).
 9. **Add a constructive contribution (Exp 6):** a two-stage classical→LLM triage/rerank pipeline. This
@@ -70,10 +72,11 @@ error controlled with **Holm–Bonferroni** across the confirmatory set.
 | RQ6 | Practicality: accuracy vs cost/latency/parse-failure? | descriptive | Accuracy–cost Pareto frontier (Exp 5) |
 | RQ7 | Can an LLM **second stage** improve a classical detector's operating point? | H7: yes, at fixed alert budget | Recall@1%FPR / Precision@K of two-stage vs classical-alone, bootstrap CI (Exp 6) |
 
-**Primary contribution claim (honest):** not a new detector. (i) The first controlled same-model
-likelihood-vs-prompted comparison on open-weight models; (ii) re-evaluation under extreme-imbalance
-and fixed-FPR operating conditions on security data; (iii) a constructive two-stage triage result; (iv)
-serialization-order tested as a variable. Replication+extension genre, stated plainly.
+**Primary contribution claim (honest):** not a new detector. (i) The first controlled same-family,
+same-size likelihood-vs-prompted comparison on open-weight models (base+LoRA vs frozen-instruct; checkpoint
+confound empirically bounded by a dissolving arm); (ii) re-evaluation under extreme-imbalance and fixed-FPR
+operating conditions on security data; (iii) a constructive two-stage triage result; (iv) serialization
+order and binning tested as explicit variables. Replication+extension genre, stated plainly.
 
 ---
 
@@ -318,11 +321,32 @@ contribution. **Day-0 pre-step (§2a):** confirm the chosen set's column names a
 and aligned to the `.mat` column order *before* writing code — else swap to another named set. Tests
 RQ3b. **[fixes meth-M2; relocated + named per review]**
 
-**Exp 4 — Serialization order** *(Days 16–19).* Multiple orderings {arbitrary, domain-informed, ≥2
-random-permutation controls} × ≥2 security datasets × ≥2 models × 3 seeds, bootstrap CIs. Honest scope:
-this tests whether *a domain-informed order* helps — **not** that CausalTAD transfers (we don't run their
-causal-discovery or reweighting). *Stretch:* run a lightweight causal-ordering (PC/NOTEARS on train
-normals) to make a real CausalTAD-mechanism-transfer claim; else keep as labeled ablation. Tests RQ5. **[fixes nov-M1/meth-M6]**
+**M3.5 — Three cheap spot-checks (post-M3, pre-M4; one short pod ~$5–8 total)**
+
+These are not new research questions — they empirically bound confounds identified in review and convert
+open narrative risks into one-sentence findings:
+
+1. **Dissolving arm** (checkpoint-difference confound, finding 1 above): LoRA fine-tune the *instruct*
+   checkpoint (Qwen2.5-3B-Instruct, then SmolLM-360M-Instruct) and score by likelihood on ~8–10 ODDS
+   datasets, 1 seed each. If instruct-likelihood ≈ base-likelihood (AUROC within a small margin), report
+   one sentence: "The checkpoint difference does not explain the A/B gap." Fold result into §RQ2/RQ3
+   discussion. ~$3–5, on an A40, reuses `run_likelihood` with `lora=True`. **Run Qwen first** — it matters
+   most for the scale claim.
+
+2. **Binned-creditcard arm** (serialization confound, finding 2): Re-run Exp 3 creditcard (temporal split,
+   one model per mode, 1 seed) with binned serialization to match the ODDS protocol. Fold into Exp 4 as a
+   two-axis finding (order × binning). Blocks any cross-experiment narrative sentence attributing gap
+   changes to "domain" rather than "serialization." ~$2–3.
+
+3. **Drop-Time classical re-run** (finding 3): Re-run the 4 classical baselines on creditcard-temporal
+   *without* the `Time` column (CPU only, minutes, $0 on local). If delta is negligible, one sentence
+   closes it; if large, report both.
+
+**Exp 4 — Serialization order + binning** *(expanded from original).* Multiple orderings {arbitrary,
+domain-informed, ≥2 random-permutation controls} × {raw, binned} serialization × ≥2 security datasets
+× ≥2 models × 3 seeds (where not already covered by M3.5 binned arm), bootstrap CIs. Honest scope:
+tests whether *a domain-informed order or binning* helps — **not** that CausalTAD transfers. Tests RQ5.
+**[fixes nov-M1/meth-M6; binning axis added post-review]**
 
 **Exp 5 — Practicality → Pareto** *(instrumented throughout; finalized Days 18–20).* Runtime, $, VRAM,
 parse-failure from Exp 2/3 logs → **accuracy-vs-cost Pareto frontier as a first-class figure** (not just

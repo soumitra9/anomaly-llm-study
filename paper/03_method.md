@@ -6,17 +6,22 @@ binning (rescale + round); textual columns are kept verbatim. **The same seriali
 scoring modes**, so a mode A/B comparison varies only the scoring mechanism, not the input text. Column order is
 held fixed within a comparison and varied only in the dedicated ordering ablation (RQ5).
 
-## Two scoring modes (same model weights)
-- **Mode A — likelihood.** The backbone is fine-tuned (LoRA) on the normal training rows; a row's anomaly
-  score is the **mean negative log-likelihood over `r` random column permutations** (AnoLLM Eqn 5), with
-  per-column length normalization for textual fields and column-name tokens excluded. We cache the full
-  per-permutation NLL matrix, so the r-sensitivity curve (r = 5/10/21) is recovered post hoc for free.
-- **Mode B — prompted (expected value).** The *frozen instruction-tuned* sibling of the same model reads the
-  serialized row and a short schema, and we compute a continuous score as the **expected value over a set of
-  anomaly-level digit tokens**, `score = Σ_k p(k)·k`, from a single forward pass. This is continuous and
-  tie-free (no parse failures); a parsed-integer variant is recorded only for an elicitation-sensitivity
-  comparison. Engine is HF Transformers + PEFT throughout (no vLLM), dissolving cross-engine logprob confounds;
-  a device/dtype parity check gates any CUDA-vs-MPS comparison.
+## Two scoring modes (same model family and size)
+- **Mode A — likelihood.** The *base* backbone (e.g., SmolLM-360M, Qwen2.5-3B) is fine-tuned with LoRA on
+  the normal training rows; a row's anomaly score is the **mean negative log-likelihood over `r` random column
+  permutations** (AnoLLM Eqn 5), with per-column length normalization for textual fields and column-name
+  tokens excluded. We cache the full per-permutation NLL matrix, so the r-sensitivity curve (r = 5/10/21) is
+  recovered post hoc for free. Checkpoint kind: `base+LoRA`.
+- **Mode B — prompted (expected value).** The *frozen instruction-tuned* sibling of the same model family
+  (e.g., SmolLM-360M-Instruct, Qwen2.5-3B-Instruct) reads the serialized row and a short schema; we compute
+  a continuous score as the **expected value over anomaly-level digit tokens**, `score = Σ_k p(k)·k`, from a
+  single forward pass. This is continuous and tie-free. Checkpoint kind: `instruct (frozen)`.
+
+  **Design note:** mode A and mode B differ in both scoring method *and* checkpoint (base+LoRA vs frozen
+  instruct). They are the same model *family and size* — not identical weights. To bound this confound we run
+  a dissolving arm: LoRA fine-tuning the instruct checkpoint and scoring by likelihood on a subset of ODDS
+  (§dissolving-arm). If instruct-likelihood ≈ base-likelihood, the checkpoint difference does not explain the
+  A/B gap. Engine is HF Transformers + PEFT throughout (no vLLM).
 
 ## Metrics
 AUROC (tie-aware) for comparability; **AUPRC reported relative to the no-skill baseline (prevalence)** with

@@ -30,8 +30,9 @@ Tests **74 green**. Fleet map: `FLEET.md`; runner `scripts/exp3_fleet.py` + `scr
 | Infra | GitHub + RunPod MCP (Kaggle P100 retired) | — | ✅ done | repo public |
 | **M1-GATE** | **Reproduce AnoLLM on ODDS (vs published)** | **PLAN Exp 1, RQ1** | ✅ **done** | 90 cells; `GATE_SPEC.md`; `results/raw/exp1_repro/` |
 | **M2** | Exp 2 — model × scoring-mode on ODDS | PLAN Exp 2 (RQ2/RQ3) | ✅ **done** | 360 cells; `results/tables/exp2_odds.csv`; `RUNLOG.md` |
-| **M3** | Exp 3/3b — security transfer + semantic ablation | PLAN Exp 3 (RQ4/RQ3b) | 🔄 **executing** | 20/60 on-pod; `FLEET.md`; `scripts/exp3_fleet.py` |
-| M4 | Exp 4/5/6 — ordering, Pareto, two-stage triage | PLAN Exp 4–6 (RQ5–7) | ⏳ | — |
+| **M3** | Exp 3/3b — security transfer + semantic ablation | PLAN Exp 3 (RQ4/RQ3b) | 🔄 **executing** | 34/60 on-pod; `FLEET.md`; `scripts/exp3_fleet.py` |
+| **M3.5** | Dissolving arm + binned-creditcard + drop-Time classical | confound bounds | ⏭️ after M3 | ~$5–8; see PLAN.md §M3.5 |
+| M4 | Exp 4/5/6 — ordering+binning, Pareto, two-stage triage | PLAN Exp 4–6 (RQ5–7) | ⏳ | — |
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
 | M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ⏳ | — |
 | Paper | Author the paper (LaTeX template + paper MCP) | PLAN §13 | ⏳ later phase | `paper/01-03` drafts exist |
@@ -52,10 +53,12 @@ Tests **74 green**. Fleet map: `FLEET.md`; runner `scripts/exp3_fleet.py` + `scr
 - [ ] Analysis: operational metrics, RQ4 bootstrap CIs, RQ3b ΔAUROC CI; refresh `SUMMARY.md`
 
 ## Immediate next actions (in order)
-1. Monitor M3 pod (`anomaly-m3-cc`) — 0 failures; Qwen likelihood cells are the bottleneck (~1–3 h each).
-2. Optionally rsync `/workspace/results/raw/exp3_security/` → local as checkpoint (not yet pulled).
-3. On `shard.done` + exp3b complete: pull all JSONs, teardown pod, record cost, analyze.
-4. **(housekeeping)** revoke the 2 GitHub tokens shared in chat (tokenless clone works).
+1. Monitor M3 pod (`anomaly-m3-cc`) — 34/60 done, 0 failures; Qwen likelihood cells are bottleneck.
+2. On `shard.done` + exp3b complete: rsync results+logs → local, teardown pod, record cost, analyze.
+3. **M3.5 (one short pod, ~$5–8):** dissolving arm (instruct-likelihood, ~8 ODDS, 1 seed, Qwen first)
+   + binned-creditcard arm (folds into Exp 4) + drop-Time classical CPU re-run ($0).
+4. **M4** (Exp 4/5/6) — after M3.5 results in hand.
+5. **(housekeeping)** revoke the 2 GitHub tokens shared in chat.
 
 ---
 
