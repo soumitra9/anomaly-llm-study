@@ -2,15 +2,15 @@
 
 Single source of truth for everything run so far. Regenerate/refresh at the end of each milestone.
 Per-cell JSON under `results/raw/<exp>/` is the machine system-of-record; this is the human digest.
-Last updated: 2026-07-04 · git `c130526`.
+Last updated: 2026-07-05 · git `94d2c42`.
 
-## Project spend to date ≈ **$112** (RunPod A40 SECURE @ $0.44/hr)
+## Project spend to date ≈ **$118** (RunPod A40 SECURE @ $0.44/hr)
 | Milestone | Cost | Note |
 |---|---|---|
 | M1 gate | ~$21 | 90 cells + config tests |
 | D0 calibration | ~$0.65 | 1 pod, chose Qwen max_steps=1000 |
 | M2 Exp-2 | **$90.42** | real billing; ~35% over est (Qwen r=10 on 280k-row test sets) |
-| **M3 (next)** | est ~$10 (cap $25) | not yet run |
+| **M3 (running)** | ~$6 accruing | 1× A40 since 2026-07-04 ~19:59Z; est total ~$10–15 (cap $25) |
 
 ---
 
@@ -34,9 +34,11 @@ SmolLM-360M, likelihood, 30 ODDS × 3 splits, r=10. Verdict vs pre-registered `G
 - Artifacts: `results/raw/exp2_odds/*.json` (360), `results/tables/exp2_odds.csv`,
   `results/figures/exp2_cd_diagram.png`, backup `results/backups/exp2_odds_FINAL_360cells.tgz`.
 
-## M3 — Security transfer (RQ4) + semantic names (RQ3b) · PLANNED (approved), not started
-Complete Exp 3 (credit-card temporal+random + UNSW; prompted+classical both, likelihood on credit-card) +
-Exp 3b (pima semantic-vs-anon), on smol-360 + Qwen2.5-3B. Est ~$10 (cap $25). Gated on Pima UCI-order check.
-See plan file `~/.claude/plans/i-need-to-plan-ancient-dawn.md` (★★ POST-M2 section).
+## M3 — Security transfer (RQ4) + semantic names (RQ3b) · 🔄 RUNNING (20/60 + 0/6 on-pod)
+Pod `anomaly-m3-cc` (A40, `l2css8jckkkp0q`): full `exp3_fleet` with r=5, all modes, seeds 0–2.
+**20/60** `exp3_security` cells complete, **0 failures** (as of 2026-07-05). `creditcard-temporal` nearly
+done; `creditcard-random` + `unsw` ahead. `exp3b_names` (6 cells, pima semantic vs anon) not started.
+Results on-pod only (`/workspace/results/raw/exp3_security/`); not yet rsync'd local.
+See `FLEET.md` + plan `~/.claude/plans/i-need-to-plan-ancient-dawn.md` (★★ POST-M2 section).
 
 ## Later — M4 (Exp 4/5/6, ~free) → M5 (opt Qwen3-14B A100 burst) → M6 (final stats) → paper

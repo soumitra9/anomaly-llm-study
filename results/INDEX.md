@@ -1,13 +1,15 @@
 # Results INDEX — artifact map
 
 Machine system-of-record = per-cell JSON under `raw/<exp>/`. Human digest = `SUMMARY.md`.
-Last updated: 2026-07-04 · git `c130526`.
+Last updated: 2026-07-05 · git `94d2c42`.
 
 ## Raw per-cell results (`results/raw/`)
 | Experiment | Path | Cells |
 |---|---|---|
-| M1 gate | `raw/exp1_repro/*.json` | 90 |
-| M2 Exp-2 A/B | `raw/exp2_odds/*.json` | 360 |
+| M1 gate | `raw/exp1_repro/*.json` | 90 (local) |
+| M2 Exp-2 A/B | `raw/exp2_odds/*.json` | 360 (local) |
+| M3 Exp-3 security | `raw/exp3_security/*.json` | 20/60 (on-pod; pull pending) |
+| M3 Exp-3b names | `raw/exp3b_names/*.json` | 0/6 (on-pod; not started) |
 
 ## Tables (`results/tables/`)
 | File | Contents |

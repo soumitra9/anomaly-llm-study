@@ -1,0 +1,11 @@
+# Exp 3b — semantic vs anonymized column names (RQ3b) on pima.
+# 6 cells: qwen2.5-3b-instruct, prompted, arms {semantic, anon} × 3 seeds.
+# Gated: Pima UCI column order verified 2026-07-04 (see anodet/data/odds_names.py).
+experiment: exp3b_names
+dataset: pima
+backup_dataset: breastw
+model: qwen2.5-3b
+arms: [semantic, anon]
+seeds: [0, 1, 2]
+mode: prompted
+n_levels: 10

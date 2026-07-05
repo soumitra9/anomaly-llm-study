@@ -6,27 +6,23 @@ implementation plan under `~/.claude/plans/` for the build order.
 
 ## Status
 
-**M1 reproduction gate COMPLETE** (90/90 cells, SmolLM-360M, 30 ODDS × 3 splits, on a RunPod A40 fleet):
-C1 mean PASS + C2 rank PASS; C3 band 19/30 (a code-vs-paper difference in the released fork, not our error)
-→ a credible **partial** reproduction (see `GATE_SPEC.md` + `RUNLOG.md`). **M2 Exp-2 is EXECUTING** on a
-6-pod A40 fleet: the same-model **likelihood vs prompted** A/B, SmolLM-360M + Qwen2.5-3B × 30 ODDS × 3 seeds
-(360 cells; SmolLM @2000 steps, Qwen @1000). 70 unit tests pass. Fleet ops + recovery: `FLEET.md`.
+**M1** done (90/90, partial repro). **M2** done (360/360, analyzed: likelihood ≫ prompted; no Qwen scale gain).
+**M3 RUNNING** on 1× RunPod A40 (`anomaly-m3-cc`): 20/60 security cells on-pod, 0 failures (see `FLEET.md`,
+`RUNLOG.md`, `ROADMAP.md`). 74 unit tests pass.
 
 ## Resuming in a new session (read these, in order)
 
 If context is lost, this fully re-orients an assistant:
 
-1. **Memory `project-state.md`** (`~/.claude/projects/.../memory/project-state.md`) — what's done / what's
+1. **Memory `docs/claude/memory/project-state.md`** (or `~/.claude/projects/.../memory/project-state.md`) — what's done / what's
    next, the env recipe, key findings, exact reproduction commands. *(Best single file.)*
-2. **Approved build plan** — the latest file under `~/.claude/plans/` (milestones M0–M6, reuse map,
-   traceability, verification; top section = current go-forward).
+2. **Approved build plan** — `docs/claude/plans/i-need-to-plan-ancient-dawn.md` (milestones M0–M6; ★★ POST-M2 = M3 onward).
 3. **`PLAN.md`** (this repo) — the research design v1.0 (RQs, datasets, scoring modes, metrics, budget).
 4. **This repo** — `git log --oneline`, the two `scripts/smoke_*.py` drivers, `pyproject.toml` + `uv.lock`.
 
 **Orientation line to paste:** *"Resuming the anomaly-detection project. Read memory `project-state.md`,
-then the plan in `~/.claude/plans/`, then `PLAN.md`. M1 gate done (partial repro); M2 Exp-2 A/B fleet
-running on RunPod. Use **uv** for everything; our package is `anodet`; honor the RunPod double-confirm
-cost gate."*
+then `ROADMAP.md`, then `PLAN.md`. M1+M2 done; M3 security grid running on RunPod (`anomaly-m3-cc`,
+20/60 cells). Use **uv**; package is `anodet`; honor the RunPod double-confirm cost gate."*
 
 **Do NOT re-derive (hard-won):**
 - **Env**: uv + Python 3.10; overrides are non-negotiable — `setuptools`, `override-dependencies =

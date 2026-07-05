@@ -1,0 +1,21 @@
+---
+description: anodet/ is the battle-tested source of truth — never rebuild or duplicate its modules
+alwaysApply: true
+---
+
+# anodet/ — Reuse, Do Not Rebuild
+
+All project utilities live under `anodet/` and are covered by 63+ green pytest tests. **Never regenerate or duplicate these modules.** Doing so introduces subtle divergence bugs that invalidate experiments without loud failures.
+
+## Key modules (reuse only)
+- `anodet/utils/io.py` — atomic JSON, `array_hash`, `frame_hash`, redact
+- `anodet/utils/run_metadata.py` — `RunMetadata`, `write_result`, `cell_key`, `is_complete`, `capture_env`
+- `anodet/utils/seeding.py`
+- `anodet/metrics/metrics.py` — tie-aware AUROC, AUPRC/gain, recall@1%FPR, P@K/R@K, bootstrap
+- `anodet/scoring/likelihood.py`, `prompted.py`, `prompted_score.py`
+- `anodet/eval/grid.py`, `exp1.py`, `exp2.py`, `exp3_security.py`, `verdict.py`
+- `anodet/data/odds.py`, `serialize.py` — `load_odds`, `ODDS_30`
+- `anodet/baselines/classical.py` — PyOD IForest/PCA/KNN/ECOD
+- `anodet/analysis/aggregate.py`, `stats.py`, `figures.py`
+
+When adding new functionality, extend existing modules or add new files — never copy-paste or rewrite existing ones.

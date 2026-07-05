@@ -10,6 +10,7 @@ DOWNLOAD (out-of-band): via the `nids-datasets` package (Network-Flows subset) o
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -76,3 +77,15 @@ def prepare_unsw(df: pd.DataFrame, *, subsample: Optional[int] = 300000,
     return {"X_train": X_train, "X_test": X_test, "y_test": y_test, "sample_weight": weights,
             "content_hash": frame_hash(X_test), "dropped": screen["dropped"], "flagged": screen["flagged"],
             "n_neg_total": int(n_neg_total), "n_neg_scored": int(len(neg))}
+
+
+def load_unsw(path: str, **kwargs) -> dict:
+    """Read UNSW parquet/csv and prepare it. Pin dataset version in RunMetadata separately."""
+    p = Path(path) if isinstance(path, str) else path
+    if not p.exists():
+        raise FileNotFoundError(f"{path} not found — stage UNSW-NB15 parquet under data/ first")
+    if p.suffix == ".parquet":
+        df = pd.read_parquet(p)
+    else:
+        df = pd.read_csv(p)
+    return prepare_unsw(df, **kwargs)

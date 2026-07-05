@@ -1,0 +1,31 @@
+---
+description: Project overview — what we are doing, key files, current status
+alwaysApply: true
+---
+
+# Project: Anomaly Detection LLM Study
+
+**What:** Replication + extension of AnoLLM (ICLR 2025). We replicate SmolLM-360M likelihood scoring on 30 ODDS datasets, then extend with Qwen2.5-3B, prompted suspiciousness scoring (Mode B), and security-domain datasets (credit card fraud, UNSW-NB15).
+
+**Package:** `anodet/` — Python 3.10, `uv` only (no pip/conda). Run via `uv run`.
+
+**Repo:** `github.com/soumitra9/anomaly-llm-study` (public), branch `main`.
+
+## Important files to read before acting
+| File | Purpose |
+|------|---------|
+| `docs/claude/memory/project-state.md` | Current status, spend, active pods, next steps |
+| `ROADMAP.md` | Milestone plan (M1–M6) — source of truth for science scope |
+| `RUNLOG.md` | Chronological ops log (costs, pod IDs, incidents) |
+| `FLEET.md` | Active pod map (pod → RunPod ID → SSH → dataset shard) |
+| `GATE_SPEC.md` | Pre-registered gate criteria C1/C2/C3 (do not modify post-hoc) |
+| `results/SUMMARY.md` | Latest experiment results summary |
+| `project_idea.md` | Original brief (some premises corrected — see memory files) |
+| `docs/claude/memory/MEMORY.md` | Index of all memory files |
+
+## Current status (2026-07-05)
+M1 + M2 complete. M3 running on RunPod pod `anomaly-m3-cc`. Project spend ≈ $118. See `project-state.md` for full detail.
+
+## Key science facts
+- AnoLLM uses **SmolLM-360M** (not Llama/Mistral). Bigger models are NOT better (135M=0.884, 360M=0.865, 1.7B=0.861 AUROC).
+- AnoLLM did NOT "lose" to classical detectors — it is competitive/tied on numerical ODDS and wins on mixed-type data. See `docs/claude/memory/project-premise-correction.md`.

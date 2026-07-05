@@ -10,6 +10,21 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
+## 2026-07-04 · M3 Exp-3/3b · 🟢 RUNNING (1× RunPod A40)
+- **Pod:** `anomaly-m3-cc` (`l2css8jckkkp0q`), CA-MTL-1, SSH `69.30.85.16:22015`, $0.44/hr SECURE.
+- **Launched:** 2026-07-04 ~19:59Z. **Git on pod:** repo clone + M3 scripts (`94d2c42` lineage).
+- **Cmd:** `uv run python -m scripts.exp3_fleet --task-datasets all --models smol-360,qwen2.5-3b
+  --modes likelihood,prompted,classical --seeds 0,1,2 --r 5 --device cuda --results-root /workspace/results`
+  → log `/workspace/results/logs/m3_sec.log`. Exp-3b (`scripts/exp3b_run.py`, 6 cells) queued after security grid.
+- **Grid:** 60 `exp3_security` (6 Qwen-likelihood + 18 prompted + 36 classical) + 6 `exp3b_names`.
+- **Progress @ 2026-07-05 ~10:00Z:** **20/60** exp3_security on-pod, **0 failures**. `creditcard-temporal`
+  nearly complete (Qwen likelihood seed2 in progress). `exp3b`: not started. `shard.done`: no.
+- **Cost so far:** ~$6 accruing (~14 h × $0.44/hr). Project total ≈ $118.
+- **Local:** results NOT yet rsync'd — system-of-record still on-pod. `/tmp/fleet_pods.txt` has `m3cc` entry.
+- **ETA:** Qwen likelihood is bottleneck; ~1–2 days for remaining 40 security cells + 6 exp3b on single pod.
+
+---
+
 ## 2026-07-04 · M2 Exp-2 · ✅ COMPLETE (360/360) + analyzed
 - **Result:** 360/360 cells, 0 failures. All pods torn down (list-pods empty); results triple-saved
   (`results/raw/exp2_odds/` + `results/backups/exp2_odds_FINAL_360cells.tgz` + all 6 pods' logs local).

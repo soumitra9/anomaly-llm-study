@@ -1,0 +1,30 @@
+# Exp 3 — security transfer (RQ4): credit-card + UNSW under extreme imbalance.
+# Driven by scripts/exp3_fleet.py (explicit cell list, not a pure Cartesian grid).
+# GPU cells = 30 (6 likelihood + 18 prompted + 6 exp3b overlap counted separately).
+# Classical panel (36 cells) is CPU-only and ~free.
+experiment: exp3_security
+task_datasets:
+  - creditcard-temporal
+  - creditcard-random
+  - unsw
+models: [smol-360, qwen2.5-3b]       # prompted arm; likelihood uses qwen2.5-3b only (see exp3_fleet.py)
+modes: [likelihood, prompted, classical]
+seeds: [0, 1, 2]
+classical_detectors: [iforest, pca, knn, ecod]
+likelihood:
+  model: qwen2.5-3b
+  max_steps: 1000                    # D0-validated (2000 over-trains Qwen)
+  r: 10                              # r=5 lever if measure-first is tight
+  tasks: [creditcard-temporal, creditcard-random]
+loaders:
+  creditcard:
+    path: data/creditcard.csv
+    max_test_neg: 20000
+    splits: [temporal, random]
+  unsw:
+    path: data/unsw.parquet
+    max_test_neg: 40000
+    subsample: 300000
+metrics:
+  n_top: 100
+  operational: [auprc_gain, recall_at_1pct_fpr, precision_at_topN, recall_at_topN]
