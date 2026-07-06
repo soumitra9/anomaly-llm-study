@@ -4,6 +4,42 @@ import pandas as pd
 import pytest
 
 
+# ----------------------------- classical encoding (mixed-type) --------------------------------
+
+def test_run_baseline_with_string_columns():
+    """run_baseline must not crash when DataFrame contains object/string columns (UNSW case)."""
+    from anodet.baselines.classical import run_baseline
+
+    rng = np.random.default_rng(0)
+    n_tr, n_te = 80, 40
+    proto_vals = ["tcp", "udp", "icmp"]
+    X_train = pd.DataFrame({
+        "feat1": rng.normal(size=n_tr),
+        "feat2": rng.normal(size=n_tr),
+        "proto": rng.choice(proto_vals, size=n_tr),
+    })
+    X_test = pd.DataFrame({
+        "feat1": rng.normal(size=n_te),
+        "feat2": rng.normal(size=n_te),
+        "proto": rng.choice(proto_vals, size=n_te),
+    })
+    scores = run_baseline("iforest", X_train, X_test, seed=0)
+    assert scores.shape == (n_te,)
+    assert not np.isnan(scores).any()
+
+
+def test_run_baseline_pure_float_unchanged():
+    """Pure-float DataFrames (ODDS case) must still work — encoding is a no-op."""
+    from anodet.baselines.classical import run_baseline
+
+    rng = np.random.default_rng(1)
+    X_tr = pd.DataFrame(rng.normal(size=(60, 4)))
+    X_te = pd.DataFrame(rng.normal(size=(30, 4)))
+    scores = run_baseline("iforest", X_tr, X_te, seed=0)
+    assert scores.shape == (30,)
+    assert not np.isnan(scores).any()
+
+
 # ----------------------------- Exp 6 two-stage (real) -----------------------------
 
 def test_two_stage_beats_classical_at_budget():
@@ -56,9 +92,16 @@ def test_two_stage_constant_inputs():
 
 # ----------------------------- Exp 3 security dispatch (mocked) -----------------------------
 
-def _sec_data(n=60):
+def _sec_data(n=60, mixed=False):
     rng = np.random.default_rng(0)
-    X = pd.DataFrame(rng.normal(size=(n, 4)))
+    if mixed:
+        X = pd.DataFrame({
+            "feat1": rng.normal(size=n),
+            "feat2": rng.normal(size=n),
+            "proto": rng.choice(["tcp", "udp", "icmp"], size=n),
+        })
+    else:
+        X = pd.DataFrame(rng.normal(size=(n, 4)))
     y = np.r_[np.zeros(n - 6), np.ones(6)].astype(int)
     return {"X_train": X, "X_test": X, "y_test": y,
             "sample_weight": np.ones(n), "content_hash": "h", "split": "temporal"}
@@ -75,6 +118,15 @@ def test_exp3_modes(monkeypatch):
     assert "recall_at_1pct_fpr_ci" in m
     with pytest.raises(ValueError):
         e3.run_one("creditcard", "smol-360", "bogus")
+
+
+def test_exp3_classical_mixed_type(monkeypatch):
+    """Classical branch on mixed-type (UNSW-like) data must not crash and return valid metrics."""
+    import anodet.eval.exp3_security as e3
+    monkeypatch.setattr(e3, "_load", lambda ds, dd, **k: _sec_data(mixed=True))
+    m, status, _ = e3.run_one("unsw", "smol-360", "classical:iforest")
+    assert status == "complete"
+    assert "recall_at_1pct_fpr" in m
 
 
 # ----------------------------- Exp 3b names dispatch (mocked) -----------------------------

@@ -16,6 +16,34 @@ import pandas as pd
 PANEL = ("iforest", "pca", "knn", "ecod")
 
 
+def _encode_for_classical(
+    X_train: pd.DataFrame, X_test: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Ordinal-encode any object/category columns before float-casting for classical detectors.
+
+    Encoding is fit on the union of train+test categories so test never sees an unmapped value.
+    Unknown values (NaN after mapping) are encoded as -1, which is a valid ordinal integer.
+    ODDS data has no string columns so this is a no-op for all prior experiments; it only
+    activates for mixed-type datasets like UNSW-NB15.
+    """
+    cat_cols = [
+        c for c in X_train.columns
+        if pd.api.types.is_object_dtype(X_train[c]) or isinstance(X_train[c].dtype, pd.CategoricalDtype)
+    ]
+    if not cat_cols:
+        return X_train, X_test
+
+    X_tr = X_train.copy()
+    X_te = X_test.copy()
+    for col in cat_cols:
+        combined = pd.concat([X_tr[col].astype(str), X_te[col].astype(str)], ignore_index=True)
+        categories = pd.Categorical(combined).categories
+        mapping = {v: i for i, v in enumerate(categories)}
+        X_tr[col] = X_tr[col].astype(str).map(mapping).fillna(-1).astype(int)
+        X_te[col] = X_te[col].astype(str).map(mapping).fillna(-1).astype(int)
+    return X_tr, X_te
+
+
 def _make(name: str, seed: int):
     if name == "iforest":
         from pyod.models.iforest import IForest
@@ -39,7 +67,13 @@ def run_baseline(
     *,
     seed: int = 42,
 ) -> np.ndarray:
-    """Fit `name` on X_train, return anomaly scores for X_test (higher = more anomalous)."""
+    """Fit `name` on X_train, return anomaly scores for X_test (higher = more anomalous).
+
+    Ordinal-encodes any object/category columns before the float cast so mixed-type datasets
+    (e.g. UNSW-NB15 with proto/state/service string columns) work without preprocessing outside
+    this function. Encoding is consistent across train and test.
+    """
+    X_train, X_test = _encode_for_classical(X_train, X_test)
     clf = _make(name, seed)
     clf.fit(np.asarray(X_train.values, dtype=float))
     return np.asarray(clf.decision_function(np.asarray(X_test.values, dtype=float)))
