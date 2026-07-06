@@ -180,10 +180,9 @@ def _cli():
                    device=a.device, data_dir=a.data_dir)
 
     if a.dataset is None:
-        n = run(a.config, a.results_root,
-                classical_detector=a.classical_detector,
-                prompted_model=a.prompted_model,
-                **hparams)
+        # classical_detector and prompted_model come from the YAML via cfg in make_run_cell.
+        # Do NOT pass them here — they would land in hparams and be passed twice to run_one.
+        n = run(a.config, a.results_root, **hparams)
         print(f"[exp6] ran {n} pending cell(s) from {a.config}")
         return
 
