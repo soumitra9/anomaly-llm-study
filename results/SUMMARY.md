@@ -2,15 +2,16 @@
 
 Single source of truth for everything run so far. Regenerate/refresh at the end of each milestone.
 Per-cell JSON under `results/raw/<exp>/` is the machine system-of-record; this is the human digest.
-Last updated: 2026-07-05 · git `94d2c42`.
+Last updated: 2026-07-06 · git `802654f`.
 
-## Project spend to date ≈ **$118** (RunPod A40 SECURE @ $0.44/hr)
+## Project spend to date ≈ **$133+** (RunPod A40 SECURE @ $0.44/hr)
 | Milestone | Cost | Note |
 |---|---|---|
 | M1 gate | ~$21 | 90 cells + config tests |
 | D0 calibration | ~$0.65 | 1 pod, chose Qwen max_steps=1000 |
 | M2 Exp-2 | **$90.42** | real billing; ~35% over est (Qwen r=10 on 280k-row test sets) |
-| **M3 (running)** | ~$6 accruing | 1× A40 since 2026-07-04 ~19:59Z; est total ~$10–15 (cap $25) |
+| **M3 Exp-3/3b** | **~$13.03** | pod `l2css8jckkkp0q` stopped 2026-07-05; 29.6 h × $0.44/hr; 66/66 cells |
+| **M3.5 DA1 (running)** | ~$1.50+ accruing | pod `xbga2ae1dqfp12`, launched 2026-07-06; 3/8 cells done |
 
 ---
 
@@ -34,12 +35,15 @@ SmolLM-360M, likelihood, 30 ODDS × 3 splits, r=10. Verdict vs pre-registered `G
 - Artifacts: `results/raw/exp2_odds/*.json` (360), `results/tables/exp2_odds.csv`,
   `results/figures/exp2_cd_diagram.png`, backup `results/backups/exp2_odds_FINAL_360cells.tgz`.
 
-## M3 — Security transfer (RQ4) + semantic names (RQ3b) · 🔄 RUNNING (20/60 + 0/6 on-pod)
-Pod `anomaly-m3-cc` (A40, `l2css8jckkkp0q`): full `exp3_fleet` with r=5, all modes, seeds 0–2.
-**20/60** `exp3_security` cells complete, **0 failures** (as of 2026-07-05). `creditcard-temporal` nearly
-done; `creditcard-random` + `unsw` ahead. `exp3b_names` (6 cells, pima semantic vs anon) not started.
-Results on-pod only (`/workspace/results/raw/exp3_security/`); not yet rsync'd local.
-See `FLEET.md` + plan `~/.claude/plans/i-need-to-plan-ancient-dawn.md` (★★ POST-M2 section).
+## M3 — Security transfer (RQ4) + semantic names (RQ3b) · ✅ COMPLETE (66/66 cells)
+Pod `anomaly-m3-cc` (A40, `l2css8jckkkp0q`): **60/60** `exp3_security` + **6/6** `exp3b_names`.
+All cells `status=complete`, 0 failures. Pod stopped 2026-07-05 (~$13.03). Results rsync'd and verified
+locally in `results/raw/exp3_security/` (60 JSONs) + `results/raw/exp3b_names/` (6 JSONs).
+Logs: `results/logs/fleet/m3/m3_sec.log`.
+
+Preliminary findings (analysis pending M4):
+- Classical baselines (IForest, PCA, KNN, ECOD) on creditcard + UNSW: AUROCs in `exp3_security/`
+- Semantic vs anon column names on pima (Qwen2.5-3B prompted, seeds 0–2): AUROCs in `exp3b_names/`
 
 ## Post-M3 findings (2026-07-05) — three confounds addressed before M4
 
@@ -57,10 +61,23 @@ Code review identified three items actioned before M4:
    floats. RQ4's within-experiment comparisons remain internally valid. Cross-experiment narrative
    bounded by a planned **binned-creditcard arm** (folds into Exp 4, ~$2–3).
 
-**Also planned (CPU, $0):** classical baselines on creditcard-temporal without `Time` feature.
+## M3.5 — Confound checks (pre-registered in GATE_SPEC.md) · 🔄 IN PROGRESS
 
-## M3.5 (after M3) → M4 → M5 (opt) → M6 → paper
+**Drop-Time classical (T3) — DONE locally (CPU, $0):**
+KNN AUROC on creditcard-temporal collapses from 0.932 → 0.178 when `Time` feature is included (temporal
+distribution shift). IForest/PCA/ECOD robust (|ΔAUROC| ≤ 0.025). Corrected 24-cell results in
+`results/raw/exp3_security_notime/`. All reported classical creditcard results use drop-Time protocol.
 
-M3.5 = three cheap spot-checks (dissolving arm + binned arm + drop-Time classical) on one pod, ~$5–8.
-Then M4 (Exp 4/5/6 — serialization order+binning, Pareto, two-stage triage).
+**BA1 binned-creditcard — DONE locally (CPU, $0): PASS**
+Switching creditcard from raw float to ODDS-style standard binning changes mean classical AUROC by
+**0.0012** across 4 detectors (threshold 0.03 per GATE_SPEC §BA1). Serialization does not explain the
+cross-domain gap. Results in `results/raw/ba1_binned_notime/`. Sentence written in `paper/03_method.md`.
+
+**DA1 dissolving arm — 🔄 RUNNING on pod `xbga2ae1dqfp12` (A40, $0.44/hr):**
+Qwen2.5-3B-Instruct + LoRA likelihood, 8 ODDS datasets, seed=0, r=5, max_steps=1000. **3/8 cells done**
+(vertebral 0.402, speech 0.459, yeast 0.739). Gate: |mean ΔAUROC(instruct+LoRA − base+LoRA)| < 0.02
+(GATE_SPEC §DA1). Results → `results/raw/da1_dissolving/`. ETA ~2–3 h.
+
+## M4 → M5 (opt) → M6 → paper
+After DA1 completes + evaluated: M4 (Exp 4/5/6 — serialization order, Pareto, two-stage triage).
 M5 = optional Qwen3-14B A100 burst (~$25–45). M6 = final stats + paper.

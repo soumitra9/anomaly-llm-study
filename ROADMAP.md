@@ -5,17 +5,17 @@ lands. Companions: [`PLAN.md`](PLAN.md) = the research design (the science); app
 `~/.claude/plans/i-need-to-plan-ancient-dawn.md`; in-repo copy: `docs/claude/plans/i-need-to-plan-ancient-dawn.md`; long-form state =
 agent memory `docs/claude/memory/project-state.md` (live copy also in `~/.claude/.../memory/`). If those ever disagree, **this file + git history win for status.**
 
-_Last updated: 2026-07-05 · HEAD `94d2c42`._
+_Last updated: 2026-07-06 · HEAD `802654f`._
 
 ---
 
-## TL;DR — current state (2026-07-05)
+## TL;DR — current state (2026-07-06)
 **M1 gate COMPLETE** (90/90, ~$21): C1+C2 PASS; C3 19/30 (code-vs-paper, not our error) → credible partial
 repro, no re-gate. **M2 Exp-2 COMPLETE** (360/360, **$90.42**, analyzed): likelihood ≫ prompted (RQ2);
-no significant Qwen scale gain on likelihood (RQ3). **M3 Exp-3/3b RUNNING** on 1× RunPod A40
-(`anomaly-m3-cc`, launched 2026-07-04 ~19:59Z): **20/60** `exp3_security` cells on-pod, **0 failures**;
-`exp3b_names` (6 cells) not started yet. Project spend ≈ **$118** ($112 prior + ~$6 M3 accruing).
-Tests **74 green**. Fleet map: `FLEET.md`; runner `scripts/exp3_fleet.py` + `scripts/exp3b_run.py`.
+no significant Qwen scale gain on likelihood (RQ3). **M3 Exp-3/3b COMPLETE** (66/66, **~$13.03**):
+results rsync'd + verified locally. **M3.5 IN PROGRESS** — T3 + BA1 done (local CPU); DA1 pod running
+(`xbga2ae1dqfp12`, 3/8 cells). Project spend ≈ **$133+** (~$1.50 accruing on DA1 pod).
+Tests **80 green**. Fleet map: `FLEET.md`.
 
 ---
 
@@ -30,34 +30,37 @@ Tests **74 green**. Fleet map: `FLEET.md`; runner `scripts/exp3_fleet.py` + `scr
 | Infra | GitHub + RunPod MCP (Kaggle P100 retired) | — | ✅ done | repo public |
 | **M1-GATE** | **Reproduce AnoLLM on ODDS (vs published)** | **PLAN Exp 1, RQ1** | ✅ **done** | 90 cells; `GATE_SPEC.md`; `results/raw/exp1_repro/` |
 | **M2** | Exp 2 — model × scoring-mode on ODDS | PLAN Exp 2 (RQ2/RQ3) | ✅ **done** | 360 cells; `results/tables/exp2_odds.csv`; `RUNLOG.md` |
-| **M3** | Exp 3/3b — security transfer + semantic ablation | PLAN Exp 3 (RQ4/RQ3b) | 🔄 **executing** | 34/60 on-pod; `FLEET.md`; `scripts/exp3_fleet.py` |
-| **M3.5** | Dissolving arm + binned-creditcard + drop-Time classical | confound bounds | ⏭️ after M3 | ~$5–8; see PLAN.md §M3.5 |
+| **M3** | Exp 3/3b — security transfer + semantic ablation | PLAN Exp 3 (RQ4/RQ3b) | ✅ **done** | 66/66 cells; rsync'd + verified; `results/raw/exp3_security/` + `exp3b_names/` |
+| **M3.5** | Dissolving arm + binned-creditcard + drop-Time classical | confound bounds | 🔄 **in progress** | T3+BA1 done locally; DA1 pod running (3/8); `FLEET.md` |
 | M4 | Exp 4/5/6 — ordering+binning, Pareto, two-stage triage | PLAN Exp 4–6 (RQ5–7) | ⏳ | — |
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
 | M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ⏳ | — |
 | Paper | Author the paper (LaTeX template + paper MCP) | PLAN §13 | ⏳ later phase | `paper/01-03` drafts exist |
 
-**Critical path:** M1 → M2 → **M3 (active)** → M4/M6. M5 14B burst is optional and off the critical path.
+**Critical path:** M1 → M2 → M3 ✅ → **M3.5 (active)** → M4/M6. M5 14B burst is optional and off the critical path.
 
 ---
 
-## M3 — detailed checklist (where we are now)
-- [x] Pre-flight: Pima UCI-order gate PASS (`anodet/data/odds_names.py`, 2026-07-04)
-- [x] Security loaders validated on real data (`data/creditcard.csv`, `data/unsw.parquet`)
-- [x] `scripts/exp3_fleet.py` + `scripts/exp3b_run.py` + tests (`test_exp3_fleet.py`, 74 pytest green)
-- [x] M3 golden bundle script (`scripts/build_m3_bundle.sh`)
-- [x] Pod provisioned + full `exp3_fleet` launched (`r=5`, all modes, seeds 0–2)
-- [ ] **exp3_security → 60/60** on-pod (20 done; creditcard-temporal nearly complete; creditcard-random + unsw ahead)
-- [ ] **exp3b_names → 6/6** (pima semantic vs anon, Qwen prompted; after or alongside security grid)
-- [ ] Rsync results + logs → local; write `exp3_cost.json`; **teardown pod**; RUNLOG completion entry
-- [ ] Analysis: operational metrics, RQ4 bootstrap CIs, RQ3b ΔAUROC CI; refresh `SUMMARY.md`
+## M3 — COMPLETE ✅
+- [x] 60/60 `exp3_security` + 6/6 `exp3b_names` — all `status=complete`, 0 failures
+- [x] Pod `l2css8jckkkp0q` stopped; cost ~$13.03 (29.6 h × $0.44/hr); RUNLOG updated
+- [x] Results rsync'd + verified locally: `results/raw/exp3_security/` + `results/raw/exp3b_names/`
+- [ ] Formal analysis (RQ4 bootstrap CIs, RQ3b ΔAUROC CI) — deferred until M3.5 DA1 in hand
+
+## M3.5 — detailed checklist (where we are now)
+- [x] **Drop-Time classical (T3):** KNN collapses 0.178 → 0.932 when Time excluded. IForest/PCA/ECOD robust. 24-cell `exp3_security_notime` + 4-cell `ba1_binned_notime` saved locally. Corrected protocol documented.
+- [x] **BA1 binned-creditcard:** mean |ΔAUROC| = 0.0012 across 4 classifiers → **PASS** (threshold 0.03). Sentence in `paper/03_method.md`.
+- [ ] **DA1 dissolving arm:** 3/8 cells done on pod `xbga2ae1dqfp12` (vertebral 0.402, speech 0.459, yeast 0.739). ETA ~2–3 h.
+- [ ] Rsync DA1 results + evaluate vs GATE_SPEC §DA1 → write sentence in `paper/03_method.md`
+- [ ] Stop + (optionally delete) M3.5 pod; RUNLOG M3.5 cost entry
+- [ ] Delete stopped M3 pod `l2css8jckkkp0q` (disk still live)
+- [ ] Update `project-state.md` to reflect M3.5 complete
 
 ## Immediate next actions (in order)
-1. Monitor M3 pod (`anomaly-m3-cc`) — 34/60 done, 0 failures; Qwen likelihood cells are bottleneck.
-2. On `shard.done` + exp3b complete: rsync results+logs → local, teardown pod, record cost, analyze.
-3. **M3.5 (one short pod, ~$5–8):** dissolving arm (instruct-likelihood, ~8 ODDS, 1 seed, Qwen first)
-   + binned-creditcard arm (folds into Exp 4) + drop-Time classical CPU re-run ($0).
-4. **M4** (Exp 4/5/6) — after M3.5 results in hand.
+1. Wait for DA1 pod (3/8 done, ~2–3 h remaining). Poll periodically.
+2. On 8/8: rsync → evaluate vs GATE_SPEC §DA1 → write DA1 sentence → stop pod.
+3. Delete old M3 pod `l2css8jckkkp0q` (currently EXITED, disk billing may apply).
+4. **M4** (Exp 4/5/6) — immediately after DA1 evaluated.
 5. **(housekeeping)** revoke the 2 GitHub tokens shared in chat.
 
 ---
@@ -86,17 +89,15 @@ Tests **74 green**. Fleet map: `FLEET.md`; runner `scripts/exp3_fleet.py` + `scr
 - Compute: **RunPod A40 ($0.44/hr)**; spend double-confirm gated; tear pods down when work ends.
 
 ## Open items / risks
-- M3 results currently **on-pod only** — no local `results/raw/exp3_*` yet (pull before teardown).
-- Qwen likelihood cells dominate M3 wall-clock; single-pod ETA ~1–2 days for full 60+6 grid.
+- **DA1 pod** (`xbga2ae1dqfp12`) still running — stop after 8/8 + rsync. Billing $0.44/hr.
+- **Stopped M3 pod** (`l2css8jckkkp0q`) — disk may still accrue storage cost; delete when no longer needed.
 - RunPod create-pod has no startup cmd → pods driven over SSH.
 - **USER ACTION:** revoke the 2 GitHub tokens shared in chat.
 
 ## Key commands
 ```bash
-uv run pytest                                    # 74 tests green
-# M3 pod poll (SSH):
-ssh -i ~/.ssh/id_ed25519_runpod_anomaly -p 22015 root@69.30.85.16 \
-  'ls /workspace/results/raw/exp3_security/*.json | wc -l; tail -3 /workspace/results/logs/m3_sec.log'
-# After M3 completes:
-uv run python -m scripts.make_tables   # aggregate exp3 → CSV (when analysis wired)
+uv run pytest                                    # 80 tests green
+# DA1 pod poll (SSH):
+ssh -i ~/.ssh/id_ed25519_runpod_anomaly -p 22004 root@69.30.85.58 \
+  'ls /workspace/results/raw/da1_dissolving/*.json | wc -l; tail -3 /workspace/results/logs/m35_da1.log'
 ```
