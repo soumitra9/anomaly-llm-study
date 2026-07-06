@@ -20,8 +20,12 @@ axes:
     - ionosphere     # AUROC ~0.941 — high
     - breastw        # AUROC ~0.990 — very high
     - shuttle        # AUROC ~1.000 — perfect (sanity check)
-hparams:
-  max_steps: 2000
+# NOTE: exp2.py does NOT read hparams from YAML — these are documentation only.
+# CLI launch must pass: --max-steps 1000 --r 5 --device cuda
+# max_steps=1000 matches M2 Qwen2.5-3B base+LoRA cells (D0-validated, see RUNLOG §D0).
+# r=5 matches the DA1 GATE_SPEC protocol (not r=10 — consistent with M3 Exp-3 LoRA cells).
+hparams_doc_only:
+  max_steps: 1000
   r: 5
   n_levels: 10
   batch_size: 32

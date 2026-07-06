@@ -1,11 +1,16 @@
 # RunPod fleet — CURRENT: M3.5 confound checks (pending) / M4 (next)
 
-## Active
-No active pods. M3 pod stopped 2026-07-05. M3.5 pod to be spun up next.
+## Active — M3.5 DA1 pod
 
-## M3.5 plan (pending)
-Single A40 pod. DA1: 30 da1_dissolving cells (instruct+LoRA likelihood on ODDS × 3 seeds).
-BA1: classical-only local re-run on binned creditcard. Estimate ~$3–5.
+| Pod | RunPod ID | SSH | role | cells |
+|---|---|---|---|---|
+| **m35da1** | `xbga2ae1dqfp12` | 69.30.85.58:22004 | DA1 dissolving arm (8 cells) | 8 |
+
+**Config:** 1× A40 SECURE, $0.44/hr, CA-MTL-1. Launched 2026-07-06 02:39Z.
+**Cmd:** `uv run python -m anodet.eval.exp2 --config configs/da1_dissolving.yaml --device cuda --results-root /workspace/results --max-steps 1000 --r 5`
+**Log:** `/workspace/results/logs/m35_da1.log`. Results → `/workspace/results/raw/da1_dissolving/`.
+**ETA:** ~4–8 h (8 cells × ~30–60 min each; speech 400-feature = slow).
+**Teardown:** stop after all 8 cells done + rsync verified. Evaluate DA1 against GATE_SPEC §DA1.
 
 ---
 ## Archived — M3 Exp-3/3b (✅ COMPLETE 2026-07-05)
