@@ -7,7 +7,7 @@ import pytest
 # ----------------------------- classical encoding (mixed-type) --------------------------------
 
 def test_run_baseline_with_string_columns():
-    """run_baseline must not crash when DataFrame contains object/string columns (UNSW case)."""
+    """run_baseline must not crash on object dtype string columns (UNSW case)."""
     from anodet.baselines.classical import run_baseline
 
     rng = np.random.default_rng(0)
@@ -22,6 +22,28 @@ def test_run_baseline_with_string_columns():
         "feat1": rng.normal(size=n_te),
         "feat2": rng.normal(size=n_te),
         "proto": rng.choice(proto_vals, size=n_te),
+    })
+    scores = run_baseline("iforest", X_train, X_test, seed=0)
+    assert scores.shape == (n_te,)
+    assert not np.isnan(scores).any()
+
+
+def test_run_baseline_with_pandas_stringdtype():
+    """run_baseline must not crash on pd.StringDtype columns (UNSW parquet actual schema)."""
+    from anodet.baselines.classical import run_baseline
+
+    rng = np.random.default_rng(2)
+    n_tr, n_te = 80, 40
+    proto_vals = pd.array(["tcp", "udp", "icmp"], dtype="string")
+    X_train = pd.DataFrame({
+        "feat1": rng.normal(size=n_tr),
+        "feat2": rng.normal(size=n_tr),
+        "proto": pd.array(rng.choice(["tcp", "udp", "icmp"], size=n_tr), dtype="string"),
+    })
+    X_test = pd.DataFrame({
+        "feat1": rng.normal(size=n_te),
+        "feat2": rng.normal(size=n_te),
+        "proto": pd.array(rng.choice(["tcp", "udp", "icmp"], size=n_te), dtype="string"),
     })
     scores = run_baseline("iforest", X_train, X_test, seed=0)
     assert scores.shape == (n_te,)

@@ -19,8 +19,9 @@ PANEL = ("iforest", "pca", "knn", "ecod")
 def _encode_for_classical(
     X_train: pd.DataFrame, X_test: pd.DataFrame
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Ordinal-encode any object/category columns before float-casting for classical detectors.
+    """Ordinal-encode any string/categorical columns before float-casting for classical detectors.
 
+    Catches object dtype, pandas StringDtype (used in UNSW-NB15 parquet), and CategoricalDtype.
     Encoding is fit on the union of train+test categories so test never sees an unmapped value.
     Unknown values (NaN after mapping) are encoded as -1, which is a valid ordinal integer.
     ODDS data has no string columns so this is a no-op for all prior experiments; it only
@@ -28,7 +29,8 @@ def _encode_for_classical(
     """
     cat_cols = [
         c for c in X_train.columns
-        if pd.api.types.is_object_dtype(X_train[c]) or isinstance(X_train[c].dtype, pd.CategoricalDtype)
+        if pd.api.types.is_object_dtype(X_train[c])
+        or isinstance(X_train[c].dtype, (pd.CategoricalDtype, pd.StringDtype))
     ]
     if not cat_cols:
         return X_train, X_test
@@ -75,8 +77,10 @@ def run_baseline(
     """
     X_train, X_test = _encode_for_classical(X_train, X_test)
     clf = _make(name, seed)
-    clf.fit(np.asarray(X_train.values, dtype=float))
-    return np.asarray(clf.decision_function(np.asarray(X_test.values, dtype=float)))
+    # Use .astype(float).to_numpy() instead of np.asarray(.., dtype=float) so pandas nullable
+    # extension types (Int64, Float64, StringDtype) are converted correctly — pd.NA → np.nan.
+    clf.fit(X_train.astype(float).to_numpy())
+    return clf.decision_function(X_test.astype(float).to_numpy())
 
 
 def run_panel(
