@@ -7,6 +7,7 @@ Clopper-Pearson CI, all importance-reweighted to the true base rate (the loaders
 """
 from __future__ import annotations
 
+import time
 from typing import Optional
 
 import numpy as np
@@ -52,6 +53,7 @@ def run_one(dataset: str, model: str, mode: str, *, data_dir: str = "data",
     Qwen @1000 steps per D0) is honored instead of run_likelihood's r=21 default. `**load_kw` (seed, split)
     goes to the dataset loader.
     """
+    start = time.time()
     data = _load(dataset, data_dir, **load_kw)
     y, w = data["y_test"], data.get("sample_weight")
 
@@ -72,5 +74,6 @@ def run_one(dataset: str, model: str, mode: str, *, data_dir: str = "data",
     metrics = _operational_metrics(y, scores, w, n_top=n_top)
     extra = {"run_metadata": {"dataset_content_hash": data["content_hash"]},
              "n_rows_scored": int(len(y)), "n_rows_expected": int(len(y)),
-             "split": data.get("split"), "flagged_leakage": data.get("flagged")}
+             "split": data.get("split"), "flagged_leakage": data.get("flagged"),
+             "wall_seconds": time.time() - start}
     return metrics, "complete", extra

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import time
 from typing import Callable, Optional
 
 import numpy as np
@@ -60,6 +61,7 @@ def run_one(
     device: Optional[str] = None,
 ) -> tuple[dict, str, dict]:
     """Run one Exp 2 cell. Returns (metrics, status, extra) per the grid `run_cell` contract."""
+    start = time.time()
     seed_everything(split_idx)
     data = load_odds(dataset, split_idx=split_idx, n_splits=n_splits)
     y_test = data["y_test"]
@@ -88,7 +90,7 @@ def run_one(
         }
         extra = {"run_metadata": run_metadata, "n_rows_scored": int(len(y_test)),
                  "n_rows_expected": int(len(y_test)), "device_used": out["device"],
-                 "max_steps": max_steps}
+                 "max_steps": max_steps, "wall_seconds": time.time() - start}
 
     elif mode == "prompted":
         out = run_prompted(
@@ -107,7 +109,7 @@ def run_one(
         }
         extra = {"run_metadata": run_metadata, "n_rows_scored": int(len(y_test)),
                  "n_rows_expected": int(len(y_test)), "device_used": out["device"],
-                 "distinct_levels": out["distinct_levels"]}
+                 "distinct_levels": out["distinct_levels"], "wall_seconds": time.time() - start}
 
     else:
         raise ValueError(f"unknown mode '{mode}' (expected 'likelihood' or 'prompted')")

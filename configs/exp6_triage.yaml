@@ -1,0 +1,21 @@
+experiment: exp6_triage
+
+# datasets x seeds only — no mode axis.
+# Each cell runs classical (IForest) + prompted (Qwen2.5-3B) scoring, then evaluates
+# the two-stage triage at k={1%,5%,10%} of the test set within the same cell (not separate cells per k).
+
+axes:
+  models: [qwen2.5-3b]   # model used for prompted re-ranking stage; written into RunMetadata
+  modes: [triage]         # experiment type identifier (not a scoring mode); written into RunMetadata
+  datasets:
+    - creditcard-temporal
+    - creditcard-random
+    - unsw
+  seeds: [0, 1, 2]
+
+# KNN excluded: O(n^2) complexity on UNSW (~300k rows) would take hours or OOM on CPU.
+# IForest is tree-based, cheap, and already measured as a standalone in exp3_security.
+# exp6 answers: does two-stage (IForest shortlist -> Qwen re-rank) beat IForest alone?
+classical_detector: iforest
+
+prompted_model: qwen2.5-3b

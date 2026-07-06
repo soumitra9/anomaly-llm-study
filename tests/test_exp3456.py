@@ -170,15 +170,115 @@ def test_exp3b_arms(monkeypatch):
 
 # ----------------------------- Exp 4 ordering dispatch (mocked) -----------------------------
 
+def _odds_data(n=10, cols=None):
+    cols = cols or ["a", "b", "c"]
+    df = pd.DataFrame({c: range(n) for c in cols})
+    y = np.r_[np.zeros(n - 2), np.ones(2)].astype(int)
+    return {"X_test": df, "y_test": y, "content_hash": "h"}
+
+
 def test_exp4_orderings(monkeypatch):
     import anodet.eval.exp4_serialization as e4
-    df = pd.DataFrame({"a": range(10), "b": range(10), "c": range(10)})
+    monkeypatch.setattr(e4, "load_odds", lambda ds, **k: _odds_data())
+    import anodet.scoring.prompted as pr
+    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X)), "device": "cpu"})
+    for ordering in ["arbitrary", "random:0"]:
+        m, status, extra = e4.run_one("wine", "smol-360", ordering)
+        assert "auroc" in m and status == "complete"
+        assert "wall_seconds" in extra
+    with pytest.raises(ValueError):
+        e4.run_one("wine", "smol-360", "domain")  # missing domain_order
+
+
+def test_exp4_domain_ordering(monkeypatch):
+    """Domain ordering with explicit domain_order list must reorder columns and succeed."""
+    import anodet.eval.exp4_serialization as e4
+    df = pd.DataFrame({"x": range(10), "y": range(10), "z": range(10)})
     monkeypatch.setattr(e4, "load_odds", lambda ds, **k: {
         "X_test": df, "y_test": np.r_[np.zeros(8), np.ones(2)].astype(int), "content_hash": "h"})
     import anodet.scoring.prompted as pr
-    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X))})
-    for ordering in ["arbitrary", "random:0"]:
-        m, status, _ = e4.run_one("wine", "smol-360", ordering)
-        assert "auroc" in m and status == "complete"
-    with pytest.raises(ValueError):
-        e4.run_one("wine", "smol-360", "domain")  # missing domain_order
+    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X)), "device": "cpu"})
+    m, status, extra = e4.run_one("wine", "smol-360", "domain", domain_order=["z", "y", "x"])
+    assert status == "complete" and "auroc" in m
+
+
+def test_exp4_security_dispatch(monkeypatch):
+    """exp4 _load_data must dispatch to security loaders for UNSW/creditcard datasets."""
+    import anodet.eval.exp4_serialization as e4
+
+    df_3col = pd.DataFrame({"v1": range(10), "v2": range(10), "v3": range(10)})
+    mock_data = {"X_test": df_3col, "y_test": np.r_[np.zeros(8), np.ones(2)].astype(int),
+                 "X_train": df_3col, "content_hash": "h", "sample_weight": np.ones(10)}
+
+    monkeypatch.setattr(e4, "_load_data", lambda ds, *a, **k: mock_data)
+    import anodet.scoring.prompted as pr
+    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X)), "device": "cpu"})
+
+    for ds in ("creditcard-temporal", "creditcard-random", "unsw"):
+        m, status, extra = e4.run_one(ds, "qwen2.5-3b", "arbitrary")
+        assert status == "complete" and "auroc" in m
+        assert "wall_seconds" in extra
+
+
+# ----------------------------- Exp 6 triage (mocked) -----------------------------
+
+def _security_data(n=60):
+    rng = np.random.default_rng(0)
+    X = pd.DataFrame(rng.normal(size=(n, 4)))
+    y = np.r_[np.zeros(n - 6), np.ones(6)].astype(int)
+    return {"X_train": X, "X_test": X, "y_test": y,
+            "sample_weight": np.ones(n), "content_hash": "h"}
+
+
+def test_exp6_flat_metrics(monkeypatch):
+    """Exp 6 metrics must be flat scalars keyed by k{1,5,10}pct_* for aggregate.py compatibility."""
+    import anodet.eval.exp6_triage as e6
+    monkeypatch.setattr(e6, "_load_security", lambda ds, seed, **k: _security_data())
+    import anodet.baselines.classical as cl
+    monkeypatch.setattr(cl, "run_baseline", lambda name, a, b, **k: np.linspace(0, 1, len(b)))
+    import anodet.scoring.prompted as pr
+    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X)), "device": "cpu"})
+
+    metrics, status, extra = e6.run_one("creditcard-temporal", "qwen2.5-3b", "triage", seed=0)
+
+    assert status == "complete"
+    # All primary triage metrics must be plain scalars
+    for pct in (1, 5, 10):
+        for key in (f"k{pct}pct_recall_at_fpr", f"k{pct}pct_uplift_recall", f"k{pct}pct_precision_at_k"):
+            assert key in metrics, f"missing metric {key!r}"
+            assert isinstance(metrics[key], float), f"{key} is not a scalar float"
+
+    # full_triage_results must be in extra (not metrics)
+    assert "full_triage_results" in extra
+    assert "wall_seconds" in extra
+    # k_integers must have all three percentages
+    assert set(extra["k_integers"]) == {1, 5, 10}
+
+
+def test_exp6_wall_seconds_recorded(monkeypatch):
+    """wall_seconds must be a positive float in extra."""
+    import anodet.eval.exp6_triage as e6
+    monkeypatch.setattr(e6, "_load_security", lambda ds, seed, **k: _security_data())
+    import anodet.baselines.classical as cl
+    monkeypatch.setattr(cl, "run_baseline", lambda name, a, b, **k: np.linspace(0, 1, len(b)))
+    import anodet.scoring.prompted as pr
+    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X)), "device": "cpu"})
+
+    _, _, extra = e6.run_one("unsw", "qwen2.5-3b", "triage", seed=1)
+    assert isinstance(extra["wall_seconds"], float) and extra["wall_seconds"] > 0
+
+
+def test_exp6_metrics_all_scalar(monkeypatch):
+    """No metric value may be a dict or list — aggregate.py requires plain scalars."""
+    import anodet.eval.exp6_triage as e6
+    monkeypatch.setattr(e6, "_load_security", lambda ds, seed, **k: _security_data())
+    import anodet.baselines.classical as cl
+    monkeypatch.setattr(cl, "run_baseline", lambda name, a, b, **k: np.linspace(0, 1, len(b)))
+    import anodet.scoring.prompted as pr
+    monkeypatch.setattr(pr, "run_prompted", lambda model, X, **k: {"scores": np.linspace(0, 1, len(X)), "device": "cpu"})
+
+    metrics, _, _ = e6.run_one("creditcard-random", "qwen2.5-3b", "triage", seed=2)
+    for k, v in metrics.items():
+        assert isinstance(v, (int, float, np.floating, np.integer)), (
+            f"metric {k!r} is {type(v).__name__} — must be a scalar for aggregate.py"
+        )

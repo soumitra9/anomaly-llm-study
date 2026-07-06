@@ -1,0 +1,84 @@
+experiment: exp4_serialization
+
+# creditcard excluded: V1-V28 are PCA features with no inherent semantic ordering.
+# A "domain-informed" order on anonymous PCA components is arbitrary by construction.
+# See paper/05_experiments.md for the reviewer-facing explanation.
+
+axes:
+  models: [qwen2.5-3b]
+  # modes axis encodes the column ordering (not a scoring mode)
+  modes: [arbitrary, domain, "random:0", "random:1"]
+  datasets: [unsw, pima]
+  seeds: [0, 1, 2]
+
+domain_orders:
+  # pima: lowercase names from odds_names._UCI_NAMES (order verified 2026-07-04, see odds_names.py)
+  # exp4_serialization.py calls apply_semantic(X_test, "pima") before _order() to rename int cols
+  pima:
+    - pregnancies
+    - glucose
+    - blood_pressure
+    - skin_thickness
+    - insulin
+    - bmi
+    - diabetes_pedigree
+    - age
+
+  # unsw: derived from prepare_unsw() leakage screen on real data (2026-07-06).
+  # All 43 columns survive (ct_* features have single-feature AUROC < 0.99 on this dataset).
+  # Grouped semantically: connection identity -> time/duration -> traffic volume ->
+  # load/rate -> TCP mechanics -> packet size/jitter -> application layer ->
+  # binary flags -> count features (ct_*)
+  unsw:
+    # connection identity
+    - protocol
+    - service
+    - state
+    # duration / timing
+    - dur
+    - stime
+    - ltime
+    - sintpkt
+    - dintpkt
+    # traffic volume (bytes + packets + loss)
+    - sbytes
+    - dbytes
+    - spkts
+    - dpkts
+    - sloss
+    - dloss
+    # load / rate
+    - sload
+    - dload
+    # TCP mechanics
+    - swin
+    - dwin
+    - stcpb
+    - dtcpb
+    - tcprtt
+    - synack
+    - ackdat
+    - sttl
+    - dttl
+    # packet size / jitter
+    - smeansz
+    - dmeansz
+    - sjit
+    - djit
+    # application layer
+    - trans_depth
+    - res_bdy_len
+    # binary flags
+    - is_sm_ips_ports
+    - is_ftp_login
+    # count features (ct_*) -- all survived leakage screen (AUROC < 0.99)
+    - ct_state_ttl
+    - ct_flw_http_mthd
+    - ct_ftp_cmd
+    - ct_srv_src
+    - ct_srv_dst
+    - ct_dst_ltm
+    - ct_src_ltm
+    - ct_src_dport_ltm
+    - ct_dst_sport_ltm
+    - ct_dst_src_ltm
