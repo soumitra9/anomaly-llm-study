@@ -77,10 +77,18 @@ def run_baseline(
     """
     X_train, X_test = _encode_for_classical(X_train, X_test)
     clf = _make(name, seed)
-    # Use .astype(float).to_numpy() instead of np.asarray(.., dtype=float) so pandas nullable
-    # extension types (Int64, Float64, StringDtype) are converted correctly — pd.NA → np.nan.
-    clf.fit(X_train.astype(float).to_numpy())
-    return clf.decision_function(X_test.astype(float).to_numpy())
+    # .astype(float) converts pandas nullable extensions (Int64, Float64, StringDtype) correctly:
+    # pd.NA → np.nan. Then impute NaN with per-column training medians so sklearn does not reject
+    # missing values. For ODDS data (no NaN) the imputation block is a no-op.
+    Xtr = X_train.astype(float).to_numpy()
+    Xte = X_test.astype(float).to_numpy()
+    col_medians = np.nanmedian(Xtr, axis=0)
+    col_medians = np.where(np.isnan(col_medians), 0.0, col_medians)  # fallback for all-NaN cols
+    if np.isnan(Xtr).any() or np.isnan(Xte).any():
+        Xtr = np.where(np.isnan(Xtr), col_medians, Xtr)
+        Xte = np.where(np.isnan(Xte), col_medians, Xte)
+    clf.fit(Xtr)
+    return clf.decision_function(Xte)
 
 
 def run_panel(
