@@ -145,6 +145,10 @@ def _cli():
     p.add_argument("--batch-size", type=int, default=32)
     p.add_argument("--device", default=None)
     p.add_argument("--results-root", default="results")
+    p.add_argument("--experiment", default="exp2_odds",
+                   help="experiment name written into RunMetadata and used as the results sub-directory. "
+                        "Default 'exp2_odds' for M2 cells. Use 'da1_dissolving' for M3.5 dissolving arm "
+                        "so DA1 cells land in results/raw/da1_dissolving/ and never mix with M2 stats.")
     a = p.parse_args()
 
     hparams = dict(max_steps=a.max_steps, r=a.r, n_levels=a.n_levels,
@@ -161,7 +165,7 @@ def _cli():
     metrics, status, extra = run_one(a.dataset, a.model, a.mode, split_idx=a.split_idx, **hparams)
     # single-cell mode still writes a per-cell JSON (mirrors the grid path)
     from anodet.utils.run_metadata import RunMetadata, write_result
-    meta = RunMetadata(experiment="exp2_odds", model=a.model, mode=a.mode,
+    meta = RunMetadata(experiment=a.experiment, model=a.model, mode=a.mode,
                        dataset=a.dataset, seed=a.split_idx, **extra["run_metadata"])
     write_result(a.results_root, meta, metrics=metrics, status=status,
                  n_rows_scored=extra["n_rows_scored"], n_rows_expected=extra["n_rows_expected"],

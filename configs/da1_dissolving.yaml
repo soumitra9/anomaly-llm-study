@@ -1,0 +1,28 @@
+# DA1 — Dissolving arm confound check (M3.5)
+# Tests whether LoRA fine-tuning on the instruct checkpoint yields the same AUROC as
+# fine-tuning on the base checkpoint (Exp 2 qwen2.5-3b likelihood cells).
+# Gate: |mean AUROC(instruct+LoRA) - mean AUROC(base+LoRA)| < 0.02 — see GATE_SPEC.md §DA1.
+#
+# Protocol: qwen2.5-3b-instruct + LoRA likelihood on 8 representative ODDS datasets, 1 seed.
+# Compare to corresponding results/raw/exp2_odds/qwen2.5-3b__likelihood__<dataset>__seed0.json.
+# Results → results/raw/da1_dissolving/ (separate from exp2_odds to prevent stat contamination).
+experiment: da1_dissolving
+axes:
+  models: [qwen2.5-3b-instruct]
+  modes: [likelihood]
+  seeds: [0]
+  datasets:
+    - vertebral      # AUROC ~0.375 — low end
+    - speech         # AUROC ~0.469 — low end
+    - yeast          # AUROC ~0.738 — medium-low
+    - arrhythmia     # AUROC ~0.821 — medium
+    - cardio         # AUROC ~0.853 — medium-high
+    - ionosphere     # AUROC ~0.941 — high
+    - breastw        # AUROC ~0.990 — very high
+    - shuttle        # AUROC ~1.000 — perfect (sanity check)
+hparams:
+  max_steps: 2000
+  r: 5
+  n_levels: 10
+  batch_size: 32
+  n_splits: 5

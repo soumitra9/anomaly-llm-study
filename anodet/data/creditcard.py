@@ -25,6 +25,35 @@ LABEL = "Class"
 TIME = "Time"
 
 
+def _apply_binning(X_train: pd.DataFrame, X_test: pd.DataFrame,
+                   method: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Apply AnoLLM-compatible binning to numeric columns, fit on X_train only.
+
+    method='standard': StandardScaler per numeric column, rounded to 1 dp.
+    This matches the AnoLLM fork's normalize(..., 'standard') semantics but with correct
+    train/test isolation (scaler fit on train, applied to both). ODDS datasets use this
+    preprocessing before serialization; BA1 applies it to creditcard to bound the
+    serialization confound between experiments.
+
+    Only 'standard' is supported; add other methods if needed.
+    Raw floats (None / method='none') are a no-op.
+    """
+    from sklearn.preprocessing import StandardScaler
+
+    if method not in ("standard",):
+        raise ValueError(f"binning method {method!r} not supported (have: 'standard')")
+
+    numeric_cols = [c for c in X_train.columns
+                    if X_train[c].dtype in (np.float64, np.float32, np.int64, np.int32)]
+    Xtr = X_train.copy()
+    Xte = X_test.copy()
+    for col in numeric_cols:
+        scaler = StandardScaler()
+        Xtr[col] = scaler.fit_transform(Xtr[[col]]).round(1).ravel()
+        Xte[col] = scaler.transform(Xte[[col]]).round(1).ravel()
+    return Xtr, Xte
+
+
 def prepare_creditcard(
     df: pd.DataFrame,
     *,
@@ -32,6 +61,8 @@ def prepare_creditcard(
     test_frac: float = 0.5,
     max_test_neg: Optional[int] = 20000,
     seed: int = 42,
+    binning: Optional[str] = None,
+    drop_time: bool = False,
 ) -> dict:
     """Split + subsample + reweight. Returns X_train, X_test, y_test, sample_weight, hashes, base_rate.
 
@@ -39,8 +70,19 @@ def prepare_creditcard(
     normals (optionally subsampled) + **ALL** anomalies; `sample_weight` upweights subsampled negatives back
     to the true base rate. We split *normals* (not all rows) so every anomaly lands in test — splitting all
     rows would drop the train-half's anomalies.
+
+    `binning`: if 'standard', apply StandardScaler per numeric column (fit on X_train, transform both),
+    rounded to 1 dp — matching AnoLLM ODDS preprocessing for the BA1 confound check. Default None = raw
+    floats (all prior M3 cells used this).
+
+    `drop_time`: if True, exclude the 'Time' column from features used for scoring. 'Time' encodes temporal
+    order and creates a train/test distribution shift under temporal splits; passing drop_time=True isolates
+    the T3 confound check. Default False (M3 cells kept Time to stay consistent with prior run metadata).
     """
-    feat = [c for c in df.columns if c != LABEL]
+    exclude = {LABEL}
+    if drop_time:
+        exclude.add(TIME)
+    feat = [c for c in df.columns if c not in exclude]
     normals = df[df[LABEL] == 0]
     anomalies = df[df[LABEL] == 1]  # every anomaly goes to test (uncontaminated training)
 
@@ -65,6 +107,10 @@ def prepare_creditcard(
     test = pd.concat([anomalies, test_neg]).sample(frac=1, random_state=seed).reset_index(drop=True)
     y_test = test[LABEL].to_numpy().astype(int)
     X_test = test[feat].reset_index(drop=True)
+
+    if binning is not None:
+        X_train, X_test = _apply_binning(X_train, X_test, method=binning)
+
     # importance weights: scale the (subsampled) negatives back to n_neg_total
     weights = make_importance_weights(y_test, n_neg_total)
 

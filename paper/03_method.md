@@ -34,3 +34,22 @@ ODDS (30 datasets): Friedman omnibus → Nemenyi critical-difference diagram; pr
 Holm-corrected Wilcoxon signed-rank. Security (2–3 datasets): per-dataset bootstrap CIs and effect sizes (no
 Friedman). One confirmatory test per research question under Holm–Bonferroni family-wise control; everything
 else is labeled exploratory.
+
+## Confound checks (M3.5, pre-registered in GATE_SPEC.md)
+
+**DA1 — dissolving arm.** LoRA fine-tuning the instruct checkpoint (Qwen2.5-3B-Instruct) and scoring by
+likelihood on 8 representative ODDS datasets (1 seed, r=5) yields mean ΔAUROC = [TODO: fill after M3.5 pod run]
+vs base+LoRA cells from Exp 2 (pre-registered tolerance: |Δ| < 0.02 — see GATE_SPEC.md §DA1). TODO: replace
+bracket with result and verdict after DA1 cells complete.
+
+**BA1 — binned serialization on credit-card.** Switching credit-card from raw float serialization (Exp 3
+protocol) to ODDS-style standard binning changes mean classical AUROC by 0.0012 across four detectors
+(iforest/knn/pca/ecod), well below the pre-registered 0.03 tolerance (GATE_SPEC.md §BA1). The serialization
+format does not explain the cross-domain AUROC gap. (Note: KNN on the temporal split is evaluated after
+dropping the `Time` feature, which encodes temporal order and confounds KNN distance metrics under temporal
+splits; the corrected KNN AUROC is 0.932 vs the biased 0.178.)
+
+**T3 — Time feature in temporal split.** The credit-card `Time` column (transaction timestamp) creates a
+train/test distribution shift under temporal splits: KNN AUROC collapses from 0.932 (time excluded) to 0.178
+(time included). Tree-based detectors (IForest, ECOD) and PCA are robust (|ΔAUROC| < 0.025). All reported
+classical credit-card results use the time-excluded protocol (`exp3_security_notime`).
