@@ -4,14 +4,14 @@ Single source of truth for everything run so far. Regenerate/refresh at the end 
 Per-cell JSON under `results/raw/<exp>/` is the machine system-of-record; this is the human digest.
 Last updated: 2026-07-06 · git `802654f`.
 
-## Project spend to date ≈ **$133+** (RunPod A40 SECURE @ $0.44/hr)
+## Project spend to date ≈ **$136.61** (RunPod A40 SECURE @ $0.44/hr)
 | Milestone | Cost | Note |
 |---|---|---|
 | M1 gate | ~$21 | 90 cells + config tests |
 | D0 calibration | ~$0.65 | 1 pod, chose Qwen max_steps=1000 |
 | M2 Exp-2 | **$90.42** | real billing; ~35% over est (Qwen r=10 on 280k-row test sets) |
 | **M3 Exp-3/3b** | **~$13.03** | pod `l2css8jckkkp0q` stopped 2026-07-05; 29.6 h × $0.44/hr; 66/66 cells |
-| **M3.5 DA1 (running)** | ~$1.50+ accruing | pod `xbga2ae1dqfp12`, launched 2026-07-06; 3/8 cells done |
+| **M3.5 DA1** | **~$5.61** | pod `xbga2ae1dqfp12` stopped 2026-07-06; 8/8 cells; DA1 PASS |
 
 ---
 
@@ -73,11 +73,14 @@ Switching creditcard from raw float to ODDS-style standard binning changes mean 
 **0.0012** across 4 detectors (threshold 0.03 per GATE_SPEC §BA1). Serialization does not explain the
 cross-domain gap. Results in `results/raw/ba1_binned_notime/`. Sentence written in `paper/03_method.md`.
 
-**DA1 dissolving arm — 🔄 RUNNING on pod `xbga2ae1dqfp12` (A40, $0.44/hr):**
-Qwen2.5-3B-Instruct + LoRA likelihood, 8 ODDS datasets, seed=0, r=5, max_steps=1000. **3/8 cells done**
-(vertebral 0.402, speech 0.459, yeast 0.739). Gate: |mean ΔAUROC(instruct+LoRA − base+LoRA)| < 0.02
-(GATE_SPEC §DA1). Results → `results/raw/da1_dissolving/`. ETA ~2–3 h.
+**DA1 dissolving arm — ✅ COMPLETE: PASS**
+Qwen2.5-3B-Instruct + LoRA likelihood, 8 ODDS datasets, seed=0, r=5, max_steps=1000. Mean |ΔAUROC| =
+**0.0054** vs base+LoRA (threshold 0.02, GATE_SPEC §DA1). Checkpoint choice does not explain the A/B gap.
+Results in `results/raw/da1_dissolving/` (8 JSONs). Pod stopped (~$5.61).
+
+## M3.5 verdict summary
+All three checks PASS. M3.5 complete. Checkpoint choice (DA1) and serialization format (BA1) do not
+explain the observed gaps. Time feature (T3) corrected for all creditcard reporting.
 
 ## M4 → M5 (opt) → M6 → paper
-After DA1 completes + evaluated: M4 (Exp 4/5/6 — serialization order, Pareto, two-stage triage).
-M5 = optional Qwen3-14B A100 burst (~$25–45). M6 = final stats + paper.
+M4 = Exp 4/5/6 (serialization order, Pareto, two-stage triage). M5 = optional Qwen3-14B A100 burst (~$25–45). M6 = final stats + paper.

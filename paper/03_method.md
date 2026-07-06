@@ -37,10 +37,9 @@ else is labeled exploratory.
 
 ## Confound checks (M3.5, pre-registered in GATE_SPEC.md)
 
-**DA1 — dissolving arm.** LoRA fine-tuning the instruct checkpoint (Qwen2.5-3B-Instruct) and scoring by
-likelihood on 8 representative ODDS datasets (1 seed, r=5) yields mean ΔAUROC = [TODO: fill after M3.5 pod run]
-vs base+LoRA cells from Exp 2 (pre-registered tolerance: |Δ| < 0.02 — see GATE_SPEC.md §DA1). TODO: replace
-bracket with result and verdict after DA1 cells complete.
+**DA1 — dissolving arm.** Fine-tuning the instruct checkpoint (Qwen2.5-3B-Instruct) instead of the base
+yields mean |ΔAUROC| = 0.0054 across 8 ODDS datasets (seed=0, r=5), well below the pre-registered 0.02
+tolerance (GATE_SPEC.md §DA1). The checkpoint difference does not explain the likelihood-vs-prompted gap.
 
 **BA1 — binned serialization on credit-card.** Switching credit-card from raw float serialization (Exp 3
 protocol) to ODDS-style standard binning changes mean classical AUROC by 0.0012 across four detectors

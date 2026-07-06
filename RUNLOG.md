@@ -10,6 +10,21 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
+## 2026-07-06 · M3.5 DA1 dissolving arm · ✅ COMPLETE (8/8)
+- **Pod:** `anomaly-m35-da1` (`xbga2ae1dqfp12`), CA-MTL-1, $0.44/hr SECURE.
+- **Launched:** 2026-07-06 02:39Z. **Stopped:** 2026-07-06 ~15:25Z. Uptime: ~12.75 h.
+- **Grid:** 8 cells — Qwen2.5-3B-Instruct + LoRA likelihood on 8 ODDS datasets (seed=0, r=5, max_steps=1000).
+  Datasets: arrhythmia, breastw, cardio, ionosphere, shuttle, speech, vertebral, yeast.
+- **DA1 verdict: PASS** — mean |ΔAUROC(instruct+LoRA − base+LoRA)| = **0.0054** (threshold 0.02; GATE_SPEC §DA1).
+  Per-dataset deltas: arrhythmia +0.0053, breastw +0.0004, cardio −0.0166, ionosphere −0.0043,
+  shuttle −0.0001, speech +0.0008, vertebral −0.0092, yeast +0.0063.
+- **Results:** `results/raw/da1_dissolving/` (8 JSONs) rsync'd and verified.
+- **Log:** `results/logs/m35_da1.log`.
+- **Cost:** ~12.75 h × $0.44/hr ≈ **$5.61**. Project total ≈ **$136.61**.
+- **M3.5 status:** All 3 checks complete — T3 DONE (local CPU), BA1 PASS (|Δ|=0.0012), DA1 PASS (|Δ|=0.0054).
+
+---
+
 ## 2026-07-04 → 2026-07-05 · M3 Exp-3/3b · ✅ COMPLETE (66/66)
 - **Pod:** `anomaly-m3-cc` (`l2css8jckkkp0q`), CA-MTL-1, $0.44/hr SECURE.
 - **Launched:** 2026-07-04 19:59Z. **Stopped:** 2026-07-05 ~25:30Z. Uptime: 106562 s ≈ 29.6 h.

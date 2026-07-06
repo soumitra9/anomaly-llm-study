@@ -1,16 +1,13 @@
-# RunPod fleet — CURRENT: M3.5 confound checks (pending) / M4 (next)
+# RunPod fleet — CURRENT: M4 (next) / No active pods
 
-## Active — M3.5 DA1 pod
+## No active pods — M3.5 COMPLETE, M4 not yet launched
 
-| Pod | RunPod ID | SSH | role | cells |
-|---|---|---|---|---|
-| **m35da1** | `xbga2ae1dqfp12` | 69.30.85.58:22004 | DA1 dissolving arm (8 cells) | 8 |
+---
+## Archived — M3.5 DA1 dissolving arm (✅ COMPLETE 2026-07-06)
 
-**Config:** 1× A40 SECURE, $0.44/hr, CA-MTL-1. Launched 2026-07-06 02:39Z.
-**Cmd:** `uv run python -m anodet.eval.exp2 --config configs/da1_dissolving.yaml --device cuda --results-root /workspace/results --max-steps 1000 --r 5`
-**Log:** `/workspace/results/logs/m35_da1.log`. Results → `/workspace/results/raw/da1_dissolving/`.
-**ETA:** ~4–8 h (8 cells × ~30–60 min each; speech 400-feature = slow).
-**Teardown:** stop after all 8 cells done + rsync verified. Evaluate DA1 against GATE_SPEC §DA1.
+1× A40 (`xbga2ae1dqfp12`, CA-MTL-1). Launched 02:39Z, stopped ~15:25Z. Uptime ~12.75 h → **$5.61**.
+DA1 verdict: **PASS** — mean |ΔAUROC(instruct+LoRA − base+LoRA)| = 0.0054 (threshold 0.02).
+8/8 cells rsync'd → `results/raw/da1_dissolving/`. Log → `results/logs/m35_da1.log`.
 
 ---
 ## Archived — M3 Exp-3/3b (✅ COMPLETE 2026-07-05)
