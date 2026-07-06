@@ -60,7 +60,7 @@ All commands run through **uv** (`uv run …`). No pip/conda/venv.
   r column permutations. **Mode B (prompted):** the *instruct* sibling, frozen; expected-value score
   over verbalizer-token logprobs.
 - **Compute:** RunPod A40 fleets (SECURE, ~$0.44/hr each) for GPU work + local Mac (Apple Silicon) for
-  code/analysis; RunPod spend is double-confirm gated. Budget ≈ $30–70 total.
+  code/analysis; RunPod spend is double-confirm gated. See `results/SUMMARY.md` for actual spend.
 
 ## Reproducibility
 

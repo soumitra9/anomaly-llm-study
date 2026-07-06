@@ -8,7 +8,7 @@ alwaysApply: true
 ## Pre-register before results exist
 Any confirmatory comparison gets its numeric acceptance threshold **committed to the repo as a spec file BEFORE the results are generated** (pattern: `GATE_SPEC.md`, committed before the 90 gate cells landed).
 
-The **M3.5 dissolving arm** is the next live case: before launching those cells, commit `M35_SPEC.md` with the acceptance criterion. Suggested threshold: |ΔAUROC| ≤ 0.02 (matches C1 gate tolerance). The rule is the discipline; the spec file is the falsifiable artifact.
+The **M3.5 dissolving arm** is the next live case: the acceptance criterion is pre-registered in `GATE_SPEC.md §DA1` (committed 2026-07-05, before any M3.5 cells exist). Threshold: |mean ΔAUROC| < 0.02 (matches C1 gate tolerance). The rule is the discipline; `GATE_SPEC.md` is the falsifiable artifact.
 
 **Never expand-and-re-judge to force a pass.** A failed pre-registered criterion is a finding, not a bug to iterate away. (Pattern: C3 shortfall was root-caused and reported as a credible partial reproduction — not re-gated until green.)
 

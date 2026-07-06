@@ -76,7 +76,7 @@ Tests **74 green**. Fleet map: `FLEET.md`; runner `scripts/exp3_fleet.py` + `scr
 ---
 
 ## Decisions locked (don't relitigate)
-- **Mode A = fine-tune INSTRUCT checkpoint with LoRA**; Mode B = same instruct weights frozen → clean A/B.
+- **Mode A = fine-tune BASE checkpoint with LoRA**; Mode B = frozen instruct sibling → same family+size, different recipe. Checkpoint confound bounded by M3.5 DA1 (`GATE_SPEC.md §DA1`; pre-registered).
 - **Engine = HF Transformers + PEFT everywhere** (no vLLM in v1).
 - **uv** for all env/exec (Python 3.10); package **`anodet`**. Overrides: `torch==2.3.1`, `pyod==2.0.1`, `USE_TF=0`.
 - **Scale-up model = Qwen2.5-3B** (not Qwen3; transformers 4.48.2 incompatible with qwen3 arch).

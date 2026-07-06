@@ -1,3 +1,9 @@
 
 # Don't index SpecStory auto-save files, but allow explicit context inclusion via @ references
 .specstory/**
+
+# PLAN.md is a v1.0 research design with superseded §9 (compute/engine/model assumptions).
+# Stale content (Kaggle, vLLM, Qwen3-4B, $30-70 budget) will mislead agents reading it as
+# authoritative. Defer to ROADMAP.md + docs/claude/memory/project-state.md for live status.
+# Use @ references to include PLAN.md §§1-8 (RQs, experiments, metrics) when explicitly needed.
+PLAN.md
