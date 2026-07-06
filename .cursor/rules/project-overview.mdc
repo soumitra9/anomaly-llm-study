@@ -1,5 +1,5 @@
 ---
-description: Project overview — what we are doing, key files, current status
+description: Project overview — what we are doing, key files, science facts
 alwaysApply: true
 ---
 
@@ -23,8 +23,8 @@ alwaysApply: true
 | `project_idea.md` | Original brief (some premises corrected — see memory files) |
 | `docs/claude/memory/MEMORY.md` | Index of all memory files |
 
-## Current status (2026-07-05)
-M1 + M2 complete. M3 running on RunPod pod `anomaly-m3-cc`. Project spend ≈ $118. See `project-state.md` for full detail.
+## Current status
+Do not rely on this file for operational status. Read `docs/claude/memory/project-state.md` for current status, spend, active pods, and next steps. Read `ROADMAP.md` for milestone progress.
 
 ## Key science facts
 - AnoLLM uses **SmolLM-360M** (not Llama/Mistral). Bigger models are NOT better (135M=0.884, 360M=0.865, 1.7B=0.861 AUROC).

@@ -1,0 +1,22 @@
+---
+description: results/raw/ is the immutable system of record — throwaway roots for smokes, dedupe on merge, never hand-edit
+alwaysApply: true
+---
+
+# Results Integrity — The System of Record
+
+`results/raw/<experiment>/*.json` (one atomic JSON per cell) is the **sole system of record**. Tables and figures are derived deterministically via `make tables` / `make figures`. Corrupting raw/ silently corrupts the paper — and because `is_complete` skips existing JSONs, corruption is permanent unless the bad file is deleted and the cell re-run.
+
+## Hard rules
+
+**Never hand-edit a result JSON.** If a cell produced the wrong result, delete the JSON and fix the code; the correction must come from a re-run, not from editing output.
+
+**Never write smoke / validation / debug output into `results/raw/<real experiment>`.** All throwaway runs use an explicit throwaway root (e.g. `/tmp/anodet_localsmoke`). A junk JSON in a real raw/ dir will be seen as "complete" by `is_complete`, skip-resumed forever, and silently enter the final analysis.
+
+**Multi-pod merges must dedupe by cell key** (model, mode, dataset/task, seed) to the exact expected grid count before any verdict or aggregation. Per-pod `is_complete` is LOCAL — a rebalanced fleet double-computes cells; the first duplicate is not wrong, but failing to dedupe before the manifest check means the grid "looks" larger than expected.
+
+*(Incident: M1 — mammography/annthyroid ran on both pods B and C; deduped correctly before the verdict.)*
+
+**`grid.assert_grid_complete` must never be bypassed or commented out** to get a "preview" table. An incomplete grid produces subtly wrong summary statistics (means shift as missing cells are not uniformly distributed across datasets).
+
+**`results/backups/*.tgz` are write-once.** Never regenerate over them. If a backup needs updating, create a new timestamped archive alongside the old one.

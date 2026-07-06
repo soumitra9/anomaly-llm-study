@@ -1,0 +1,27 @@
+---
+description: While a fleet campaign is running, check FLEET.md before touching execution-path modules — hold behavioral changes, not docstrings
+alwaysApply: true
+---
+
+# Active-Campaign Safety — Hold Behavioral Changes While Pods Run
+
+Fleet campaigns run off a cloned snapshot; a resume/re-clone pulls `main`. Pushing **behavioral** changes to execution-path modules mid-campaign makes resumed cells inconsistent with completed ones — a silent, unfixable protocol fork.
+
+## Before modifying ANY file under `anodet/` or `scripts/`
+1. **Check `FLEET.md` / `project-state.md`:** is a campaign currently running?
+2. If yes, determine whether the file is on that campaign's execution path.
+3. If on-path:
+   - **Behavioral or protocol-affecting changes** (logic, control flow, data transformations, serialization, feature sets) → **HOLD on `main`** until the campaign completes and results are rsync'd. Commit on a local branch if needed.
+   - **Non-behavioral changes** (docstrings, comments, type hints, paper prose) → safe to push. State the on/off-path reasoning in the commit message.
+
+*(Pattern: M3 was running when `two_stage.py` and `paper/` were updated — safe because `triage/` and `paper/` are off M3's execution path. Changing `unsw.py` or `likelihood.py` mid-run would not have been safe.)*
+
+## Bug found in shared execution-path code mid-campaign
+If a local smoke surfaces a bug in code the **running campaign also executes**, that is NOT a hold-and-defer — the campaign may be producing corrupted cells right now. Stop, assess whether completed cells are affected, then decide: fix+restart vs. finish+document-as-limitation.
+
+*(Rule: `active-campaign-safety` vs `results-integrity` — one protects code during runs, the other protects outputs after runs.)*
+
+## Also protected while running
+- `pyproject.toml` / `uv.lock` — resume re-syncs the env; must resolve identically
+- The campaign's config YAML — changes the expected grid under a live manifest
+- **Leakage screens and feature-drop lists** (e.g. `UNSW DROP_ALWAYS`, `ct_*` threshold) — changing these mid-run silently splits the feature set between completed and pending cells, with no error and no way to recover comparability
