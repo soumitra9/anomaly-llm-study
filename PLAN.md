@@ -321,26 +321,30 @@ contribution. **Day-0 pre-step (§2a):** confirm the chosen set's column names a
 and aligned to the `.mat` column order *before* writing code — else swap to another named set. Tests
 RQ3b. **[fixes meth-M2; relocated + named per review]**
 
-**M3.5 — Three cheap spot-checks (post-M3, pre-M4; one short pod ~$5–8 total)**
+**M3.5 — Three cheap confound-bounding checks (post-M3, pre-M4; one short pod ~$5–8 total)**
 
 These are not new research questions — they empirically bound confounds identified in review and convert
-open narrative risks into one-sentence findings:
+open narrative risks into one-sentence findings. **Stop criteria are pre-registered in `GATE_SPEC.md`
+(DA1, BA1) before any M3.5 runs exist.** Do not read M3.5 results before checking them against those
+pre-registered thresholds. Each arm yields exactly one sentence in the paper, pass or fail.
 
-1. **Dissolving arm** (checkpoint-difference confound, finding 1 above): LoRA fine-tune the *instruct*
-   checkpoint (Qwen2.5-3B-Instruct, then SmolLM-360M-Instruct) and score by likelihood on ~8–10 ODDS
-   datasets, 1 seed each. If instruct-likelihood ≈ base-likelihood (AUROC within a small margin), report
-   one sentence: "The checkpoint difference does not explain the A/B gap." Fold result into §RQ2/RQ3
-   discussion. ~$3–5, on an A40, reuses `run_likelihood` with `lora=True`. **Run Qwen first** — it matters
-   most for the scale claim.
+**Scope-lock:** M3.5 is a confound-bounding exercise, not a new experiment. Neither DA1 nor BA1
+spawns a new compute run before M4. M4 starts immediately after M3.5 results are evaluated.
 
-2. **Binned-creditcard arm** (serialization confound, finding 2): Re-run Exp 3 creditcard (temporal split,
-   one model per mode, 1 seed) with binned serialization to match the ODDS protocol. Fold into Exp 4 as a
-   two-axis finding (order × binning). Blocks any cross-experiment narrative sentence attributing gap
-   changes to "domain" rather than "serialization." ~$2–3.
+1. **Dissolving arm — DA1** (checkpoint-difference confound): LoRA fine-tune Qwen2.5-3B-Instruct and
+   score by likelihood on ~8 ODDS datasets, 1 seed, r=5. Compare to the corresponding base+LoRA cells
+   already in `results/raw/exp2_odds/`. Pre-registered gate: `|mean ΔAUROC| < 0.02` (same as C1
+   tolerance). ~$3–5 on A40, reuses `run_likelihood`. **Run Qwen first** — it drives the scale claim.
+   See `GATE_SPEC.md §DA1` for full pass/fail language.
 
-3. **Drop-Time classical re-run** (finding 3): Re-run the 4 classical baselines on creditcard-temporal
-   *without* the `Time` column (CPU only, minutes, $0 on local). If delta is negligible, one sentence
-   closes it; if large, report both.
+2. **Binned-creditcard arm — BA1** (serialization confound): Re-run 4 classical baselines on
+   creditcard-temporal with ODDS-style binned serialization (1 seed). Compare to raw-float classical
+   cells in `results/raw/exp3_security/`. Pre-registered gate: `|mean ΔAUROC| < 0.03` across 4
+   detectors. ~$2–3, folds into Exp 4 on BA1 FAIL. See `GATE_SPEC.md §BA1`.
+
+3. **Drop-Time classical re-run** (finding 3, CPU only, $0): Re-run 4 classical baselines on
+   creditcard-temporal without the `Time` column. No formal gate — if `|ΔAUROC| < 0.02` across
+   detectors, close with one sentence; if larger, report both conditions in Exp 3 results.
 
 **Exp 4 — Serialization order + binning** *(expanded from original).* Multiple orderings {arbitrary,
 domain-informed, ≥2 random-permutation controls} × {raw, binned} serialization × ≥2 security datasets

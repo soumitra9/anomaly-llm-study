@@ -43,3 +43,77 @@ No further expansion. No threshold changes.
 A failure on **C1 or C2 ⇒ STOP and debug the pipeline.** No amount of added data rescues a mean-level or
 rank-correlation failure, and no downstream experiment (Exp 2–6) proceeds until the gate passes. The existence
 of build-ahead code (Phase A) does not justify proceeding on a failed gate.
+
+---
+
+# M3.5 Confound-Bounding Gates — PRE-REGISTERED
+
+**Status: pre-registered 2026-07-05, before M3.5 runs exist.** These criteria close the dissolving arm and
+binned-creditcard arm as confound checks. They must not be changed after seeing results.
+
+_Same anti-p-hacking discipline as C1/C2/C3: the tolerance is the number, not a number chosen to match
+the result. Both thresholds are anchored to C1's 0.02 reproduction tolerance — internally consistent and
+not post-hoc._
+
+## DA1 — Dissolving arm (checkpoint-difference confound)
+
+**What it tests:** Does LoRA fine-tuning the *instruct* checkpoint and scoring by likelihood yield
+the same AUROC as fine-tuning the *base* checkpoint (Mode A as run in Exp 1/2)? If yes, the
+two-variable A/B (base+LoRA vs frozen-instruct) is not confounded by the checkpoint choice.
+
+**Protocol:** Qwen2.5-3B-Instruct + LoRA likelihood on the same ~8 ODDS datasets as used in M2,
+1 seed, r=5. Compared to the corresponding Qwen2.5-3B base+LoRA cells already in `results/raw/exp2_odds/`.
+
+**Pre-registered criterion:**
+
+```
+DA1 PASS: |mean AUROC(instruct+LoRA) − mean AUROC(base+LoRA)| < 0.02
+          computed as seed-mean per dataset, then averaged across the ~8 ODDS test sets.
+
+DA1 PASS → one sentence in §method/§RQ2:
+           "Fine-tuning the instruct checkpoint instead of the base yields mean ΔAUROC = X
+            (< 0.02 pre-registered tolerance); the checkpoint difference does not explain
+            the likelihood-vs-prompted gap."
+
+DA1 FAIL → report as a finding, not a failure:
+           "Instruct fine-tuning yields meaningfully different likelihood scores (ΔAUROC = X).
+            The A/B comparison controls model size but not checkpoint recipe; this is reported
+            as a caveat in §method and the finding is described in §RQ2."
+           M4 proceeds regardless — DA1 FAIL changes the claim, not the schedule.
+```
+
+**Scope-lock:** DA1 FAIL does not trigger a new compute run. The result is reported either way.
+
+## BA1 — Binned-creditcard arm (serialization confound)
+
+**What it tests:** Does switching creditcard-temporal from raw float serialization (Exp 3 protocol)
+to standard binned serialization (ODDS protocol) materially change the AUROC of classical baselines?
+If not, cross-domain comparisons are not primarily confounded by serialization.
+
+**Protocol:** Re-run the 4 classical baselines on creditcard-temporal, binned serialization, 1 seed.
+Compare to the raw-float classical cells already in `results/raw/exp3_security/`.
+
+**Pre-registered criterion:**
+
+```
+BA1 PASS: |mean AUROC(binned classical) − mean AUROC(raw classical)| < 0.03
+          averaged across the 4 classical detectors (iforest, pca, knn, ecod).
+
+BA1 PASS → one sentence in §method:
+           "Switching to ODDS-style binned serialization on credit-card data changes mean
+            classical AUROC by X (< 0.03 pre-registered tolerance); serialization format
+            does not explain the cross-domain gap."
+
+BA1 FAIL → binned arm becomes a full condition in Exp 4 (serialization axis);
+           all cross-domain narrative sentences are qualified with binning as a co-variable.
+           M4 proceeds regardless — BA1 FAIL adds a condition, not a new milestone.
+```
+
+**Note:** BA1 uses a 0.03 tolerance (vs DA1's 0.02) because creditcard classical AUROC has higher
+variance than ODDS mean AUROC (extreme imbalance, smaller effective positives). Pre-committed.
+
+## Scope-lock for both arms
+
+M3.5 is a confound-bounding exercise, not a new experiment. DA1 and BA1 each yield exactly one sentence
+in the paper regardless of pass/fail. **Neither result spawns a new compute run before M4.** M4 starts
+immediately after M3.5 results are evaluated against DA1/BA1.
