@@ -10,6 +10,16 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
+## 2026-07-06 · M4 Exp 4 + Exp 6 · 🔄 RUNNING (24/33 cells)
+- **Pod:** `anomaly-m4-exp4exp6` (`pyinsl4hrttusc`), CA-MTL-1, $0.44/hr SECURE.
+- **Launched:** 2026-07-06 16:17Z. **Git:** `289cb91` (M4 Phase 1); hot-patched to `c3ee07b`.
+- **Exp 4 — serialization order (RQ5):** 24/24 cells complete. Grid: qwen2.5-3b × {arbitrary, domain, random:0, random:1} × {unsw, pima} × seeds {0,1,2}. ~7h on A40. No failures. Results on-pod: `results/raw/exp4_serialization/` (24 JSONs).
+- **Exp 6 — two-stage triage (RQ7):** 0/9 cells. Crashed on first cell with `TypeError: run_one() got multiple values for keyword argument 'classical_detector'` — `_cli()` was forwarding those kwargs to `run()` which also reads them from YAML via `make_run_cell`. Fixed in `c3ee07b`; pod pulled fix; restarted 23:31Z. ETA ~1–1.5h.
+- **Incident log:** exp6 double-kwarg bug — no data loss (Exp 4 unaffected, Exp 6 writes per-cell JSON only on success). Zero corrupt JSONs.
+- **Cost (accruing):** ~8h × $0.44/hr ≈ **$3.5** so far. Est. total ~$4-5. Project total ≈ **~$140**.
+
+---
+
 ## 2026-07-06 · M3.5 DA1 dissolving arm · ✅ COMPLETE (8/8)
 - **Pod:** `anomaly-m35-da1` (`xbga2ae1dqfp12`), CA-MTL-1, $0.44/hr SECURE.
 - **Launched:** 2026-07-06 02:39Z. **Stopped:** 2026-07-06 ~15:25Z. Uptime: ~12.75 h.

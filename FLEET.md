@@ -1,6 +1,15 @@
-# RunPod fleet — CURRENT: M4 (next) / No active pods
+# RunPod fleet — CURRENT: M4 Exp 6 RUNNING (Exp 4 complete)
 
-## No active pods — M3.5 COMPLETE, M4 not yet launched
+## Active — M4 pod
+
+| Pod | RunPod ID | SSH | role | cells |
+|---|---|---|---|---|
+| **m4** | `pyinsl4hrttusc` | 69.30.85.142:22071 | Exp 4 (done) + Exp 6 (running) | 24/33 |
+
+**Config:** 1× A40 SECURE, $0.44/hr, CA-MTL-1. Launched 2026-07-06 16:17Z.
+**Git:** `c3ee07b` (pulled on pod after exp6 bug fix). **Log:** `results/logs/m4_exp4exp6.log` (on-pod).
+**Exp 4:** 24/24 complete (~7h). **Exp 6:** 0/9, restarted 23:31Z after double-kwarg bug fix.
+**Stop pod when** `/workspace/m4.done` exists. Est. total cost: ~$4-5.
 
 ---
 ## Archived — M3.5 DA1 dissolving arm (✅ COMPLETE 2026-07-06)
