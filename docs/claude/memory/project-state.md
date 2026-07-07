@@ -7,15 +7,16 @@ metadata:
   originSessionId: 1a1b306d-ea32-4ed7-ba13-3c36279f641a
 ---
 
-**As of 2026-07-06 (updated 23:40 local).** Repo: `github.com/soumitra9/anomaly-llm-study` (PUBLIC), `main`, HEAD **c3ee07b**. Build/run via **`uv` only**, Python 3.10, Apple Silicon (MPS) locally / CUDA on RunPod. Package **`anodet`**. Full plan: `docs/claude/plans/i-need-to-plan-ancient-dawn.md` (★★ POST-M2). Status-of-record: in-repo `ROADMAP.md` + git.
+**As of 2026-07-07 (updated 20:35 local).** Repo: `github.com/soumitra9/anomaly-llm-study` (PUBLIC), `main`, HEAD **see git log**. Build/run via **`uv` only**, Python 3.10, Apple Silicon (MPS) locally / CUDA on RunPod. Package **`anodet`**. Full plan: `docs/claude/plans/i-need-to-plan-ancient-dawn.md` (★★ POST-M2). Status-of-record: in-repo `ROADMAP.md` + git.
 
-## WHERE WE ARE NOW (2026-07-06 — M1+M2+M3+M3.5 COMPLETE; M4 IN PROGRESS on RunPod)
+## WHERE WE ARE NOW (2026-07-07 — M1+M2+M3+M3.5+M4 COMPLETE; no active pods)
 - **M2 COMPLETE: 360/360 cells, 0 failures.** Real cost $90.42. Results: likelihood ≫ prompted (Friedman p=6e-12); no significant Qwen scale gain on likelihood (p_holm=0.77). Artifacts: `results/tables/exp2_odds.csv`, `results/figures/exp2_cd_diagram.png`.
 - **M3 COMPLETE (2026-07-05): 66/66 cells** — 60 `exp3_security` + 6 `exp3b_names`. Pod `l2css8jckkkp0q` stopped (~$13.03). Results rsync'd: `results/raw/exp3_security/` + `results/raw/exp3b_names/`. Preliminary: classical baselines on security; semantic vs anon names on pima.
 - **M3.5 COMPLETE (2026-07-06):** T3 done (drop-Time classical, local $0); BA1 PASS (|Δ|=0.0012 < 0.03); DA1 PASS (mean |ΔAUROC| = 0.0054 < 0.02). All 3 confound checks pass. Pod `xbga2ae1dqfp12` stopped (~$5.61).
-- **M4 IN PROGRESS (2026-07-06):** pod `pyinsl4hrttusc`, 1× A40 SECURE $0.44/hr, SSH 69.30.85.142:22071. **Exp 4 (serialization order RQ5): 24/24 complete** — qwen2.5-3b × {arbitrary, domain, random:0, random:1} × {unsw, pima} × seeds {0,1,2}. Results on-pod, pending rsync. **Exp 6 (two-stage triage RQ7): 0/9, restarted 23:31Z** after double-kwarg bug fix (commit `c3ee07b`). Exp 5 (Pareto RQ6) = local script after rsync.
-- **PROJECT SPEND ≈ ~$140** (M1 $21 + D0 $0.65 + M2 $90.42 + M3 $13.03 + M3.5 $5.61 + M4 ~$4-5 accruing). HEAD `c3ee07b`. Tests: **85 green**.
-- **NEXT:** wait for Exp 6 completion → rsync Exp 4+6 → stop pod → run `exp5_pareto.py` locally → `make tables figures` → update `SUMMARY.md` → push → M6 analysis.
+- **M4 COMPLETE (2026-07-07 03:10Z):** pod `pyinsl4hrttusc` finished. **Exp 4 (RQ5): 24/24** — domain ordering NOT helpful (arbitrary 0.564 > domain 0.501 AUROC). **Exp 6 (RQ7): 9/9** — IForest alone dominates security (AUROC 0.94-0.96); LLM triage adds 0 uplift at k=1%, negative at k=10% (negative result). **Exp 5 (RQ6):** Pareto table + figure generated locally. All results rsync'd. Tables: `exp4_serialization.csv`, `exp5_pareto.csv`, `exp6_triage.csv`.
+- **PROJECT SPEND ≈ $141.41** (M1 $21 + D0 $0.65 + M2 $90.42 + M3 $13.03 + M3.5 $5.61 + M4 $4.80). Tests: **85 green**.
+- **ACTION NEEDED:** Stop pod `pyinsl4hrttusc` via RunPod console (MCP auth down; GPU still billing).
+- **NEXT:** M6 — Friedman/bootstrap on M4 results; write paper sections RQ5/RQ6/RQ7. Then delete stopped pods + revoke GitHub tokens.
 - **MONITORING FIX (M2 teardown failed — own it):** the teardown gate was a detached `nohup` (harness-invisible → never notified me) AND timed out (33h<73h) → p6 idled until user caught it manually. FIX for M3 = **cron guardian** (`CronCreate` re-invokes me — proven to fire): completion/idle-triggered teardown ONLY (never budget-kill), rsync results+logs+VERIFY before delete. Honest limit: cron needs the Claude session alive; away-safe backstop = RunPod account spend limit (user sets once). Guardian cron currently armed: job id changes per session.
 - **Fleet config (D0-validated, locked):** SmolLM-360M @**2000** steps, Qwen2.5-3B @**1000** steps (D0: cardio AUROC 0.831@2000 [epoch 38, over-trained] vs **0.841@1000**, 3× cheaper/faster — 58min→20min/cell). r=10, both modes. Sharded 5 datasets/pod (disjoint). Wide/slow sets isolated: speech→p1, arrhythmia→p2, musk→p3.
 - **Layer 0 de-risk DONE (all local, $0, pytest 70):** 3 fleet-failure gaps fixed (UNCOMMITTED, base 9207575, push-to-main gated → scp'd to pods): **G1** `scripts/exp2_fleet.py` (shardable/resumable fleet runner), **G2** `run_prompted` OOM-retry, **G3** `configs/qwen_hparams.yaml`. Real CPU A/B both modes + resume + analysis pipeline (aggregate→stats→CD-figure) all validated. D0 done (~$0.65, pod torn down).
@@ -58,12 +59,10 @@ Front-loaded Phase-B validation while the gate runs — same plan, earlier clock
 - 54 tests green throughout. Commits b4d77b9 (T1), c6907c0 (T3). Friend-review hardening folded into plan: shared-code-bug branch rule, true_base_rate (not y_test) assertion, pima Phase-3 gate, pre-decided MVP scope, citation-verify flag.
 
 ## NEXT (in order, with gates)
-1. **Monitor M4 pod** `pyinsl4hrttusc` → Exp 6 completes (9 cells iforest-triage on creditcard+unsw). Watch for `/workspace/m4.done`.
-2. **Rsync** `results/raw/{exp4_serialization,exp6_triage}/` + logs → local BEFORE teardown.
-3. **Teardown** M4 pod; run `scripts/exp5_pareto.py` locally (no GPU); `make tables figures`.
-4. **Update `results/SUMMARY.md`** with M4 findings → push to GitHub.
-5. **M6** → Friedman/bootstrap on M4 cells → final paper stats.
-6. (Housekeeping) Delete stopped pods `l2css8jckkkp0q` + `xbga2ae1dqfp12` + revoke GitHub tokens.
+1. **STOP pod `pyinsl4hrttusc`** via RunPod console — GPU billing; MCP auth down.
+2. **M6** — Friedman/bootstrap on Exp 4+6; write paper §RQ5, §RQ6, §RQ7; finalize figures.
+3. (Housekeeping) Delete stopped pods `l2css8jckkkp0q`, `xbga2ae1dqfp12`, `pyinsl4hrttusc` when ready.
+4. Revoke the 2 GitHub tokens shared in chat.
 
 ## OPEN / DEFERRED / USER-ACTION
 - **A7 deep baselines (DeepOD) DEFERRED**: deepod NOT in the uv env; adding mid-campaign risks the pinned torch2.3.1/pyod2.0.1 stack the gate depends on. Off critical path (classical panel covers beats-best-classical). Revisit M3.

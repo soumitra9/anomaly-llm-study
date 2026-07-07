@@ -1,15 +1,18 @@
-# RunPod fleet — CURRENT: M4 Exp 6 RUNNING (Exp 4 complete)
+# RunPod fleet — CURRENT: NO ACTIVE PODS (M4 complete)
 
-## Active — M4 pod
+## Recently stopped — M4 pod
 
-| Pod | RunPod ID | SSH | role | cells |
+| Pod | RunPod ID | SSH | role | status |
 |---|---|---|---|---|
-| **m4** | `pyinsl4hrttusc` | 69.30.85.142:22071 | Exp 4 (done) + Exp 6 (running) | 24/33 |
+| **m4** | `pyinsl4hrttusc` | 69.30.85.142:22071 | Exp 4 (24) + Exp 6 (9) | DONE — stop/delete via console |
 
-**Config:** 1× A40 SECURE, $0.44/hr, CA-MTL-1. Launched 2026-07-06 16:17Z.
-**Git:** `c3ee07b` (pulled on pod after exp6 bug fix). **Log:** `results/logs/m4_exp4exp6.log` (on-pod).
-**Exp 4:** 24/24 complete (~7h). **Exp 6:** 0/9, restarted 23:31Z after double-kwarg bug fix.
-**Stop pod when** `/workspace/m4.done` exists. Est. total cost: ~$4-5.
+**Ran:** 2026-07-06 16:17Z → 2026-07-07 03:10Z (~10.9h, ~$4.80). Git: `c3ee07b`.
+**Results rsync'd:** `results/raw/exp4_serialization/` (24 JSONs) + `results/raw/exp6_triage/` (9 JSONs).
+**ACTION NEEDED:** Stop pod `pyinsl4hrttusc` via RunPod console (MCP auth is down). GPU still billing.
+
+## Other stopped pods (disk persists — delete when ready)
+- `l2css8jckkkp0q` — M3 Exp-3/3b (stopped 2026-07-05)
+- `xbga2ae1dqfp12` — M3.5 DA1 (stopped 2026-07-06)
 
 ---
 ## Archived — M3.5 DA1 dissolving arm (✅ COMPLETE 2026-07-06)

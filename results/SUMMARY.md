@@ -2,9 +2,9 @@
 
 Single source of truth for everything run so far. Regenerate/refresh at the end of each milestone.
 Per-cell JSON under `results/raw/<exp>/` is the machine system-of-record; this is the human digest.
-Last updated: 2026-07-06 · git `c3ee07b`.
+Last updated: 2026-07-07 · git HEAD (M4 complete).
 
-## Project spend to date ≈ **~$140** (RunPod A40 SECURE @ $0.44/hr, M4 accruing)
+## Project spend to date ≈ **$141.41** (RunPod A40 SECURE @ $0.44/hr)
 | Milestone | Cost | Note |
 |---|---|---|
 | M1 gate | ~$21 | 90 cells + config tests |
@@ -12,7 +12,7 @@ Last updated: 2026-07-06 · git `c3ee07b`.
 | M2 Exp-2 | **$90.42** | real billing; ~35% over est (Qwen r=10 on 280k-row test sets) |
 | **M3 Exp-3/3b** | **~$13.03** | pod `l2css8jckkkp0q` stopped 2026-07-05; 29.6 h × $0.44/hr; 66/66 cells |
 | **M3.5 DA1** | **~$5.61** | pod `xbga2ae1dqfp12` stopped 2026-07-06; 8/8 cells; DA1 PASS |
-| **M4 Exp-4/5/6** | **~$4-5 est** | pod `pyinsl4hrttusc` running; Exp 4 24/24 done; Exp 6 0/9 running |
+| **M4 Exp-4/5/6** | **~$4.80** | pod `pyinsl4hrttusc`; 10.9h × $0.44/hr; 33/33 cells; DONE 2026-07-07 03:10Z |
 
 ---
 
@@ -83,20 +83,48 @@ Results in `results/raw/da1_dissolving/` (8 JSONs). Pod stopped (~$5.61).
 All three checks PASS. M3.5 complete. Checkpoint choice (DA1) and serialization format (BA1) do not
 explain the observed gaps. Time feature (T3) corrected for all creditcard reporting.
 
-## M4 — Exp 4/5/6 (RQ5–7) · 🔄 IN PROGRESS
+## M4 — Exp 4/5/6 (RQ5–7) · ✅ COMPLETE (33/33 cells)
 
-**Exp 4 — serialization order (RQ5):** 24/24 cells complete on pod `pyinsl4hrttusc`.
-Grid: Qwen2.5-3B × {arbitrary, domain, random:0, random:1} ordering × {unsw, pima} × seeds {0,1,2}.
-Domain order: UNSW columns ranked by domain-expert relevance after leakage screen; pima uses UCI semantic names.
-Results pending rsync to local. Analysis pending.
+Pod `pyinsl4hrttusc` (A40) finished 2026-07-07 03:10Z. ~10.9h uptime × $0.44/hr ≈ **$4.80**.
+Results rsync'd locally. Tables: `exp4_serialization.csv`, `exp5_pareto.csv`, `exp6_triage.csv`.
 
-**Exp 5 — Pareto practicality (RQ6):** no GPU needed. Will run `scripts/exp5_pareto.py` locally after
-rsync. Reads `wall_seconds` from Exp 2/3/4/6 JSONs; hardcoded RUNLOG averages for M1. Produces
-`results/tables/exp5_pareto.csv` and `results/figures/exp5_pareto.png`.
+### Exp 4 — serialization order (RQ5) · 24/24 cells
+Grid: Qwen2.5-3B prompted × {arbitrary, domain, random:0, random:1} × {unsw, pima} × seeds {0,1,2}.
 
-**Exp 6 — two-stage triage (RQ7):** 0/9 cells. Restarted 2026-07-06 23:31Z after `TypeError` bug fix
-(double-kwarg `classical_detector` in `_cli()`; commit `c3ee07b`). Grid: qwen2.5-3b × iforest-triage ×
-{creditcard, unsw} × seeds {0,1,2} + 3 k-sweep points within each cell.
+| Ordering | Mean AUROC |
+|---|---|
+| arbitrary | **0.564** |
+| random:0 | 0.550 |
+| random:1 | 0.543 |
+| domain | 0.501 |
+
+**Finding (RQ5):** Domain-expert column ordering does not help prompted scoring — arbitrary order leads.
+Domain is worst on unsw (0.554 vs 0.680 arbitrary). The LLM does not leverage column-order signals.
+
+### Exp 5 — Pareto practicality (RQ6) · local (no GPU)
+Table: `results/tables/exp5_pareto.csv`. Figure: `results/figures/exp5_pareto.png`.
+
+| Method | Mean AUROC | Wall-sec / 1k rows |
+|---|---|---|
+| qwen-3b / likelihood | 0.859 | 222 s |
+| smol-360 / likelihood | 0.843 | 222 s |
+| qwen-3b / triage (exp6) | 0.687 | 54 s |
+| smol-360 / prompted | 0.610 | 33 s |
+| qwen-3b / arbitrary (exp4) | 0.564 | 28 s |
+| qwen-3b / prompted | 0.493 | 33 s |
+
+**Finding (RQ6):** Likelihood dominates on accuracy but costs ~4-8x more than prompted/triage. Triage at 54s/1k rows is a useful middle ground. Prompted alone is cheapest but weakest.
+
+### Exp 6 — two-stage triage (RQ7) · 9/9 cells
+Grid: Qwen2.5-3B + IForest × {creditcard-random, creditcard-temporal, unsw} × seeds {0,1,2}. k at 1%, 5%, 10%.
+
+| Dataset | IForest AUROC | LLM AUROC | k=1% uplift | k=10% uplift |
+|---|---|---|---|---|
+| creditcard-random | 0.950 | 0.694 | 0.00 | -0.489 |
+| creditcard-temporal | 0.940 | 0.688 | 0.00 | -0.455 |
+| unsw | 0.961 | 0.680 | 0.00 | -0.089 |
+
+**Finding (RQ7, negative result):** IForest alone dominates on security data (AUROC 0.94-0.96). LLM re-ranking adds zero uplift at k=1% and is harmful at k=10%. Two-stage triage provides no benefit over classical-only on these datasets.
 
 ## M5 (opt) → M6 → paper
-M5 = optional Qwen3-14B A100 burst (~$25–45, cost-gated). M6 = final stats + paper.
+M5 = optional Qwen3-14B A100 burst (~$25–45, cost-gated). M6 = final analysis + paper write-up.
