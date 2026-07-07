@@ -6,9 +6,12 @@ implementation plan under `~/.claude/plans/` for the build order.
 
 ## Status
 
-**M1** done (90/90, partial repro). **M2** done (360/360, analyzed: likelihood ≫ prompted; no Qwen scale gain).
-**M3 RUNNING** on 1× RunPod A40 (`anomaly-m3-cc`): 20/60 security cells on-pod, 0 failures (see `FLEET.md`,
-`RUNLOG.md`, `ROADMAP.md`). 74 unit tests pass.
+**M1–M6 all complete. No active pods. Spend ≈ $141.41.**
+
+M1 (90/90, partial repro). M2 (360/360: likelihood ≫ prompted; no Qwen scale gain; Friedman p=6×10⁻¹²).
+M3 (66/66: security transfer + semantic ablation). M3.5 (T3+BA1+DA1 confound checks all PASS).
+M4 (33/33: ordering ablation + triage; both negative results). M6 (stats, figures, §4 results, §5 discussion).
+85 unit tests pass. See `ROADMAP.md` for full milestone table.
 
 ## Resuming in a new session (read these, in order)
 
@@ -21,8 +24,8 @@ If context is lost, this fully re-orients an assistant:
 4. **This repo** — `git log --oneline`, the two `scripts/smoke_*.py` drivers, `pyproject.toml` + `uv.lock`.
 
 **Orientation line to paste:** *"Resuming the anomaly-detection project. Read memory `project-state.md`,
-then `ROADMAP.md`, then `PLAN.md`. M1+M2 done; M3 security grid running on RunPod (`anomaly-m3-cc`,
-20/60 cells). Use **uv**; package is `anodet`; honor the RunPod double-confirm cost gate."*
+then `ROADMAP.md`, then `PLAN.md`. M1–M6 complete; no active pods; spend ≈$141.41. Next step: LaTeX paper draft.
+Use **uv**; package is `anodet`; honor the RunPod double-confirm cost gate."*
 
 **Do NOT re-derive (hard-won):**
 - **Env**: uv + Python 3.10; overrides are non-negotiable — `setuptools`, `override-dependencies =

@@ -1,6 +1,6 @@
 # Memory Index
 
-- [Project state](project-state.md) — CURRENT (2026-07-05): M1 + M2 COMPLETE. **M3 RUNNING** on RunPod `anomaly-m3-cc` (20/60 exp3_security on-pod, 0 failures). Project spend ≈$118. See repo `ROADMAP.md` + `FLEET.md`.
+- [Project state](project-state.md) — CURRENT (2026-07-07): **M1–M6 ALL COMPLETE.** No active pods. Spend ≈$141.41. Next: LaTeX paper draft. See repo `ROADMAP.md` + `FLEET.md`.
 
 - [User profile](user-profile.md) — Autodesk researcher leading an anomaly-detection replication+extension paper
 - [AnoLLM verified facts](anollm-verified-facts.md) — primary-source corrections to project_idea.md's assumptions about AnoLLM

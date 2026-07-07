@@ -4,11 +4,11 @@
 
 | Pod | RunPod ID | SSH | role | status |
 |---|---|---|---|---|
-| **m4** | `pyinsl4hrttusc` | 69.30.85.142:22071 | Exp 4 (24) + Exp 6 (9) | DONE — stop/delete via console |
+| **m4** | `pyinsl4hrttusc` | 69.30.85.142:22071 | Exp 4 (24) + Exp 6 (9) | STOPPED (2026-07-07) |
 
 **Ran:** 2026-07-06 16:17Z → 2026-07-07 03:10Z (~10.9h, ~$4.80). Git: `c3ee07b`.
 **Results rsync'd:** `results/raw/exp4_serialization/` (24 JSONs) + `results/raw/exp6_triage/` (9 JSONs).
-**ACTION NEEDED:** Stop pod `pyinsl4hrttusc` via RunPod console (MCP auth is down). GPU still billing.
+Pod stopped via RunPod console. Disk persists — delete when ready.
 
 ## Other stopped pods (disk persists — delete when ready)
 - `l2css8jckkkp0q` — M3 Exp-3/3b (stopped 2026-07-05)
@@ -33,9 +33,9 @@ DA1 verdict: **PASS** — mean |ΔAUROC(instruct+LoRA − base+LoRA)| = 0.0054 (
 All 66 cells rsync'd and verified (status=complete). Logs in `results/logs/fleet/m3/`.
 Pod stopped; disk persists (delete via MCP when M3.5 pod launched on fresh image).
 
-## Merge → analysis
-rsync pod `/workspace/results/raw/{exp3_security,exp3b_names}/` → local; expect 60 + 6 JSONs →
-operational-metric tables, RQ4 bootstrap CIs, RQ3b ΔAUROC CI (no CD diagram — only 2–3 datasets).
+## Analysis — DONE (M6 complete 2026-07-07)
+All 66 M3 JSONs rsync'd and verified. M6 stats (`m6_stats.py`) and figures (`m6_figures.py`) complete.
+Paper §4 (results) and §5 (discussion) written. See `RUNLOG.md` M6 entry.
 
 ---
 ## Archived — M2 Exp-2 fleet (360 cells, 2026-07-01 → 2026-07-04, COMPLETE)

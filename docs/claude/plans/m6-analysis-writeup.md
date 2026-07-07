@@ -1,5 +1,7 @@
 # M6 Plan — Analysis, Statistics, Figures, and Paper Write-up
 
+> **STATUS: COMPLETE** — executed 2026-07-07. Commit `c88e861`. See RUNLOG.md M6 entry.
+
 **Created:** 2026-07-07 (post-M4 completion)
 **Prereqs:** M1+M2+M3+M3.5+M4 all complete. All raw JSONs local. All tables in `results/tables/`.
 
