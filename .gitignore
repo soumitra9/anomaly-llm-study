@@ -20,6 +20,12 @@ __pycache__/
 .ipynb_checkpoints/
 .specstory/
 
+# AI editor / agent context
+.cursor/
+.cursorrules
+.cursorindexingignore
+docs/claude/
+
 # Keep these tracked:
 !.gitignore
 !.python-version
