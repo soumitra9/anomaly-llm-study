@@ -1,0 +1,84 @@
+{
+  "cost": {},
+  "extra": {
+    "device_used": "cuda",
+    "max_steps": 1000
+  },
+  "key": "qwen2.5-3b__likelihood__http__seed1",
+  "metrics": {
+    "auprc": 0.7933865106926268,
+    "auprc_gain": 102.21624355646685,
+    "auroc": 0.9993168981939625,
+    "r_sensitivity_auroc": {
+      "5": 0.9993568805352924,
+      "8": 0.9993013635517777,
+      "10": 0.9993168981939625
+    },
+    "recall_at_1pct_fpr": 1.0
+  },
+  "n_rows_expected": 284855,
+  "n_rows_scored": 284855,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "http",
+    "dataset_content_hash": "sha256:73556871d52f337efcad48600846cac8b1e78888c9798c512b4a1159714426b3",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.8.0-65-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "920757562fb66b62143e1f5129e597e2c383b9f7",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp2_odds",
+    "hf_revision": null,
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.1,
+      "rank": 8,
+      "target_modules": [
+        "q_proj",
+        "o_proj",
+        "k_proj",
+        "v_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "mode": "likelihood",
+    "model": "qwen2.5-3b",
+    "precision": "bf16",
+    "r_permutations": 10,
+    "rendered_prompt_hash": null,
+    "seed": 1,
+    "serialization_template_hash": "94c73ced1a8f6868",
+    "split_index_hash": "sha256:66328889aa96de87d27b320174ec6e999749555602456962647e7e56158adb1e",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1783016083
+}

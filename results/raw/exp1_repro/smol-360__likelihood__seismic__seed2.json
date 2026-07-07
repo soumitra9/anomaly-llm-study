@@ -1,0 +1,77 @@
+{
+  "cost": {},
+  "extra": {
+    "batch_size": 16,
+    "binning": "standard",
+    "max_steps": 2000,
+    "n_splits": 5,
+    "score_batch_size": 32,
+    "setting": "semi_supervised",
+    "test_anomaly_rate": 0.12345679012345678
+  },
+  "key": "smol-360__likelihood__seismic__seed2",
+  "metrics": {
+    "auprc": 0.271560347573878,
+    "auprc_gain": 2.1996388153484117,
+    "auroc": 0.737774745357961,
+    "r_sensitivity_auroc": {
+      "5": 0.7332764754617671,
+      "8": 0.7365125006091915,
+      "10": 0.737774745357961
+    },
+    "recall_at_1pct_fpr": 0.03529411764705882
+  },
+  "n_rows_expected": 1377,
+  "n_rows_scored": 1377,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "seismic",
+    "dataset_content_hash": "sha256:99750d392ae0a8c5e8c7c685ea53db5b053b693c3b16719f8bfc47130a00d178",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.5.0-35-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "device_used": "cuda",
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "d2b6061667153e3facb935227847b5db29853bf0",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp1_repro",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "likelihood",
+    "model": "smol-360",
+    "precision": "bf16",
+    "r_permutations": 10,
+    "rendered_prompt_hash": null,
+    "seed": 2,
+    "serialization_template_hash": null,
+    "split_index_hash": "sha256:d81ec9a309a39afd7f1a44ec0c9bd4b492c199eabde90f67c8ed3e1a4f8c31b9",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1782875749
+}

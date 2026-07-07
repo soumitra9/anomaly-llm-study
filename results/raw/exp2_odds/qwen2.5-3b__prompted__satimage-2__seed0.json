@@ -1,0 +1,71 @@
+{
+  "cost": {},
+  "extra": {
+    "device_used": "cuda",
+    "distinct_levels": 2922
+  },
+  "key": "qwen2.5-3b__prompted__satimage-2__seed0",
+  "metrics": {
+    "auprc": 0.015623028776560561,
+    "auprc_gain": 0.6462652889684277,
+    "auroc": 0.28633419498147294,
+    "distinct_levels": 2922,
+    "recall_at_1pct_fpr": 0.0
+  },
+  "n_rows_expected": 2937,
+  "n_rows_scored": 2937,
+  "run_metadata": {
+    "checkpoint_kind": "instruct",
+    "dataset": "satimage-2",
+    "dataset_content_hash": "sha256:d0706ebbb9b757668196bce51a820db0415bbe3070c01490952a6fa76f23a2e9",
+    "dataset_version_id": null,
+    "decode_config": {
+      "n_levels": 10,
+      "scorer": "expected_value",
+      "temperature": 0
+    },
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.8.0-49-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "920757562fb66b62143e1f5129e597e2c383b9f7",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp2_odds",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "prompted",
+    "model": "qwen2.5-3b",
+    "precision": "bf16",
+    "r_permutations": null,
+    "rendered_prompt_hash": "047a0614e0445f7d",
+    "seed": 0,
+    "serialization_template_hash": "94c73ced1a8f6868",
+    "split_index_hash": "sha256:defd1fe2a4c493029fc4cfe7291e5f4f7200a5ff9352a05e9081b6bfa2221a20",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1782974359
+}

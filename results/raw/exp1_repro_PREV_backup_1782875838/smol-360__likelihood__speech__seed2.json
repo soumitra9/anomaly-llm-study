@@ -1,0 +1,90 @@
+{
+  "cost": {},
+  "extra": {
+    "batch_size": 2,
+    "binning": "standard",
+    "max_steps": 2000,
+    "n_splits": 5,
+    "score_batch_size": 8,
+    "setting": "semi_supervised",
+    "test_anomaly_rate": 0.03255069370330843
+  },
+  "key": "smol-360__likelihood__speech__seed2",
+  "metrics": {
+    "auprc": 0.035361881489004654,
+    "auprc_gain": 1.0863633755802413,
+    "auroc": 0.4674256055989077,
+    "r_sensitivity_auroc": {
+      "5": 0.4696771043375259,
+      "8": 0.46766070185273934,
+      "10": 0.4674256055989077
+    },
+    "recall_at_1pct_fpr": 0.01639344262295082
+  },
+  "n_rows_expected": 1874,
+  "n_rows_scored": 1874,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "speech",
+    "dataset_content_hash": "sha256:51f9c17c5c97baf30d1f055dd2271e74562f065f73a7e62bd4321585fac09231",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.8.0-65-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "device_used": "cuda",
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "d2b6061667153e3facb935227847b5db29853bf0",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp1_repro",
+    "hf_revision": null,
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.1,
+      "rank": 8,
+      "target_modules": [
+        "q_proj",
+        "o_proj",
+        "k_proj",
+        "v_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "mode": "likelihood",
+    "model": "smol-360",
+    "precision": "bf16",
+    "r_permutations": 10,
+    "rendered_prompt_hash": null,
+    "seed": 2,
+    "serialization_template_hash": null,
+    "split_index_hash": "sha256:27218638e49011d041af3f0096fa7839110249174f65a26d11937ead65bd8a6c",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1782873080
+}

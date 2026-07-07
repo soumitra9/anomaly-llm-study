@@ -1,0 +1,84 @@
+{
+  "cost": {},
+  "extra": {
+    "device_used": "cuda",
+    "max_steps": 2000
+  },
+  "key": "smol-360__likelihood__thyroid__seed1",
+  "metrics": {
+    "auprc": 0.8715084497977772,
+    "auprc_gain": 18.1142562737538,
+    "auroc": 0.9919939223936419,
+    "r_sensitivity_auroc": {
+      "5": 0.9921984572230014,
+      "8": 0.9916958859280038,
+      "10": 0.9919939223936419
+    },
+    "recall_at_1pct_fpr": 0.8172043010752689
+  },
+  "n_rows_expected": 1933,
+  "n_rows_scored": 1933,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "thyroid",
+    "dataset_content_hash": "sha256:ffaab906b43c9faa632dd467452170672417b1815a067986f4f0f344c6a823da",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.8.0-60-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "920757562fb66b62143e1f5129e597e2c383b9f7",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp2_odds",
+    "hf_revision": null,
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.1,
+      "rank": 8,
+      "target_modules": [
+        "q_proj",
+        "o_proj",
+        "k_proj",
+        "v_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "mode": "likelihood",
+    "model": "smol-360",
+    "precision": "bf16",
+    "r_permutations": 10,
+    "rendered_prompt_hash": null,
+    "seed": 1,
+    "serialization_template_hash": "94c73ced1a8f6868",
+    "split_index_hash": "sha256:766867a2e6b8662c4b20ba18a71a697e5f11d4d79b6389956dea626ffc46ea3e",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1782928683
+}

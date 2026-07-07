@@ -1,0 +1,66 @@
+{
+  "cost": {},
+  "extra": {
+    "base_rate": 0.001727485630620034,
+    "content_hash": "sha256:de4b2b37bfc4140bbd175e54b2ade7647279be7ad3770cc35f83e31ce9f40107",
+    "drop_time": true,
+    "note": "drop_time=True; corrects T3 temporal-distribution-shift confound",
+    "split": "random"
+  },
+  "key": "iforest__classical__creditcard-random__seed2",
+  "metrics": {
+    "auprc_gain": 65.53325023694423,
+    "auroc": 0.9533997967479751,
+    "recall_at_1fpr": 0.5670731707317073
+  },
+  "n_rows_expected": 20492,
+  "n_rows_scored": 20492,
+  "run_metadata": {
+    "checkpoint_kind": null,
+    "dataset": "creditcard-random",
+    "dataset_content_hash": null,
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "machine": "arm64",
+        "platform": "macOS-15.7.4-arm64-arm-64bit",
+        "python": "3.10.19",
+        "torch_cuda_available": false,
+        "torch_mps_available": true
+      },
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "a61d2d5c5c48096a32deb2b4c2ca7b50e4375a16",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp3_security_notime",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "classical",
+    "model": "iforest",
+    "precision": null,
+    "r_permutations": null,
+    "rendered_prompt_hash": null,
+    "seed": 2,
+    "serialization_template_hash": null,
+    "split_index_hash": null,
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1783302434
+}

@@ -1,0 +1,84 @@
+{
+  "cost": {},
+  "extra": {
+    "device_used": "cuda",
+    "max_steps": 1000
+  },
+  "key": "qwen2.5-3b__likelihood__covertype__seed0",
+  "metrics": {
+    "auprc": 0.09444979336685341,
+    "auprc_gain": 4.964820263045832,
+    "auroc": 0.8345750308551864,
+    "r_sensitivity_auroc": {
+      "5": 0.8196082702448987,
+      "8": 0.8334215565418905,
+      "10": 0.8345750308551864
+    },
+    "recall_at_1pct_fpr": 0.09683290862759374
+  },
+  "n_rows_expected": 144398,
+  "n_rows_scored": 144398,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "covertype",
+    "dataset_content_hash": "sha256:a8718ab48b1c8aabb74c3981c4b2dbaddd33790b748dd716d9695a9ef4383c94",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.8.0-65-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "920757562fb66b62143e1f5129e597e2c383b9f7",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp2_odds",
+    "hf_revision": null,
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.1,
+      "rank": 8,
+      "target_modules": [
+        "q_proj",
+        "o_proj",
+        "k_proj",
+        "v_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "mode": "likelihood",
+    "model": "qwen2.5-3b",
+    "precision": "bf16",
+    "r_permutations": 10,
+    "rendered_prompt_hash": null,
+    "seed": 0,
+    "serialization_template_hash": "94c73ced1a8f6868",
+    "split_index_hash": "sha256:8da5186f5cbd1b4bb6ecd78db91e4863bb698a975076647254f92fec4e7af1b8",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1783084033
+}

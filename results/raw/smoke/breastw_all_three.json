@@ -1,0 +1,56 @@
+{
+  "dataset": "breastw",
+  "key": "smoke__breastw__all-three-paths",
+  "metrics_by_path": {
+    "iforest": {
+      "auprc": 0.9893254369481602,
+      "auroc": 0.991386496248958,
+      "recall_at_1pct_fpr": 0.576271186440678
+    },
+    "mode_a_likelihood": {
+      "auprc": 0.9787128721934084,
+      "auroc": 0.9780494581828286,
+      "max_steps": 10,
+      "r_permutations": 2
+    },
+    "mode_b_prompted": {
+      "auprc": 0.33188551191407417,
+      "auroc": 0.08974715198666297,
+      "scorer": "expected_value_over_digits"
+    }
+  },
+  "n_test_scored": 120,
+  "run_metadata_env": {
+    "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+    "device": {
+      "machine": "arm64",
+      "platform": "macOS-15.7.4-arm64-arm-64bit",
+      "python": "3.10.19",
+      "torch_cuda_available": false,
+      "torch_mps_available": true
+    },
+    "engine": "hf",
+    "git_dirty": true,
+    "git_sha": "23619d7ee2d2d362b501d9e6efb2f047fbf1d7b5",
+    "lib_versions": {
+      "accelerate": "1.14.0",
+      "datasets": "2.20.0",
+      "numpy": "1.26.4",
+      "pandas": "2.2.3",
+      "peft": "0.11.1",
+      "pyod": "2.0.1",
+      "scikit-learn": "1.6.1",
+      "scipy": "1.13.1",
+      "torch": "2.3.1",
+      "transformers": "4.48.2"
+    },
+    "logprob_parity_status": null,
+    "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+  },
+  "smoke": true,
+  "status": "complete",
+  "test_anomaly_rate": 0.49166666666666664,
+  "timing": {
+    "mode_a_secs": 92.8
+  }
+}
