@@ -20,8 +20,9 @@ We address this as an **honest replication and extension** of AnoLLM, not a new 
 2. **Re-evaluation under realistic operating conditions on security data** — extreme class imbalance and
    **fixed-false-positive-rate** budgets on credit-card fraud and UNSW-NB15 — where AUROC alone is misleading
    (RQ4), plus a semantic-column-name ablation (RQ3b) and a serialization-order ablation (RQ5).
-3. **A constructive two-stage result**: even where LLMs are weak *standalone*, a cheap classical detector
-   followed by an LLM re-ranker can improve the operating point at a fixed alert budget (RQ7).
+3. **A two-stage triage experiment (negative result)**: a cheap IForest shortlist followed by an LLM
+   re-ranker yields zero uplift at k = 1% and is harmful at k = 5–10%. IForest near-ceiling precision
+   leaves no room for LLM improvement, an empirically useful bound (RQ7).
 
 We first reproduce AnoLLM within a pre-registered tolerance (RQ1) to validate the pipeline, then report where
 modern small open models and prompted scoring change the picture — and, importantly, where they do not.

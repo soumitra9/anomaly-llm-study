@@ -20,5 +20,5 @@ which we adopt for comparability.
 **What is new here.** To our knowledge no prior work provides (i) a controlled same-family, same-size
 open-weight likelihood-vs-prompted A/B (with an empirical bound on the checkpoint-difference confound),
 (ii) an evaluation under extreme imbalance and fixed-FPR alert budgets on security data, and (iii) a
-constructive classical→LLM two-stage triage result. We position the paper as replication + extension,
+a negative two-stage triage result (an empirically useful bound). We position the paper as replication + extension,
 stated plainly.
