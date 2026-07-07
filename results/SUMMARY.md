@@ -62,7 +62,7 @@ Code review identified three items actioned before M4:
    floats. RQ4's within-experiment comparisons remain internally valid. Cross-experiment narrative
    bounded by a planned **binned-creditcard arm** (folds into Exp 4, ~$2–3).
 
-## M3.5 — Confound checks (pre-registered in GATE_SPEC.md) · 🔄 IN PROGRESS
+## M3.5 — Confound checks (pre-registered in GATE_SPEC.md) · ✅ COMPLETE
 
 **Drop-Time classical (T3) — DONE locally (CPU, $0):**
 KNN AUROC on creditcard-temporal collapses from 0.932 → 0.178 when `Time` feature is included (temporal
