@@ -1,60 +1,0 @@
-[m4] start Mon Jul  6 16:26:03 UTC 2026
-[m4] git 289cb91
-[m4] === Exp 4: 24 cells ===
-Downloading shards:   0%|          | 0/2 [00:00<?, ?it/s]Downloading shards:  50%|█████     | 1/2 [00:06<00:06,  6.02s/it]Downloading shards: 100%|██████████| 2/2 [00:10<00:00,  4.84s/it]Downloading shards: 100%|██████████| 2/2 [00:10<00:00,  5.01s/it]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  6.54it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.29it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.16it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.03it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.69it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.37it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.24it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.92it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.60it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.12it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.07it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.08it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.92it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.83it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.00it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.95it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.78it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.45it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.23it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.09it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.99it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.05it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.86it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.50it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.44it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.27it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.67it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.71it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.52it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.69it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.64it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.28it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.62it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.56it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.33it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.70it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.64it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.30it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.13it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.68it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.25it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.15it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.29it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.13it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.22it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.84it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.73it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.98it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.76it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.61it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.10it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.03it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.87it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.78it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.89it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.67it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.56it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.81it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.58it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.99it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.57it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.26it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.14it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.64it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  4.24it/s]
-[exp4] ran 24 pending cell(s) from configs/exp4_serialization.yaml
-[m4] exp4 done: 24/24 cells
-[m4] === Exp 6: 9 cells ===
-Traceback (most recent call last):
-  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/workspace/anomaly-llm-study/anodet/eval/exp6_triage.py", line 218, in <module>
-    _cli()
-  File "/workspace/anomaly-llm-study/anodet/eval/exp6_triage.py", line 183, in _cli
-    n = run(a.config, a.results_root,
-  File "/workspace/anomaly-llm-study/anodet/eval/exp6_triage.py", line 162, in run
-    return grid.run_grid(cfg, results_root, make_run_cell(cfg, **hparams))
-  File "/workspace/anomaly-llm-study/anodet/eval/grid.py", line 98, in run_grid
-    metrics, status, extra = run_cell(cell)
-  File "/workspace/anomaly-llm-study/anodet/eval/exp6_triage.py", line 146, in run_cell
-    return run_one(
-TypeError: __main__.run_one() got multiple values for keyword argument 'classical_detector'
-[m4] === Exp 6 (retry after fix) Mon Jul  6 23:31:08 UTC 2026 ===
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.82it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.30it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.22it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  6.27it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.78it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.50it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  6.25it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.63it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.38it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.40it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.55it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.35it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  6.27it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.64it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.39it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  6.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.75it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.51it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.73it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  7.14it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.88it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.53it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.79it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.56it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  3.04it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.33it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  3.28it/s]
-[exp6] ran 9 pending cell(s) from configs/exp6_triage.yaml
-[m4] exp6 done: 9/9 cells
-[m4] ALL DONE Tue Jul  7 03:10:19 UTC 2026

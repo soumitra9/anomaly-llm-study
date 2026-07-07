@@ -1,3 +1,0 @@
-dataset,model,mode,auroc_mean,auroc_std,n_seeds
-pima,qwen2.5-3b,anon,0.45510447761194034,0.028334447036061697,3
-pima,qwen2.5-3b,semantic,0.44856716417910447,0.014777687237792514,3

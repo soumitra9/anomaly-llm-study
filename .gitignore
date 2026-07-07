@@ -26,6 +26,12 @@ __pycache__/
 .cursorindexingignore
 docs/claude/
 
+# Paper drafts and LaTeX (local only)
+paper/
+
+# Experiment results (local only)
+results/
+
 # Keep these tracked:
 !.gitignore
 !.python-version

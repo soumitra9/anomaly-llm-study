@@ -1,5 +1,0 @@
-dataset,model,mode,auroc_mean,auroc_std,n_seeds
-creditcard-temporal,ecod,classical,0.9382235772357796,,1
-creditcard-temporal,iforest,classical,0.9351963414634228,,1
-creditcard-temporal,knn,classical,0.9325101117886241,,1
-creditcard-temporal,pca,classical,0.9450694105691124,,1
