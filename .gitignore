@@ -19,6 +19,10 @@ __pycache__/
 .DS_Store
 .ipynb_checkpoints/
 .specstory/
+.vscode/settings.json
+
+# Third-party vendored code (local only)
+third_party/AnoLLM
 
 # AI editor / agent context
 .cursor/
