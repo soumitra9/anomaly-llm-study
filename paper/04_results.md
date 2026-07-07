@@ -3,9 +3,9 @@
 ## RQ1 — Replication (AnoLLM SmolLM-360M on ODDS-30)
 
 SmolLM-360M likelihood scoring reproduces the AnoLLM result within the pre-registered C1/C2/C3
-tolerance (GATE_SPEC.md). Mean AUROC = 0.843 vs. AnoLLM reported 0.865; the gap is within the
-pre-registered ±0.03 band (C1 PASS). Spearman rank correlation across 30 datasets ρ = 0.81 (C2
-PASS; threshold ρ ≥ 0.70). Nine of 30 datasets fall outside the ±0.05 per-dataset band (C3 FAIL —
+tolerance (GATE_SPEC.md). Mean AUROC = 0.851 vs. AnoLLM reported 0.865; Δ = 0.0145 ≤ 0.02
+(C1 PASS). Spearman rank correlation across 30 datasets ρ = 0.875 ≥ 0.80 (C2 PASS).
+19/30 datasets fall within the pre-registered per-dataset band (threshold 24/30, C3 FAIL —
 noted as a finding, not a blocker; see §5). The replication is credible: the ODDS-30 pipeline and
 data loader behave as documented, and per-dataset deviations are attributable to SmolLM-360M's
 sensitivity to LoRA hyperparameters at small dataset scale rather than a protocol error.
@@ -30,8 +30,7 @@ qwen-prompted 0.493.
 
 ## RQ3b — Semantic column names ablation (pima, 3 seeds)
 
-On the pima dataset, replacing anonymous column codes with descriptive names (e.g., "glucose" for
-"preg_2") changes mean AUROC by −0.007 ± 0.021 (semantic − anonymous; 3 seed pairs). Individual
+On the pima dataset, replacing integer column indices (e.g., column 1) with descriptive names (e.g., "glucose") changes mean AUROC by −0.007 ± 0.021 (semantic − anonymous; 3 seed pairs). Individual
 deltas: +0.016, −0.026, −0.009. The result is a **null result**: semantic column names do not reliably
 help at this scale and granularity. The Wilcoxon signed-rank test is underpowered at n = 3 (minimum
 achievable p = 0.25); the finding is reported as descriptive evidence only. The mechanism is consistent

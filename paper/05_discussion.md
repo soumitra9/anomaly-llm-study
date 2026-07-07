@@ -13,8 +13,9 @@ signal that likelihood scoring preserves.
 **LLMs do not transfer to security data at operationally meaningful thresholds.** On credit-card
 fraud and UNSW-NB15, classical detectors deliver recall@1%FPR of 0.59–0.68 (creditcard, ECOD/IForest)
 while Qwen likelihood achieves only 0.14 and Qwen prompted only 0.003. AUROC numbers are closer —
-0.95 for IForest vs 0.76 for Qwen likelihood on creditcard-random — but practitioners operating at
-a fixed alert quota care about recall at the alert threshold, not area under the full curve.
+IForest AUROC = 0.951 looks competitive with Qwen likelihood — but at 1% FPR, IForest recall = 0.586
+vs. Qwen likelihood recall = 0.136. Practitioners operating at a fixed alert quota care about recall
+at the alert threshold, not area under the full curve.
 The gap is large enough to be actionable: for security SOC use cases, classical detectors remain
 the right choice over the tested LLMs.
 
@@ -33,8 +34,8 @@ adds only noise.
 
 ## Limitations
 
-**Replication gap on per-dataset AUROC (C3).** Nine of 30 per-dataset AUROCs fall outside the ±0.05
-pre-registered band. We attribute this to SmolLM-360M's LoRA sensitivity at small dataset scale
+**Replication gap on per-dataset AUROC (C3).** 11/30 per-dataset AUROCs fall outside the
+pre-registered band (19/30 pass; C3 threshold 24/30, FAIL). We attribute this to SmolLM-360M's LoRA sensitivity at small dataset scale
 (n < 200 training samples on 6 failing datasets) and to non-determinism in LoRA initialization.
 The mean and rank-correlation criteria (C1, C2) pass; the per-dataset gap is a real limitation and
 should inform future work on fine-tuning stability.
