@@ -126,5 +126,8 @@ Grid: Qwen2.5-3B + IForest × {creditcard-random, creditcard-temporal, unsw} × 
 
 **Finding (RQ7, negative result):** IForest alone dominates on security data (AUROC 0.94-0.96). LLM re-ranking adds zero uplift at k=1% and is harmful at k=10%. Two-stage triage provides no benefit over classical-only on these datasets.
 
-## M5 (opt) → M6 → paper
-M5 = optional Qwen3-14B A100 burst (~$25–45, cost-gated). M6 = final analysis + paper write-up.
+## Status: M1–M6 complete → Paper
+**M6 complete (2026-07-07, $0 local):** `m6_stats.py` ran Friedman verification + descriptive summaries for all RQs.
+Two paper figures generated (`exp3_security_bars.png`, `exp4_ordering.png`). Paper sections `04_results.md` and
+`05_discussion.md` written with verified numbers. Stale "constructive two-stage" claim corrected in intro + related
+work. M5 (Qwen3-14B A100 burst, ~$25–45) remains optional and off the critical path. **Next: LaTeX paper draft.**

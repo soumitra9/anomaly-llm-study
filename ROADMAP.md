@@ -29,10 +29,10 @@ _Last updated: 2026-07-07 · M4 complete (33/33 cells; $141.41 total)._
 | **M3.5** | Dissolving arm + binned-creditcard + drop-Time classical | confound bounds | ✅ **done** | T3 done; BA1 PASS (|Δ|=0.0012); DA1 PASS (|Δ|=0.0054); `FLEET.md` |
 | M4 | Exp 4/5/6 — ordering+binning, Pareto, two-stage triage | PLAN Exp 4–6 (RQ5–7) | ✅ **done** | 33/33 cells; rsync'd; tables+figures generated; pod stopped |
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
-| M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ⏳ | — |
+| M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ✅ **done** | `m6_stats.py`/`m6_figures.py`; `paper/04_results.md`; `paper/05_discussion.md`; commit `c88e861` |
 | Paper | Author the paper (LaTeX template + paper MCP) | PLAN §13 | ⏳ later phase | `paper/01-03` drafts exist |
 
-**Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → **M6 (next)**. M5 14B burst is optional and off the critical path.
+**Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → M6 ✅. **Next:** Paper (LaTeX draft). M5 14B burst is optional and off the critical path.
 
 ---
 

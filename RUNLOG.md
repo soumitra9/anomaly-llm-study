@@ -10,6 +10,22 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
+## 2026-07-07 · M6 Analysis + Write-up · ✅ COMPLETE (local, $0)
+- **Scope:** Confirmatory statistics and paper sections for all RQs; no new GPU runs.
+- **Scripts:** `scripts/m6_stats.py` (Friedman/Wilcoxon M2 verification + descriptive summaries for
+  RQ3b, RQ4, RQ5, RQ7; CSV cross-check PASS) and `scripts/m6_figures.py` (two paper figures).
+- **Outputs:** `results/tables/m6_stats.json`, `results/figures/exp3_security_bars.png` (RQ4),
+  `results/figures/exp4_ordering.png` (RQ5).
+- **Paper:** `paper/04_results.md` (§4, all RQs with verified numbers), `paper/05_discussion.md` (§5,
+  limitations, positioning, future work). Fixed stale "constructive two-stage" claim in `paper/01_intro.md`
+  and `paper/02_related_work.md` to honest negative-result framing.
+- **Key confirmed numbers:** Friedman p=6.0×10⁻¹², smol-likelihood avg rank 1.62 vs qwen-prompted 3.53.
+  RQ7 uplift at k=1% = 0.00 across all 9 cells. RQ5 UNSW: arbitrary 0.680 > domain 0.554 AUROC.
+- **Cost:** $0 (local CPU only). Project total remains ≈ **$141.41**.
+- **Commit:** `c88e861`.
+
+---
+
 ## 2026-07-06/07 · M4 Exp 4 + Exp 6 · ✅ COMPLETE (33/33)
 - **Pod:** `anomaly-m4-exp4exp6` (`pyinsl4hrttusc`), CA-MTL-1, $0.44/hr SECURE.
 - **Launched:** 2026-07-06 16:17Z. **Finished:** 2026-07-07 03:10Z. Uptime: ~10.9h.
