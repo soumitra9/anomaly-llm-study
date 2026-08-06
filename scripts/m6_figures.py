@@ -133,7 +133,7 @@ def figure_security_bars(results_root: pathlib.Path, out_path: pathlib.Path) -> 
 
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150)
+    fig.savefig(out_path, dpi=300)
     plt.close(fig)
     print(f"[m6_figures] Wrote {out_path}")
 
@@ -181,7 +181,7 @@ def figure_ordering(results_root: pathlib.Path, out_path: pathlib.Path) -> None:
                  fontsize=11)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150)
+    fig.savefig(out_path, dpi=300)
     plt.close(fig)
     print(f"[m6_figures] Wrote {out_path}")
 

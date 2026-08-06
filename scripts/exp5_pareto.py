@@ -177,7 +177,7 @@ def main():
         figs_dir = output_dir / "figures"
         figs_dir.mkdir(parents=True, exist_ok=True)
         out_fig = figs_dir / "exp5_pareto.png"
-        pareto_fig(summary, out_fig)
+        pareto_fig(summary, out_fig, acc="mean_auroc", cost="mean_wall_per_1k", label="mode")
         print(f"[exp5] Wrote Pareto figure: {out_fig}")
     except Exception as e:
         print(f"[exp5] Figure generation failed (non-fatal): {e}")

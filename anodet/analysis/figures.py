@@ -34,7 +34,7 @@ def cd_diagram(scores: pd.DataFrame, out_path: str, *, alpha: float = 0.05) -> P
     fig.tight_layout()
     p = Path(out_path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(p, dpi=150)
+    fig.savefig(p, dpi=300)
     plt.close(fig)
     return p
 
@@ -58,7 +58,7 @@ def pareto(df: pd.DataFrame, out_path: str, *, acc: str = "auroc", cost: str = "
     ax.set_title("Accuracy vs cost")
     fig.tight_layout()
     p = Path(out_path); p.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(p, dpi=150); plt.close(fig)
+    fig.savefig(p, dpi=300); plt.close(fig)
     return p
 
 
@@ -69,5 +69,5 @@ def per_dataset_bars(scores: pd.DataFrame, out_path: str) -> Path:
     ax.set_ylabel("metric"); ax.set_title("Per-dataset comparison")
     fig.tight_layout()
     p = Path(out_path); p.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(p, dpi=150); plt.close(fig)
+    fig.savefig(p, dpi=300); plt.close(fig)
     return p
