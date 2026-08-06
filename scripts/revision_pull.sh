@@ -37,3 +37,44 @@ N3=$(ls "$ROOT/results/raw/exp3_security/"*likelihood*unsw* 2>/dev/null | wc -l 
 N2=$(ls "$ROOT/results/raw/exp2_fewshot/"*.json 2>/dev/null | wc -l | tr -d ' ')
 echo "[revision-pull] local: exp3_security unsw-likelihood JSONs=$N3  exp2_fewshot JSONs=$N2"
 echo "[revision-pull] logs -> $ROOT/results/logs/fleet/$LABEL/"
+
+# Verify every pulled JSON is complete (fail-safe; corrupt/partial -> non-zero exit).
+cd "$ROOT" || exit 2
+VERIFY_FAIL=0
+uv run python - <<'PY' || VERIFY_FAIL=1
+from pathlib import Path
+from anodet.utils.run_metadata import is_complete
+
+root = Path("results/raw")
+checks = []
+for pat in ["exp3_security/*likelihood*unsw*.json", "exp2_fewshot/*.json"]:
+    for p in sorted(root.glob(pat)):
+        ok = is_complete(p)
+        checks.append((p, ok))
+        tag = "OK" if ok else "FAIL"
+        print(f"[revision-pull] verify {tag} {p.name}")
+if not checks:
+    print("[revision-pull] verify: no JSONs yet (ok if mid-run)")
+elif not all(ok for _, ok in checks):
+    raise SystemExit(1)
+PY
+
+# Write-once timestamped backup alongside pull (results/backups/*.tgz never overwritten).
+BACKUP_TAG=$(date -u +%Y%m%dT%H%M%SZ)
+BACKUP="$ROOT/results/backups/revision_${BACKUP_TAG}.tgz"
+mkdir -p "$ROOT/results/backups"
+TAR_ARGS=()
+shopt -s nullglob
+for f in "$ROOT/results/raw/exp3_security/"*likelihood*unsw*.json; do TAR_ARGS+=("${f#$ROOT/}"); done
+for f in "$ROOT/results/raw/exp2_fewshot/"*.json; do TAR_ARGS+=("${f#$ROOT/}"); done
+for f in "$ROOT/results/logs/fleet/$LABEL/"*; do TAR_ARGS+=("${f#$ROOT/}"); done
+shopt -u nullglob
+if [ "${#TAR_ARGS[@]}" -gt 0 ]; then
+  tar czf "$BACKUP" -C "$ROOT" "${TAR_ARGS[@]}"
+  echo "[revision-pull] backup -> $BACKUP"
+else
+  echo "[revision-pull] backup skipped (no files)"
+fi
+
+[ "$VERIFY_FAIL" -eq 0 ] || { echo "[revision-pull] VERIFY FAILED"; exit 3; }
+echo "[revision-pull] OK"
