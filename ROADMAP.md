@@ -5,12 +5,12 @@ lands. Companions: [`PLAN.md`](PLAN.md) = the research design (the science); app
 `~/.claude/plans/i-need-to-plan-ancient-dawn.md`; in-repo copy: `docs/claude/plans/i-need-to-plan-ancient-dawn.md`; long-form state =
 agent memory `docs/claude/memory/project-state.md` (live copy also in `~/.claude/.../memory/`). If those ever disagree, **this file + git history win for status.**
 
-_Last updated: 2026-07-07 · M4 complete (33/33 cells; $141.41 total)._
+_Last updated: 2026-08-06 · Revision Phase active (Weak Accept review received)._
 
 ---
 
-## TL;DR — current state (2026-07-06)
-**M1 COMPLETE** (90/90, ~$21): C1+C2 PASS, credible partial repro. **M2 COMPLETE** (360/360, $90.42): likelihood ≫ prompted; no Qwen scale gain. **M3 COMPLETE** (66/66, ~$13.03). **M3.5 COMPLETE** — BA1+DA1 PASS. **M4 COMPLETE** (33/33, ~$4.80) — Exp 4: domain ordering NOT helpful; Exp 6: IForest dominates, triage adds no value (negative result). No active pods. Spend ≈ **$141.41**. Tests **85 green**.
+## TL;DR — current state (2026-08-06)
+**M1–M6 COMPLETE.** Paper drafted (`paper/draft_v1/main.pdf`, 7 pages) and **submitted**; **Weak Accept** review received. **Revision Phase active:** two new experiments pre-registered (UNSW likelihood arm + few-shot prompted), plus honest scoping on remaining review items. RunPod MCP verified 2026-08-06: **0 pods**, A40 SECURE **$0.44/hr**, CA-MTL-1 available. Project spend ≈ **$141.41** (MCP billing Jun–Aug: ~$134.29 pod GPU+disk). Tests **85 green**.
 
 ---
 
@@ -30,9 +30,10 @@ _Last updated: 2026-07-07 · M4 complete (33/33 cells; $141.41 total)._
 | M4 | Exp 4/5/6 — ordering+binning, Pareto, two-stage triage | PLAN Exp 4–6 (RQ5–7) | ✅ **done** | 33/33 cells; rsync'd; tables+figures generated; pod stopped |
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
 | M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ✅ **done** | `m6_stats.py`/`m6_figures.py`; `paper/04_results.md`; `paper/05_discussion.md`; commit `c88e861` |
-| Paper | Author the paper (LaTeX template + paper MCP) | PLAN §13 | ⏳ later phase | `paper/01-03` drafts exist |
+| Paper | Author + submit LaTeX draft | PLAN §13 | ✅ submitted | `paper/draft_v1/main.pdf` (Jul 13) |
+| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **active** | `GATE_SPEC.md` §RV1/§RV2; `paper/draft_v1_revised/` (at integration) |
 
-**Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → M6 ✅. **Next:** Paper (LaTeX draft). M5 14B burst is optional and off the critical path.
+**Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → M6 ✅ → Paper ✅ submitted → **Revision Phase**. M5 14B burst remains optional and off the critical path.
 
 ---
 
@@ -46,7 +47,7 @@ _Last updated: 2026-07-07 · M4 complete (33/33 cells; $141.41 total)._
 - [x] **Drop-Time classical (T3):** KNN collapses 0.178 → 0.932 when Time excluded. 24-cell `exp3_security_notime` + 4-cell `ba1_binned_notime` saved. Corrected protocol documented.
 - [x] **BA1 binned-creditcard:** mean |ΔAUROC| = 0.0012 → **PASS** (threshold 0.03). Sentence in `paper/03_method.md`.
 - [x] **DA1 dissolving arm:** 8/8 done; mean |ΔAUROC(instruct+LoRA − base+LoRA)| = **0.0054** → **PASS** (threshold 0.02). Sentence in `paper/03_method.md`. Pod stopped (~$5.61).
-- [ ] Delete stopped pods `l2css8jckkkp0q` (M3) + `xbga2ae1dqfp12` (M3.5 DA1) — disks still live
+- [x] Deleted stopped pods `l2css8jckkkp0q` (M3) + `xbga2ae1dqfp12` (M3.5 DA1)
 
 ## M4 — COMPLETE ✅ (2026-07-07)
 - [x] M4 code written + tested (85 tests green, `c3ee07b`)
@@ -55,13 +56,76 @@ _Last updated: 2026-07-07 · M4 complete (33/33 cells; $141.41 total)._
 - [x] Exp 6 (two-stage triage): 9/9 cells — `results/raw/exp6_triage/` rsync'd (1 incident: double-kwarg bug, fixed `c3ee07b`)
 - [x] Exp 5 (Pareto): run locally — `results/tables/exp5_pareto.csv`, `results/figures/exp5_pareto.png`
 - [x] All tables regenerated via `make_tables.py`
-- [ ] Pod `pyinsl4hrttusc` — stop via RunPod console (MCP auth down)
+- [x] Pod `pyinsl4hrttusc` — stopped
+
+## Revision Phase — active (2026-08-06)
+
+**Verdict:** Weak Accept (4/5). Overall recommendation: paper just clears the bar; reservations on prompted baseline strength, UNSW likelihood gap, and scoping.
+
+### Reviewer feedback (verbatim)
+
+```
+======= Review 1 =======
+
+*** Strong aspects: Comments to the author: what are the strong aspects of the paper?
+
+• Rigorous, pre-registered methodology: replication gates (C1–C3) and confound checks were fixed before generating results, with explicit hard-stop decision rules. This is well above the norm and makes the findings credible. • Clean controlled A/B design: holding model family and size fixed while varying only the scoring mode (likelihood vs. prompted) is a well-constructed comparison, and the same serialization is shared across modes within each comparison. • Honest, explicit negative results: the paper foregrounds three negative findings (domain ordering, semantic names, two-stage triage), which is valuable and rarely reported. • Thorough confound controls: DA1 (checkpoint confound, mean |ΔAUROC| = 0.0054), BA1 (credit-card binning, Δ = 0.0012), and T3 (Time-feature leakage collapsing kNN AUROC from 0.932 to 0.178) show careful experimental hygiene. • Appropriate statistics: Friedman omnibus (χ² = 55.27, p = 6.0×10⁻¹²), Nemenyi critical-difference diagram, and Holm-corrected Wilcoxon tests are the right tools and are applied correctly. • Genuinely useful practical message: the demonstration that strong ODDS AUROC (e.g., IForest 0.951) does not translate to fixed-budget recall (recall@1%FPR 0.586) is an actionable warning for practitioners. • Careful scoping of claims: every claim is bounded to the datasets, metrics, and methods actually tested; Table I is an exemplary summary of regimes and supported claims. • Reproducibility hygiene: pinned dependencies (torch 2.3.1, transformers 4.48.2), recorded seeds/splits/hyperparameters, and transparent handling of run-to-run variance (0.851 replication vs. 0.843 comparison run).
+
+*** Weak aspects: Comments to the author: what are the weak aspects of the paper?
+
+• Weak, single prompted baseline: Mode B is one narrow instantiation (expected value over digit tokens from a single forward pass) with no few-shot, chain-of-thought, calibration, or temperature scaling. Because a central result is "likelihood dominates prompted," this conclusion may partly reflect the weakness of the chosen prompted baseline rather than an intrinsic advantage of likelihood scoring. • Checkpoint confound in the core A/B: Mode A (base + LoRA) and Mode B (frozen instruct) differ in both scoring method and checkpoint, so scoring mode and fine-tuning are partly conflated. DA1 bounds this confound but does not eliminate it. • Security evaluation rests on only two datasets: with n = 2 no cross-dataset test is possible, which limits how far the headline "classical beats LLM at fixed FPR" can generalize. • Likelihood arm missing on UNSW-NB15: it was omitted for GPU budget, so on the second security dataset the LLM side is represented only by the weak prompted mode; the strongest LLM configuration is untested there, weakening the UNSW conclusion. • Underpowered ablations: the semantic-name and serialization-order ablations use n = 3 seed pairs (minimum achievable Wilcoxon p = 0.25), so the null results are weak, exploratory evidence rather than conclusions. • C3 replication gate failed with no identified cause: only 19 of 30 datasets fell within the pre-registered per-dataset band (threshold 24), and the source of deviation is unexplained. Since the extensions build on this base, the unresolved per-dataset shortfall matters. • Narrow scale range: the study covers only 360M–3B parameters, so the "scale does not help" claim does not speak to the 7B+ range that many open-weight practitioners actually deploy. • Single hand-designed domain ordering: one manually defined ordering per dataset makes it hard to generalize the null result; a single instance cannot rule out that some informed ordering helps. • Limited novelty by design: this is a replication and evaluation study rather than a new method. That is a legitimate and useful contribution, but the novelty ceiling is inherently lower.
+
+*** Recommended changes: Recommended changes. Please indicate any changes that should be made to the paper if accepted.
+
+Strengthen the prompted baseline with at least one stronger variant (few-shot, calibrated/temperature-scaled, or chain-of-thought), or explicitly narrow the "likelihood dominates prompted" claim to the expected-value prompting instantiation tested.
+Address the checkpoint confound directly: run a 2×2 (base vs. instruct) × (LoRA vs. frozen) on at least a subset, or expand DA1, so scoring mode is isolated from the fine-tuning/checkpoint difference.
+Add the Qwen2.5-3B likelihood arm on UNSW-NB15, or clearly restrict the UNSW-NB15 conclusion to prompted-only LLM scoring, since the strongest LLM mode is currently missing there.
+Expand the security panel beyond two datasets (the paper's own >5-dataset future work) to enable cross-dataset statistics and a defensible generalization of the fixed-FPR result.
+Increase seeds/pairs for the semantic-name and serialization-order ablations beyond n = 3, or label them explicitly as exploratory and avoid drawing any conclusion from them.
+Investigate the C3 failure: report which datasets fell outside the band and give candidate explanations (LoRA instability on small tabular data, preprocessing, tokenizer differences), consistent with the paper's own future-work note on LoRA stability.
+State the scale caveat (360M–3B) prominently next to the scale claim, and, if feasible, add one 7B-scale point to test whether the null on model scale persists.
+Test more than one domain-informed ordering, or state explicitly next to the claim that a single hand-designed ordering cannot rule out informed orderings in general.
+Consider adding a short compute/cost table alongside Fig. 4 to reinforce the practicality argument (e.g., wall-time and GPU-hours per dataset for each mode).
+Define "regime-dependent" crisply in the introduction, and surface the Table III footnote (likelihood arm evaluated on credit-card only) near its first mention to avoid over-reading the security comparison.
+
+*** Technical content and scientific rigour: Good - Significant technical content with basically correct argumentation. (3)
+
+*** Novelty and originality: Moderate - an alternative approach to an existing problem. (3)
+
+*** Overall Recommendation: Weak Accept: You think the paper is only just good enough to be accepted, but have no problem with it being rejected if that is the view of others. (4)
+
+Regards, The conference chairs
+```
+
+### Revision response plan (10 items → action)
+
+| # | Reviewer item | Action |
+|---|---------------|--------|
+| 1 | Strengthen prompted baseline or narrow claim | **Run:** few-shot prompted (§RV2). **Scope** if gap persists. |
+| 2 | Checkpoint 2×2 or expand DA1 | **Scope:** DA1 already bounds at 0.0054; cite in response. |
+| 3 | UNSW likelihood arm | **Run:** Qwen2.5-3B likelihood on UNSW, r=5 (§RV1). |
+| 4 | Expand security panel | **Scope:** future work (>5 datasets). |
+| 5 | Underpowered ablations (n=3) | **Scope:** label exploratory (already in draft). |
+| 6 | C3 failure unexplained | **Write:** grad-accum investigation + failing-dataset list. |
+| 7 | Scale 360M–3B only | **Scope:** caveat sentence next to scale claim. |
+| 8 | Single domain ordering | **Scope:** caveat sentence next to RQ5 claim. |
+| 9 | Compute/cost table | **Write:** table from existing timing numbers. |
+| 10 | Define regime-dependent; Table III footnote | **Write:** intro + first mention. |
+
+**Pre-registered new compute:** `GATE_SPEC.md` §RV1 (UNSW likelihood, r=5, max_steps=1000, seeds 0–2) + §RV2 (few-shot prompted, k=3 normals-only, 8 ODDS datasets, qwen2.5-3b, seeds 0–2). Estimated ~$10–18 one A40 session.
+
+**RunPod preflight (2026-08-06):** MCP OK. `list-pods` → 0 pods. A40 SECURE $0.44/hr. CA-MTL-1 available. Billing Jun–Aug pods ~$134.29 total.
+
+**Phase 0 (user):** Confirm in EDAS: Review 2?, revision deadline?, response-letter format?, CARS 2026 page limit?
+
+---
 
 ## Immediate next actions (in order)
-1. **STOP pod `pyinsl4hrttusc`** via RunPod console (GPU still billing; MCP auth down).
-2. **M6** — Friedman/bootstrap on M4 results; write paper sections for RQ5/RQ6/RQ7.
-3. (Housekeeping) Delete stopped pods (`l2css8jckkkp0q`, `xbga2ae1dqfp12`, `pyinsl4hrttusc`) to avoid disk charges.
-4. **(housekeeping)** revoke the 2 GitHub tokens shared in chat.
+1. **Revision Phase** — pre-register §RV1/§RV2; additive code; CPU smoke; then GPU session (double-confirm gated).
+2. **Integrate** — `paper/draft_v1` → `paper/draft_v1_revised`; free-win text + new results; response letter.
+3. (Optional) M5 Qwen2.5-14B burst, cost-gated ~$25–45, off critical path.
+
+_(Housekeeping done: stopped pods deleted; GitHub tokens revoked. RunPod `list-pods` empty as of 2026-08-06.)_
 
 ---
 
@@ -89,9 +153,9 @@ _Last updated: 2026-07-07 · M4 complete (33/33 cells; $141.41 total)._
 - Compute: **RunPod A40 ($0.44/hr)**; spend double-confirm gated; tear pods down when work ends.
 
 ## Open items / risks
-- **Stopped pods** (`l2css8jckkkp0q` M3, `xbga2ae1dqfp12` M3.5) — disks still live; delete when ready.
-- RunPod create-pod has no startup cmd → pods driven over SSH.
-- **USER ACTION:** revoke the 2 GitHub tokens shared in chat.
+- **Revision deadline / EDAS format** — confirm in Phase 0 (user action).
+- **Page budget** — current draft 7 pages; target ~8 (provisional); confirm CARS 2026 limit before integration.
+- RunPod create-pod has no startup cmd → pods driven over SSH; MCP verified 2026-08-06.
 
 ## Key commands
 ```bash

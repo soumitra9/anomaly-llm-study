@@ -33,13 +33,14 @@ TASKS = {
 }
 CLASSICAL = ["iforest", "pca", "knn", "ecod"]
 LIKELIHOOD_MODEL = "qwen2.5-3b"          # mode-A: one model, credit-card only (cost)
-LIKELIHOOD_TASKS = ["creditcard-temporal", "creditcard-random"]
+DEFAULT_LIKELIHOOD_TASKS = ["creditcard-temporal", "creditcard-random"]
 # per-(model,task) batch for the GPU modes; OOM-retry beneath this. Security test sets are ~20-40k rows.
 DEFAULT_BATCH = 16
 
 
-def build_cells(task_datasets, models, modes, seeds):
+def build_cells(task_datasets, models, modes, seeds, likelihood_tasks=None):
     """Return the explicit M3 security cell list: dicts {model, mode, task, dataset, split, seed}."""
+    lik_tasks = likelihood_tasks if likelihood_tasks is not None else DEFAULT_LIKELIHOOD_TASKS
     cells = []
     for task in task_datasets:
         dataset, split = TASKS[task]
@@ -52,7 +53,7 @@ def build_cells(task_datasets, models, modes, seeds):
                 for model in models:
                     cells.append({"model": model, "mode": "prompted",
                                   "task": task, "dataset": dataset, "split": split, "seed": seed})
-            if "likelihood" in modes and task in LIKELIHOOD_TASKS:
+            if "likelihood" in modes and task in lik_tasks:
                 cells.append({"model": LIKELIHOOD_MODEL, "mode": "likelihood",
                               "task": task, "dataset": dataset, "split": split, "seed": seed})
     return cells
@@ -64,7 +65,11 @@ def main():
     p.add_argument("--models", default="smol-360,qwen2.5-3b", help="comma list (prompted arm)")
     p.add_argument("--modes", default="likelihood,prompted,classical", help="comma list")
     p.add_argument("--seeds", default="0,1,2", help="comma list of seeds")
-    p.add_argument("--r", type=int, default=10, help="likelihood permutations (r=5 lever if measure-first is tight)")
+    p.add_argument("--likelihood-tasks", default=",".join(DEFAULT_LIKELIHOOD_TASKS),
+                   help="comma list of task-datasets for mode-A likelihood (default M3 credit-card only; "
+                        "pass 'unsw' or 'creditcard-temporal,creditcard-random,unsw' for revision RV1)")
+    p.add_argument("--r", type=int, default=10, help="likelihood permutations (M3 used --r 5; RV1 pre-reg r=5)")
+    p.add_argument("--max-steps", type=int, default=1000, help="LoRA steps for likelihood mode (Qwen @1000)")
     p.add_argument("--n-levels", type=int, default=10)
     p.add_argument("--n-top", type=int, default=100, help="Precision/Recall@top-N")
     p.add_argument("--batch-size", type=int, default=None, help="override default per-cell batch (smokes)")
@@ -82,7 +87,8 @@ def main():
     models = [m.strip() for m in a.models.split(",")]
     modes = [m.strip() for m in a.modes.split(",")]
     seeds = [int(s) for s in a.seeds.split(",")]
-    cells = build_cells(tasks, models, modes, seeds)
+    lik_tasks = [t.strip() for t in a.likelihood_tasks.split(",")]
+    cells = build_cells(tasks, models, modes, seeds, likelihood_tasks=lik_tasks)
     print(f"[exp3] {len(cells)} cells over tasks={tasks} modes={modes}; results-root={a.results_root}", flush=True)
 
     t0 = time.time()
@@ -105,9 +111,10 @@ def main():
         if c["split"] is not None:
             load_kw["split"] = c["split"]
         try:
+            lik_kw = {"r": a.r, "max_steps": a.max_steps} if c["mode"] == "likelihood" else {}
             metrics, status, extra = run_one(
                 c["dataset"], c["model"], c["mode"], data_dir=a.data_dir, n_levels=a.n_levels,
-                batch_size=bs, device=a.device, n_top=a.n_top, **({"r": a.r} if c["mode"] == "likelihood" else {}),
+                batch_size=bs, device=a.device, n_top=a.n_top, **lik_kw,
                 **load_kw,
             )
             # record the task (with split) as the dataset identifier so the key round-trips

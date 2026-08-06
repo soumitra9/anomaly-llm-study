@@ -57,6 +57,8 @@ def run_one(dataset: str, model: str, mode: str, *, data_dir: str = "data",
     data = _load(dataset, data_dir, **load_kw)
     y, w = data["y_test"], data.get("sample_weight")
 
+    run_meta: dict = {"dataset_content_hash": data["content_hash"]}
+
     if mode == "prompted":
         from anodet.scoring.prompted import run_prompted
         scores = run_prompted(f"{model}-instruct", data["X_test"], n_levels=n_levels,
@@ -66,14 +68,23 @@ def run_one(dataset: str, model: str, mode: str, *, data_dir: str = "data",
         scores = run_baseline(mode.split(":", 1)[1], data["X_train"], data["X_test"])
     elif mode == "likelihood":
         from anodet.scoring.likelihood import run_likelihood
-        scores = run_likelihood(model, data["X_train"], data["X_test"], lora=True, r=r,
-                                max_steps=max_steps, batch_size=batch_size, device=device)["mean"]
+        out = run_likelihood(model, data["X_train"], data["X_test"], lora=True, r=r,
+                             max_steps=max_steps, batch_size=batch_size, device=device)
+        scores = out["mean"]
+        run_meta.update({
+            "checkpoint_kind": "base",
+            "lora": out.get("lora"),
+            "precision": out.get("precision"),
+            "r_permutations": r,
+        })
     else:
         raise ValueError(f"unknown mode {mode!r}")
 
     metrics = _operational_metrics(y, scores, w, n_top=n_top)
-    extra = {"run_metadata": {"dataset_content_hash": data["content_hash"]},
+    extra = {"run_metadata": run_meta,
              "n_rows_scored": int(len(y)), "n_rows_expected": int(len(y)),
              "split": data.get("split"), "flagged_leakage": data.get("flagged"),
              "wall_seconds": time.time() - start}
+    if mode == "likelihood":
+        extra["max_steps"] = max_steps
     return metrics, "complete", extra

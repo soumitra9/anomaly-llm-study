@@ -14,7 +14,7 @@ def test_build_cells_structure():
     assert len(lik) == 6
     assert all(c["model"] == fleet.LIKELIHOOD_MODEL for c in lik)
     assert all(c["dataset"] == "creditcard" for c in lik)
-    assert not any(c["task"] == "unsw" for c in lik)          # never mode-A on UNSW
+    assert not any(c["task"] == "unsw" for c in lik)          # never mode-A on UNSW (default)
     # prompted: 2 models × 3 tasks × 3 seeds = 18
     assert len(prm) == 18
     # classical: model-independent, 4 detectors × 3 tasks × 3 seeds = 36
@@ -23,6 +23,13 @@ def test_build_cells_structure():
     assert {c["mode"] for c in cls} == {f"classical:{d}" for d in fleet.CLASSICAL}
     # split round-trips into the task id (keeps cell keys unique for creditcard temporal/random)
     assert {c["task"] for c in cells} == {"creditcard-temporal", "creditcard-random", "unsw"}
+
+
+def test_build_cells_likelihood_tasks_unsw():
+    cells = fleet.build_cells(["unsw"], ["qwen2.5-3b"], ["likelihood"], [0],
+                              likelihood_tasks=["unsw"])
+    assert len(cells) == 1
+    assert cells[0]["task"] == "unsw" and cells[0]["mode"] == "likelihood"
 
 
 def test_build_cells_modes_filter():

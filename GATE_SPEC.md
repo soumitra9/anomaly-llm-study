@@ -117,3 +117,61 @@ variance than ODDS mean AUROC (extreme imbalance, smaller effective positives). 
 M3.5 is a confound-bounding exercise, not a new experiment. DA1 and BA1 each yield exactly one sentence
 in the paper regardless of pass/fail. **Neither result spawns a new compute run before M4.** M4 starts
 immediately after M3.5 results are evaluated against DA1/BA1.
+
+---
+
+# Revision Phase — PRE-REGISTERED (2026-08-06)
+
+**Status: pre-registered before any revision GPU runs.** Addresses reviewer items 1 and 3 (see
+`ROADMAP.md` §Revision Phase). Same anti-p-hacking discipline as C1/C2/C3: thresholds and protocols
+are fixed here; results are reported honestly whichever way they go.
+
+## RV1 — UNSW-NB15 likelihood arm (reviewer item 3)
+
+**What it tests:** Does Qwen2.5-3B base+LoRA likelihood scoring on UNSW-NB15 match the protocol of
+the existing M3 credit-card likelihood cells, filling the missing strongest-LLM-mode arm on the second
+security dataset?
+
+**Protocol (must match M3 credit-card likelihood exactly):**
+- Model: `qwen2.5-3b`, mode A (base + LoRA likelihood)
+- Dataset: `unsw` (UNSW-NB15 via `prepare_unsw`, `max_test_neg=40000` + all positives)
+- Seeds: {0, 1, 2}
+- **`r=5`** (verified: `results/logs/fleet/m3/m3_run.log` line 1 "full security run r=5"; NOT r=10)
+- **`max_steps=1000`** (D0-validated Qwen steps; same as M3 security likelihood)
+- Batch: default `exp3_fleet` (16); OOM-retry beneath
+- Results: `results/raw/exp3_security/` with cell keys `qwen2.5-3b__likelihood__unsw__seed{N}`
+- **Metadata requirement:** record `r_permutations=5` and `max_steps=1000` in run_metadata (M3
+  creditcard cells have `r_permutations: null`; RV1 cells must be self-auditable)
+
+**Pre-registered reporting:**
+- Add UNSW likelihood row to security comparison table (AUROC, recall@1%FPR with importance weights)
+- If likelihood underperforms prompted on UNSW, report honestly; do not restrict conclusion without data
+
+**Measure-first:** run seed 0 only; extrapolate cost from wall-time before seeds 1–2. Cost decomposes
+into fixed LoRA fine-tune (~max_steps=1000) + variable scoring pass (r=5 × test rows); do not
+linearly multiply full wall-time across seeds without separating the fixed training component.
+
+## RV2 — Few-shot prompted baseline (reviewer item 1)
+
+**What it tests:** Does a stronger prompted baseline (normals-only few-shot exemplars) materially close
+the likelihood-vs-prompted AUROC gap on ODDS, or does likelihood still dominate?
+
+**Protocol:**
+- Model: `qwen2.5-3b-instruct` (frozen), scorer: expected value over digit tokens (same as Mode B)
+- **Few-shot:** `k=3` exemplar rows drawn from **normal training rows only** (`y_train==0`; leakage-free
+  under AnoLLM split protocol where all anomalies are in test)
+- Exemplar selection: deterministic given seed (`numpy.random.default_rng(seed)` sample without replacement)
+- Datasets: 8 ODDS sets matching DA1 dissolving arm — `arrhythmia`, `breastw`, `cardio`, `ionosphere`,
+  `shuttle`, `speech`, `vertebral`, `yeast`
+- Seeds (ODDS split indices): {0, 1, 2}
+- Mode tag: `prompted-fewshot` (distinct from M2 `prompted` zero-shot cells)
+- Experiment root: `results/raw/exp2_fewshot/` (does not overwrite M2 JSONs)
+- Compare to existing zero-shot `results/raw/exp2_odds/` qwen prompted cells on same (dataset, seed)
+
+**Pre-registered reporting:**
+- Report mean ΔAUROC(few-shot − zero-shot) across the 8 datasets × 3 seeds (descriptive)
+- If few-shot closes a material fraction of the likelihood gap, narrow the headline claim to the
+  expected-value zero-shot instantiation; report as finding, not failure
+- If few-shot does not close the gap, state that likelihood dominates even with normals-only few-shot
+
+**Scope-lock:** RV2 does not add chain-of-thought, temperature scaling, or calibration in v1.

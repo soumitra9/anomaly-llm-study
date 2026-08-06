@@ -41,7 +41,8 @@ def serialize_rows(df: pd.DataFrame) -> list[str]:
     return [" , ".join(f"{c} is {row[c]}" for c in cols) for _, row in df.iterrows()]
 
 
-def _build_prompt(tok, row_text: str, n_levels: int, paraphrase: int = 0) -> str:
+def _build_prompt(tok, row_text: str, n_levels: int, paraphrase: int = 0,
+                  exemplar_block: str = "") -> str:
     asks = [
         f"Record: {row_text}\nHow anomalous is this record on a scale of 0 (normal) to "
         f"{n_levels-1} (highly anomalous)? Answer with a single digit.",
@@ -49,17 +50,40 @@ def _build_prompt(tok, row_text: str, n_levels: int, paraphrase: int = 0) -> str
         f"{n_levels-1} (extremely suspicious). Reply with one digit only.",
         f"{row_text}\nOn a 0-{n_levels-1} scale, how suspicious is this record? One digit.",
     ]
+    user = asks[paraphrase % len(asks)]
+    if exemplar_block:
+        user = exemplar_block + "\n\n" + user
     msg = [{"role": "system", "content": _SYSTEM},
-           {"role": "user", "content": asks[paraphrase % len(asks)]}]
+           {"role": "user", "content": user}]
     if tok.chat_template:
         return tok.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
-    return _SYSTEM + "\n" + asks[paraphrase % len(asks)] + "\nAnswer: "
+    return _SYSTEM + "\n" + user + "\nAnswer: "
+
+
+def _normal_exemplar_block(X_train: pd.DataFrame, y_train: np.ndarray, k: int, seed: int) -> str:
+    """k normal training rows as few-shot exemplars (leakage-free under AnoLLM split)."""
+    y = np.asarray(y_train).astype(int)
+    normal_idx = np.where(y == 0)[0]
+    if len(normal_idx) == 0 or k <= 0:
+        return ""
+    rng = np.random.default_rng(seed)
+    take = min(k, len(normal_idx))
+    pick = rng.choice(normal_idx, size=take, replace=False)
+    lines = []
+    for i, idx in enumerate(pick, start=1):
+        row_text = serialize_rows(X_train.iloc[[idx]])[0]
+        lines.append(f"Example normal record {i}: {row_text}")
+    return "\n".join(lines)
 
 
 def run_prompted(
     model: str,
     X_test: pd.DataFrame,
     *,
+    X_train: Optional[pd.DataFrame] = None,
+    y_train: Optional[np.ndarray] = None,
+    n_shots: int = 0,
+    shot_seed: int = 0,
     n_levels: int = 10,
     batch_size: int = 16,
     device: Optional[str] = None,
@@ -67,7 +91,11 @@ def run_prompted(
     also_parse_integer: bool = False,
 ) -> dict:
     """Expected-value prompted scores. Returns {'scores','distinct_levels','device',
-    optional 'parsed_scores','parse_failure_rate'}."""
+    optional 'parsed_scores','parse_failure_rate'}.
+
+    `n_shots=0` (default) reproduces the original zero-shot Mode B path exactly.
+    When `n_shots>0`, prepends k normals-only exemplars from `(X_train, y_train)`.
+    """
     _fork.setup_env()
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -85,7 +113,13 @@ def run_prompted(
     digit_ids = [tok.encode(str(d), add_special_tokens=False)[0] for d in range(n_levels)]
     levels = np.arange(n_levels)
 
-    prompts = [_build_prompt(tok, r, n_levels, paraphrase) for r in serialize_rows(X_test)]
+    exemplar_block = ""
+    if n_shots > 0:
+        if X_train is None or y_train is None:
+            raise ValueError("n_shots>0 requires X_train and y_train for normals-only exemplars")
+        exemplar_block = _normal_exemplar_block(X_train, y_train, n_shots, shot_seed)
+
+    prompts = [_build_prompt(tok, r, n_levels, paraphrase, exemplar_block) for r in serialize_rows(X_test)]
 
     def _score_pass(bs: int) -> tuple[list, list]:
         """One full forward pass at batch `bs`. Deterministic — a restart after OOM is score-identical."""
@@ -124,7 +158,7 @@ def run_prompted(
 
     s = np.asarray(scores)
     out = {"scores": s, "distinct_levels": int(np.unique(np.round(s, 6)).size),
-           "device": device, "batch_size": bs}
+           "device": device, "batch_size": bs, "n_shots": n_shots}
     if also_parse_integer:
         out["parsed_scores"] = parsed
         out["parse_failure_rate"] = parse_failure_rate(parsed)
