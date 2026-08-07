@@ -64,9 +64,38 @@ def load_state() -> dict:
 
 def save_state(state: dict) -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
+    state = {**state, "heartbeat_utc": _ts(), "watcher_pid": os.getpid()}
     tmp = STATE_PATH.with_suffix(".tmp")
     tmp.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
     tmp.replace(STATE_PATH)
+
+
+def pod_status(host: str, port: int) -> dict | None:
+    """One SSH round-trip for counts + log markers (fewer connections, less kill risk)."""
+    remote = r"""python3 - <<'PY'
+import json
+from pathlib import Path
+log = Path("/workspace/results/logs/revision/revision_run.log")
+text = log.read_text(errors="replace") if log.exists() else ""
+tail = text[-80000:]
+def has(needle):
+    return needle in tail
+print(json.dumps({
+    "unsw_jsons": len(list(Path("/workspace/results/raw/exp3_security").glob("*likelihood*unsw*.json"))),
+    "fewshot_jsons": len(list(Path("/workspace/results/raw/exp2_fewshot").glob("*.json"))),
+    "unsw_done": has("done PHASE=unsw"),
+    "fewshot_started": has("start PHASE=fewshot"),
+    "fewshot_done": has("done PHASE=fewshot"),
+}))
+PY"""
+    ok, out = ssh(host, port, remote, timeout=45)
+    if not ok or not out.strip():
+        return None
+    try:
+        return json.loads(out.strip().splitlines()[-1])
+    except json.JSONDecodeError:
+        log(f"WARN bad pod_status json: {out[:200]!r}")
+        return None
 
 
 def ssh(host: str, port: int, remote_cmd: str, *, timeout: int = 30) -> tuple[bool, str]:
@@ -111,7 +140,13 @@ def ssh_int(host: str, port: int, remote_cmd: str) -> int | None:
 
 
 def log_contains(host: str, port: int, needle: str) -> bool:
-    ok, out = ssh(host, port, f"grep -F '{needle}' /workspace/results/logs/revision/revision_run.log 2>/dev/null | tail -1")
+    """Legacy helper; prefer pod_status()."""
+    ok, out = ssh(
+        host,
+        port,
+        f"tail -c 80000 /workspace/results/logs/revision/revision_run.log 2>/dev/null | grep -F '{needle}' | tail -1",
+        timeout=45,
+    )
     return ok and bool(out.strip())
 
 
@@ -158,11 +193,23 @@ def launch_fewshot(host: str, port: int) -> None:
 
 def acquire_lock() -> int | None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
+    if LOCK_PATH.exists():
+        try:
+            old = int(LOCK_PATH.read_text(encoding="utf-8").strip())
+            os.kill(old, 0)
+            log(f"lock held by live pid {old}; exiting")
+            return None
+        except (ProcessLookupError, ValueError):
+            log("removing stale watch.lock (dead pid)")
+            LOCK_PATH.unlink(missing_ok=True)
+        except OSError:
+            pass
     fd = os.open(str(LOCK_PATH), os.O_CREAT | os.O_RDWR, 0o644)
     try:
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
         os.close(fd)
+        log("another watcher holds flock; exiting")
         return None
     os.ftruncate(fd, 0)
     os.write(fd, str(os.getpid()).encode())
@@ -171,25 +218,27 @@ def acquire_lock() -> int | None:
 
 def cycle(host: str, port: int, state: dict) -> str:
     """One poll cycle. Returns 'continue' or 'done'."""
-    unsw_pod = ssh_int(host, port, "ls /workspace/results/raw/exp3_security/*likelihood*unsw*.json 2>/dev/null | wc -l")
-    few_pod = ssh_int(host, port, "ls /workspace/results/raw/exp2_fewshot/*.json 2>/dev/null | wc -l")
-    if unsw_pod is None and few_pod is None:
+    ps = pod_status(host, port)
+    if ps is None:
         log("skip cycle: pod unreachable")
+        save_state(state)
         return "continue"
 
-    unsw_pod = unsw_pod or 0
-    few_pod = few_pod or 0
-    log(f"pod counts unsw={unsw_pod} fewshot={few_pod} (local tracked unsw={state['last_unsw_pod']} fewshot={state['last_fewshot_pod']})")
+    unsw_pod = int(ps.get("unsw_jsons") or 0)
+    few_pod = int(ps.get("fewshot_jsons") or 0)
+    log(
+        f"pod counts unsw={unsw_pod} fewshot={few_pod} "
+        f"(local tracked unsw={state['last_unsw_pod']} fewshot={state['last_fewshot_pod']})"
+    )
 
     if unsw_pod > state["last_unsw_pod"]:
         log(f"new unsw JSON(s): {state['last_unsw_pod']} -> {unsw_pod}; pulling")
         pull(host, port)
         state["last_unsw_pod"] = unsw_pod
-        save_state(state)
 
-    unsw_done = log_contains(host, port, "done PHASE=unsw")
-    fewshot_started = log_contains(host, port, "start PHASE=fewshot")
-    fewshot_done = log_contains(host, port, "done PHASE=fewshot")
+    unsw_done = bool(ps.get("unsw_done"))
+    fewshot_started = bool(ps.get("fewshot_started"))
+    fewshot_done = bool(ps.get("fewshot_done"))
 
     if unsw_done and not fewshot_started and not state.get("fewshot_launch_attempted"):
         log("unsw complete on pod; final pull then launch fewshot")
@@ -197,13 +246,13 @@ def cycle(host: str, port: int, state: dict) -> str:
         state["last_unsw_pod"] = max(state["last_unsw_pod"], unsw_pod)
         launch_fewshot(host, port)
         state["fewshot_launch_attempted"] = True
-        save_state(state)
 
     if fewshot_started and few_pod > state["last_fewshot_pod"]:
         log(f"new fewshot JSON(s): {state['last_fewshot_pod']} -> {few_pod}; pulling")
         pull(host, port)
         state["last_fewshot_pod"] = few_pod
-        save_state(state)
+
+    save_state(state)
 
     if fewshot_done:
         log("fewshot complete on pod; final pull")
@@ -220,6 +269,7 @@ def main() -> int:
     p.add_argument("--host", default=os.environ.get("REVISION_POD_IP", "69.30.85.67"))
     p.add_argument("--port", type=int, default=int(os.environ.get("REVISION_POD_PORT", "22132")))
     p.add_argument("--interval", type=int, default=300, help="seconds between polls")
+    p.add_argument("--once", action="store_true", help="run one poll cycle then exit (for cron)")
     args = p.parse_args()
 
     if not KEY.exists():
@@ -244,6 +294,8 @@ def main() -> int:
                     return 0
             except Exception as e:  # noqa: BLE001 — outer guard; never crash the daemon
                 log(f"ERROR unexpected cycle exception: {e!r}")
+            if args.once:
+                return 0
             time.sleep(max(30, args.interval))
     finally:
         fcntl.flock(lock_fd, fcntl.LOCK_UN)

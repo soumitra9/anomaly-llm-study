@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Thin launcher for the fail-safe Python watcher (prefer this over hand-rolled bash loops).
+# Launch the detached supervisor (do not run revision_watch.py directly from IDE shells).
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT" || exit 1
-exec uv run python scripts/revision_watch.py "$@"
+exec bash "$ROOT/scripts/revision_watch_daemon.sh" "$@"
