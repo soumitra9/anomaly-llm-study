@@ -33,6 +33,16 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
+## 2026-08-07 · Phase 4b · RV2 significance + protocol · ✅ COMPLETE
+- **Scope:** Additive analysis only (no GPU). Wilcoxon on likelihood vs few-shot AUROC gap; protocol comparability artifact; regression pattern on speech/vertebral.
+- **Scripts:** `scripts/m6_stats.py` — `section_rv2_protocol`, extended `section_rv2` (`wilcoxon_primary`, `wilcoxon_sensitivity_cell_level`, `regression_analysis`).
+- **Key results:** Surviving gap (likelihood − few-shot) mean **0.014** AUROC. **Primary Wilcoxon (n=8 dataset means): p=0.641, reject=False** → statistically indistinguishable (underpowered at n=8; min p≈0.008). Cell-level sensitivity (n=24, non-independent): p=0.317. Protocol check **PASS** 8/8 (seed0; identical split/serialization hashes). Regressions: speech (~400 features), vertebral (smallest n≈240, 6 features).
+- **Outputs:** `results/tables/m6_stats.json` keys `rv2_protocol_comparability`, extended `rv2_fewshot`.
+- **Tests:** 98 pytest green (`tests/test_revision_stats.py` extended).
+- **Cost:** $0 (local CPU).
+
+---
+
 ## 2026-07-07 · M6 Analysis + paper §4/§5 · ✅ COMPLETE
 - **Scripts:** `scripts/m6_stats.py` (Friedman/Wilcoxon M2 verification + descriptive summaries for
   RQ3b, RQ4, RQ5, RQ7; CSV cross-check PASS) and `scripts/m6_figures.py` (two paper figures).

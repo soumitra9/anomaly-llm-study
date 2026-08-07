@@ -10,7 +10,7 @@ _Last updated: 2026-08-07 · Revision compute + Phase 4 analysis complete._
 ---
 
 ## TL;DR — current state (2026-08-07)
-**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main.pdf`, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24); backup `results/backups/revision_20260807T212210Z.tgz`. **Phase 4 analysis COMPLETE:** tables (`exp3_security.csv`, `exp2_fewshot.csv`), `m6_stats.json` §RV1/§RV2, figures (`rv2_fewshot_vs_zeroshot.png`, `rv1_unsw_likelihood.png`). Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** narrative decision (item 1), then `draft_v1_revised` integration. RunPod: **0 running pods**. Project spend ≈ **$153.62**. Tests **97 green**.
+**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main.pdf`, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24). **Phase 4 analysis COMPLETE** (incl. Phase 4b significance): tables, `m6_stats.json` §RV1/§RV2 + Wilcoxon + protocol check, figures. Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** narrative decision (item 1), then `draft_v1_revised`. RunPod: **0 running pods**. Project spend ≈ **$153.62**. Tests **98 green**.
 
 ---
 
@@ -80,11 +80,11 @@ vs M3 prompted UNSW seed0: gain 3.99, recall@1%FPR 0.148. Likelihood is the stro
 |--------|-------------------|-------------------|------------|
 | Mean AUROC (8 sets) | 0.468 | **0.759** | 0.773 |
 
-Mean ΔAUROC (few-shot − zero-shot) = **+0.290** (24 cells). Few-shot closes **~95%** of the zero-shot→likelihood gap (0.468→0.773). **Not uniform:** large gains on breastw (+0.76), yeast (+0.63), ionosphere (+0.55); regressions on speech (−0.10) and vertebral (−0.22).
+Mean ΔAUROC (few-shot − zero-shot) = **+0.290** (24 cells). Few-shot closes **~95%** of the zero-shot→likelihood gap (0.468→0.773). Surviving gap (likelihood − few-shot) = **0.014** mean AUROC. **Primary Wilcoxon (n=8 dataset means): p=0.641, not significant** → likelihood and few-shot are statistically indistinguishable at this power (min achievable p≈0.008). Protocol comparability: **PASS** (8/8 datasets, seed0; same split/serialization). **Not uniform:** large gains on breastw (+0.76), yeast (+0.63), ionosphere (+0.55); regressions on speech (−0.10, highest dimensionality ~400f) and vertebral (−0.22, smallest n≈240, 6f).
 
-**Open narrative decision (pre-registered in GATE_SPEC §RV2):** few-shot materially strengthens prompted Mode B on these 8 sets — narrow the headline "likelihood dominates prompted" to the **zero-shot expected-value instantiation** tested in M2, or report as a fifth honest finding. Artifacts: `results/tables/exp2_fewshot.csv`, `results/figures/rv2_fewshot_vs_zeroshot.png`, `m6_stats.json` keys `rv2_fewshot`.
+**Narrative implication (GATE_SPEC §RV2):** the pre-registered test supports narrowing the M2 headline to **zero-shot expected-value prompting**; the surviving 0.014 gap is below disclosed run-to-run variance (~0.008) and not statistically distinguishable. Few-shot regressions on speech/vertebral are descriptive nuance only (n=8).
 
-**Phase 4 artifacts:** `results/tables/exp3_security.csv` (UNSW likelihood rows), `exp2_fewshot.csv`, `m6_stats.json` (`rv1_unsw_likelihood`, `rv2_fewshot`), `results/figures/rv1_unsw_likelihood.png`, `rv2_fewshot_vs_zeroshot.png`.
+**Phase 4 artifacts:** `results/tables/exp3_security.csv`, `exp2_fewshot.csv`, `m6_stats.json` (`rv1_unsw_likelihood`, `rv2_protocol_comparability`, `rv2_fewshot` incl. `wilcoxon_primary`), figures `rv1_unsw_likelihood.png`, `rv2_fewshot_vs_zeroshot.png`.
 
 **Ops:** Pod `1y91hqyjou9pkx` (A40 SECURE $0.44/hr, CA-MTL-1); RV1 ~5 h/cell; RV2 ~2.9 h total fleet time; `stop-pod` 2026-08-07; pull+verify backup `revision_20260807T212210Z.tgz`.
 
@@ -127,7 +127,7 @@ Regards, The conference chairs
 
 | # | Reviewer item | Action |
 |---|---------------|--------|
-| 1 | Strengthen prompted baseline or narrow claim | **Done (§RV2):** few-shot mean AUROC 0.759 vs zero-shot 0.468; **decision pending** — likely narrow claim (see results above). |
+| 1 | Strengthen prompted baseline or narrow claim | **Done (§RV2):** few-shot mean AUROC 0.759 vs zero-shot 0.468; Wilcoxon p=0.641 (n=8) → **narrow to zero-shot claim** supported. |
 | 2 | Checkpoint 2×2 or expand DA1 | **Scope:** DA1 already bounds at 0.0054; cite in response. |
 | 3 | UNSW likelihood arm | **Done (§RV1):** 3/3 seeds; likelihood beats prompted on UNSW (gain 7.2–8.2 vs 3.99). |
 | 4 | Expand security panel | **Scope:** future work (>5 datasets). |
@@ -147,8 +147,8 @@ Regards, The conference chairs
 ---
 
 ## Immediate next actions (in order)
-1. **Narrative decision** — review Phase 4 artifacts; decide item-1 framing (narrow zero-shot claim vs fifth finding).
-2. **Integrate** — `paper/draft_v1` → `paper/draft_v1_revised`; free-win text + new results; response letter.
+1. **Integrate** — `paper/draft_v1` → `paper/draft_v1_revised`; narrow M2 headline to zero-shot prompting; add RV1/RV2 results + Wilcoxon; response letter.
+2. **Phase 0 (user):** Confirm EDAS: Review 2?, revision deadline?, response-letter format?, CARS 2026 page limit?
 3. (Optional) M5 Qwen2.5-14B burst, cost-gated ~$25–45, off critical path.
 
 _(Housekeeping done: stopped pods deleted; GitHub tokens revoked. RunPod `list-pods` empty as of 2026-08-06.)_

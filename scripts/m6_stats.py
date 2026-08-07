@@ -28,6 +28,26 @@ RV2_DATASETS = [
     "shuttle", "speech", "vertebral", "yeast",
 ]
 
+# ODDS catalog dimensions for RV2 regression pattern (static; TODO: verify-vs-ODDS primary source).
+RV2_ODDS_SHAPES: dict[str, dict[str, float]] = {
+    "arrhythmia": {"n_samples": 452, "n_features": 274, "anomaly_pct": 14.6},
+    "breastw": {"n_samples": 683, "n_features": 9, "anomaly_pct": 35.0},
+    "cardio": {"n_samples": 1831, "n_features": 21, "anomaly_pct": 9.6},
+    "ionosphere": {"n_samples": 351, "n_features": 33, "anomaly_pct": 35.9},
+    "shuttle": {"n_samples": 49097, "n_features": 9, "anomaly_pct": 7.2},
+    "speech": {"n_samples": 3686, "n_features": 400, "anomaly_pct": 1.7},
+    "vertebral": {"n_samples": 240, "n_features": 6, "anomaly_pct": 12.5},
+    "yeast": {"n_samples": 1484, "n_features": 8, "anomaly_pct": 34.2},
+}
+
+RV2_PROTOCOL_FIELDS = (
+    "dataset_content_hash",
+    "serialization_template_hash",
+    "split_index_hash",
+    "n_rows_scored",
+    "decode_config.n_levels",
+)
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -353,8 +373,72 @@ def section_rv1(results_root: pathlib.Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# §RV2 protocol — few-shot vs zero-shot comparability (seed0 per dataset)
+# ---------------------------------------------------------------------------
+
+def _rv2_cell_path(results_root: pathlib.Path, dataset: str, seed: int = 0) -> tuple[pathlib.Path, pathlib.Path]:
+    fs = results_root / "raw" / "exp2_fewshot" / f"qwen2.5-3b__prompted-fewshot__{dataset}__seed{seed}.json"
+    zs = results_root / "raw" / "exp2_odds" / f"qwen2.5-3b__prompted__{dataset}__seed{seed}.json"
+    return fs, zs
+
+
+def _protocol_field(fs: dict, zs: dict, field: str):
+    if field == "n_rows_scored":
+        return fs["n_rows_scored"], zs["n_rows_scored"]
+    if field == "decode_config.n_levels":
+        return fs["run_metadata"]["decode_config"]["n_levels"], zs["run_metadata"]["decode_config"]["n_levels"]
+    return fs["run_metadata"][field], zs["run_metadata"][field]
+
+
+def section_rv2_protocol(results_root: pathlib.Path) -> dict:
+    print("\n=== §RV2 protocol — few-shot vs zero-shot comparability (seed0) ===")
+    per_dataset = []
+    git_sha_null_on_fewshot = False
+    for ds in RV2_DATASETS:
+        fs_path, zs_path = _rv2_cell_path(results_root, ds)
+        fs = json.loads(fs_path.read_text())
+        zs = json.loads(zs_path.read_text())
+        mismatches = []
+        shared = {}
+        for field in RV2_PROTOCOL_FIELDS:
+            v_fs, v_zs = _protocol_field(fs, zs, field)
+            if v_fs != v_zs:
+                mismatches.append({"field": field, "few_shot": v_fs, "zero_shot": v_zs})
+            else:
+                shared[field] = v_fs
+        env_fs = fs["run_metadata"].get("env", {})
+        env_zs = zs["run_metadata"].get("env", {})
+        if env_fs.get("git_sha") is None or env_fs.get("anollm_submodule_sha") is None:
+            git_sha_null_on_fewshot = True
+        status = "PASS" if not mismatches else "FAIL"
+        per_dataset.append({
+            "dataset": ds,
+            "status": status,
+            "shared": shared,
+            "mismatches": mismatches,
+            "expected_diffs": ["mode", "n_shots", "rendered_prompt_hash"],
+        })
+        print(f"  {ds:12} {status}")
+
+    all_pass = all(r["status"] == "PASS" for r in per_dataset)
+    print(f"Overall: {'PASS' if all_pass else 'FAIL'} (n={len(RV2_DATASETS)} datasets, seed0)")
+    if git_sha_null_on_fewshot:
+        print("Hygiene note: few-shot cells have git_sha/anollm_submodule_sha=null (zero-shot has SHAs); "
+              "serialization + split hashes match — not a protocol confound.")
+
+    return {
+        "per_dataset": per_dataset,
+        "overall_pass": all_pass,
+        "fields_checked": list(RV2_PROTOCOL_FIELDS),
+        "git_sha_null_on_fewshot": git_sha_null_on_fewshot,
+        "note": "Few-shot vs zero-shot differ only in n_shots/mode/prompt hash when PASS. "
+                "git_sha null on revision pod is metadata hygiene only.",
+    }
+
+
+# ---------------------------------------------------------------------------
 # §RV2 — Few-shot vs zero-shot prompted (reviewer item 1; GATE_SPEC §RV2)
-# Descriptive: ΔAUROC(few-shot − zero-shot) on 8 ODDS datasets × 3 seeds.
+# Descriptive + primary Wilcoxon (8 dataset means) + cell-level sensitivity.
 # ---------------------------------------------------------------------------
 
 def section_rv2(results_root: pathlib.Path) -> dict:
@@ -401,6 +485,86 @@ def section_rv2(results_root: pathlib.Path) -> dict:
     if regressions:
         print(f"Regressions vs zero-shot: {regressions}")
 
+    # Primary: paired Wilcoxon on 8 dataset-mean AUROCs (Demsar convention, matches M2 §1a).
+    pivot = pd.DataFrame({
+        "dataset": [r["dataset"] for r in per_dataset],
+        "few_shot": [r["few_shot_auroc_mean"] for r in per_dataset],
+        "likelihood": [r["likelihood_auroc_mean"] for r in per_dataset],
+    }).set_index("dataset")
+    hw = holm_wilcoxon(pivot, baseline="likelihood")
+    hw_row = hw.iloc[0]
+    median_delta_fs_minus_lk = float(hw_row["median_delta"])
+    mean_gap_lk_minus_fs = float(np.mean([r["likelihood_minus_few_shot"] for r in per_dataset]))
+    wilcoxon_primary = {
+        "n_pairs": len(per_dataset),
+        "min_achievable_p_n8": 0.0078125,
+        "statistic": float(hw_row["statistic"]),
+        "p_raw": float(hw_row["p_raw"]),
+        "p_holm": float(hw_row["p_holm"]),
+        "reject_at_0_05": bool(hw_row["reject"]),
+        "median_delta_few_minus_likelihood": round(median_delta_fs_minus_lk, 4),
+        "mean_delta_likelihood_minus_few_shot": round(mean_gap_lk_minus_fs, 4),
+        "note": "Primary result: Wilcoxon on 8 dataset-mean AUROCs (few-shot vs likelihood). "
+                "Family size 1 → p_holm equals p_raw. At n=8, minimum achievable p≈0.008; "
+                "non-rejection indicates underpowered / statistically indistinguishable, not proof of equality.",
+    }
+    print(f"\nWilcoxon primary (n=8 dataset means): p={wilcoxon_primary['p_raw']:.4f}, "
+          f"median Δ(few−likelihood)={median_delta_fs_minus_lk:+.4f}, "
+          f"reject={wilcoxon_primary['reject_at_0_05']}")
+
+    # Sensitivity: 24 cell-level pairs (seeds not independent — footnote only).
+    from scipy.stats import wilcoxon, spearmanr
+
+    cell_fs, cell_lk = [], []
+    for ds in RV2_DATASETS:
+        fs_vals = fs_rows[fs_rows["dataset"] == ds]["auroc"].values
+        lk_vals = lk_rows[lk_rows["dataset"] == ds]["auroc"].values
+        cell_fs.extend(fs_vals.tolist())
+        cell_lk.extend(lk_vals.tolist())
+    w_stat, w_p_cell = wilcoxon(cell_lk, cell_fs)
+    wilcoxon_sensitivity = {
+        "n_pairs": len(cell_fs),
+        "statistic": float(w_stat),
+        "p_raw": float(w_p_cell),
+        "mean_delta_likelihood_minus_few_shot": round(float(np.mean(np.array(cell_lk) - np.array(cell_fs))), 4),
+        "caveat": "Non-independent sensitivity check: 8 datasets × 3 seeds; seeds within a dataset are re-runs, "
+                  "not independent samples. Do not treat as co-equal to the primary n=8 test.",
+    }
+    print(f"Wilcoxon sensitivity (n=24 cells, non-independent): p={wilcoxon_sensitivity['p_raw']:.4f} "
+          f"[footnote only]")
+
+    # Regression pattern vs static ODDS shapes.
+    shape_rows = []
+    for r in per_dataset:
+        ds = r["dataset"]
+        shape = RV2_ODDS_SHAPES[ds]
+        shape_rows.append({
+            "dataset": ds,
+            "delta_few_minus_zero": r["delta_few_minus_zero"],
+            "regressed": r["delta_few_minus_zero"] < 0,
+            **shape,
+        })
+    deltas = np.array([s["delta_few_minus_zero"] for s in shape_rows])
+    n_feat = np.array([s["n_features"] for s in shape_rows])
+    n_samp = np.array([s["n_samples"] for s in shape_rows])
+    anom = np.array([s["anomaly_pct"] for s in shape_rows])
+
+    def _spearman(x, y) -> dict:
+        rho, p = spearmanr(x, y)
+        return {"rho": round(float(rho), 4), "p": round(float(p), 4)}
+
+    regression_analysis = {
+        "per_dataset": shape_rows,
+        "shape_source_note": "Static ODDS catalog dimensions (TODO: verify-vs-ODDS primary PDF/source).",
+        "spearman_delta_vs_n_features": _spearman(deltas, n_feat),
+        "spearman_delta_vs_n_samples": _spearman(deltas, n_samp),
+        "spearman_delta_vs_anomaly_pct": _spearman(deltas, anom),
+        "regressors": regressions,
+        "pattern_note": "Regressions speech (highest n_features≈400) and vertebral (lowest n_samples≈240, "
+                        "n_features≈6) sit at shape extremes; n=8 — descriptive only, no causal claim.",
+    }
+    print(f"Spearman Δ(few−zero) vs n_features: rho={regression_analysis['spearman_delta_vs_n_features']['rho']}")
+
     return {
         "per_dataset": per_dataset,
         "mean_zero_shot_auroc": round(mean_zs, 4),
@@ -409,8 +573,11 @@ def section_rv2(results_root: pathlib.Path) -> dict:
         "mean_delta_few_minus_zero": round(mean_delta, 4),
         "gap_closure_pct": round(gap_closure, 1),
         "regressions_vs_zero_shot": regressions,
-        "note": "Descriptive only (GATE_SPEC §RV2). Few-shot closes most of zero-shot→likelihood gap on 8 sets; "
-                "narrow headline claim if accepted for revision narrative.",
+        "wilcoxon_primary": wilcoxon_primary,
+        "wilcoxon_sensitivity_cell_level": wilcoxon_sensitivity,
+        "regression_analysis": regression_analysis,
+        "note": "Primary Wilcoxon uses 8 dataset-mean AUROCs (Demsar/M2 convention). "
+                "Cell-level Wilcoxon is a non-independent sensitivity check only.",
     }
 
 
@@ -434,6 +601,7 @@ def main():
     output["rq5_ordering"] = section_1d(results_root)
     output["rq7_triage"] = section_1e(results_root)
     output["rv1_unsw_likelihood"] = section_rv1(results_root)
+    output["rv2_protocol_comparability"] = section_rv2_protocol(results_root)
     output["rv2_fewshot"] = section_rv2(results_root)
 
     tables_dir = output_dir / "tables"
