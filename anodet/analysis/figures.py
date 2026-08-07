@@ -50,15 +50,35 @@ def pareto(df: pd.DataFrame, out_path: str, *, acc: str = "auroc", cost: str = "
     fr = pd.DataFrame(frontier)
     fig, ax = plt.subplots(figsize=(6, 5))
     ax.scatter(d[cost], d[acc])
+    cost_min, cost_max = float(d[cost].min()), float(d[cost].max())
+    acc_min, acc_max = float(d[acc].min()), float(d[acc].max())
+    cost_span = cost_max - cost_min or 1.0
+    acc_span = acc_max - acc_min or 1.0
     if label in d.columns:
         for _, r in d.iterrows():
-            ax.annotate(str(r[label]), (r[cost], r[acc]), fontsize=7)
+            x_frac = (float(r[cost]) - cost_min) / cost_span
+            y_frac = (float(r[acc]) - acc_min) / acc_span
+            ha, dx, dy = "left", 4, 4
+            if x_frac > 0.85:
+                ha, dx = "right", -4
+            if y_frac > 0.85:
+                dy = -4
+            ax.annotate(
+                str(r[label]),
+                (r[cost], r[acc]),
+                xytext=(dx, dy),
+                textcoords="offset points",
+                fontsize=7,
+                ha=ha,
+                va="center",
+            )
     ax.plot(fr[cost], fr[acc], "r--", label="Pareto frontier")
     ax.set_xlabel(cost); ax.set_ylabel(acc); ax.legend()
     ax.set_title("Accuracy vs cost")
+    ax.margins(x=0.06, y=0.06)
     fig.tight_layout()
     p = Path(out_path); p.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(p, dpi=300); plt.close(fig)
+    fig.savefig(p, dpi=300, bbox_inches="tight", pad_inches=0.08); plt.close(fig)
     return p
 
 
