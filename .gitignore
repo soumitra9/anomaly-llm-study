@@ -30,8 +30,12 @@ third_party/AnoLLM
 .cursorindexingignore
 docs/claude/
 
-# Paper drafts and LaTeX (local only)
-paper/
+# Paper drafts — TEMP tracked for revision resubmit (~2026-08-09); restore `paper/` line after
+# paper/
+paper/**/.DS_Store
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.blg
 
 # Experiment results (local only)
 results/

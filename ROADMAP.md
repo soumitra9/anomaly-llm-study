@@ -10,7 +10,7 @@ _Last updated: 2026-08-07 · Revision compute + Phase 4 analysis complete._
 ---
 
 ## TL;DR — current state (2026-08-07)
-**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main.pdf`, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24). **Phase 4 analysis COMPLETE** (incl. Phase 4b significance): tables, `m6_stats.json` §RV1/§RV2 + Wilcoxon + protocol check, figures. Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** narrative decision (item 1), then `draft_v1_revised`. RunPod: **0 running pods**. Project spend ≈ **$153.62**. Tests **98 green**.
+**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main.pdf`, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24). **Phase 4 analysis COMPLETE** (incl. Phase 4b significance): tables, `m6_stats.json` §RV1/§RV2 + Wilcoxon + protocol check, figures. **Revised paper COMPLETE:** `paper/draft_v1_revised/main.pdf` (**7 pages**, ≤8pp limit) addresses reviewer items 1–10; `RESPONSE_TO_REVIEWERS.md` written; UNSW likelihood reversal (0.302 beats all classical) integrated. Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** Phase 0 EDAS/venue-template verification (user action); pod teardown after backup verify. Project spend ≈ **$153.62**. Tests **98 green**.
 
 ---
 
@@ -31,7 +31,7 @@ _Last updated: 2026-08-07 · Revision compute + Phase 4 analysis complete._
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
 | M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ✅ **done** | `m6_stats.py`/`m6_figures.py`; `paper/04_results.md`; `paper/05_discussion.md`; commit `c88e861` |
 | Paper | Author + submit LaTeX draft | PLAN §13 | ✅ submitted | `paper/draft_v1/main.pdf` (Jul 13) |
-| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **analysis done** | RV1 3/3 + RV2 24/24; Phase 4 tables/stats/figures done; `draft_v1_revised/` pending |
+| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **draft done** | RV1 3/3 + RV2 24/24; Phase 4 tables/stats/figures done; `draft_v1_revised/main.pdf` (7pp) + response letter done; Phase 0 EDAS verify pending |
 
 **Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → M6 ✅ → Paper ✅ submitted → **Revision Phase**. M5 14B burst remains optional and off the critical path.
 
@@ -82,7 +82,7 @@ vs M3 prompted UNSW seed0: gain 3.99, recall@1%FPR 0.148. Likelihood is the stro
 
 Mean ΔAUROC (few-shot − zero-shot) = **+0.290** (24 cells). Few-shot closes **~95%** of the zero-shot→likelihood gap (0.468→0.773). Surviving gap (likelihood − few-shot) = **0.014** mean AUROC. **Primary Wilcoxon (n=8 dataset means): p=0.641, not significant** → likelihood and few-shot are statistically indistinguishable at this power (min achievable p≈0.008). Protocol comparability: **PASS** (8/8 datasets, seed0; same split/serialization). **Not uniform:** large gains on breastw (+0.76), yeast (+0.63), ionosphere (+0.55); regressions on speech (−0.10, highest dimensionality ~400f) and vertebral (−0.22, smallest n≈240, 6f).
 
-**Narrative implication (GATE_SPEC §RV2):** the pre-registered test supports narrowing the M2 headline to **zero-shot expected-value prompting**; the surviving 0.014 gap is below disclosed run-to-run variance (~0.008) and not statistically distinguishable. Few-shot regressions on speech/vertebral are descriptive nuance only (n=8).
+**Narrative implication (GATE_SPEC §RV2):** the pre-registered test supports narrowing the M2 headline to **zero-shot expected-value prompting**. The surviving 0.014 mean gap (likelihood − few-shot) is **not statistically distinguishable** (paired Wilcoxon n=8, p=0.641). Note 0.014 is *larger* than the ~0.008 run-to-run figure, so it is not "below noise"; the correct basis for the claim is the non-significant Wilcoxon, not a noise-floor comparison. Few-shot regressions on speech/vertebral are descriptive nuance only (n=8).
 
 **Phase 4 artifacts:** `results/tables/exp3_security.csv`, `exp2_fewshot.csv`, `m6_stats.json` (`rv1_unsw_likelihood`, `rv2_protocol_comparability`, `rv2_fewshot` incl. `wilcoxon_primary`), figures `rv1_unsw_likelihood.png`, `rv2_fewshot_vs_zeroshot.png`.
 
@@ -147,8 +147,8 @@ Regards, The conference chairs
 ---
 
 ## Immediate next actions (in order)
-1. **Integrate** — `paper/draft_v1` → `paper/draft_v1_revised`; narrow M2 headline to zero-shot prompting; add RV1/RV2 results + Wilcoxon; response letter.
-2. **Phase 0 (user):** Confirm EDAS: Review 2?, revision deadline?, response-letter format?, CARS 2026 page limit?
+1. ~~**Integrate** — `paper/draft_v1` → `paper/draft_v1_revised`; narrow M2 headline to zero-shot prompting; add RV1/RV2 results + Wilcoxon; response letter.~~ **DONE** (7pp PDF + `RESPONSE_TO_REVIEWERS.md`).
+2. **Phase 0 (user, OPEN):** Confirm EDAS before resubmit: Review 2 present?, revision deadline?, required response-letter format?, confirm 8pp CARS 2026 page limit? (8pp used as working target, not yet venue-verified.)
 3. (Optional) M5 Qwen2.5-14B burst, cost-gated ~$25–45, off critical path.
 
 _(Housekeeping done: stopped pods deleted; GitHub tokens revoked. RunPod `list-pods` empty as of 2026-08-06.)_
