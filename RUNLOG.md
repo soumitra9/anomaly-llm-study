@@ -10,8 +10,30 @@ new/skipped/failed, cost, and where results/logs were saved. Always capture the 
 
 ---
 
-## 2026-07-07 · M6 Analysis + Write-up · ✅ COMPLETE (local, $0)
-- **Scope:** Confirmatory statistics and paper sections for all RQs; no new GPU runs.
+## 2026-08-06/07 · Revision Phase · RV1 + RV2 · ✅ COMPLETE
+- **Pod:** `anomaly-revision-rv1` (`1y91hqyjou9pkx`), CA-MTL-1, A40 SECURE **$0.44/hr**.
+- **Launched:** 2026-08-06 17:36Z. **Stopped:** 2026-08-07 (~21:22Z pull). Total uptime ≈ **27.8 h** (includes idle gaps between phases).
+- **SSH:** `69.30.85.67:22132`, key `~/.ssh/id_ed25519_runpod_anomaly`. Repo rsync'd (private GitHub clone failed on pod).
+- **§RV1 — UNSW likelihood:** 3/3 cells (`qwen2.5-3b__likelihood__unsw__seed{0,1,2}`). r=5, max_steps=1000. ~5 h/cell wall. AUPRC gain **7.17 / 7.67 / 8.22**; recall@1%FPR **0.273 / 0.309 / 0.324**. Beats M3 prompted UNSW seed0 (gain 3.99, recall@1%FPR 0.148).
+- **§RV2 — Few-shot prompted:** 24/24 cells (`exp2_fewshot`, k=3 normals-only, 8 ODDS × 3 seeds). Fleet wall ≈ **2.9 h** (10400 s). 0 failed. Mean AUROC: zero-shot **0.468** → few-shot **0.759** (Δ +0.290); likelihood **0.773** on same 8 sets (~95% gap closure). Regressions: speech, vertebral.
+- **Results:** rsync'd + verified locally. Backup: `results/backups/revision_20260807T212210Z.tgz`. Logs: `results/logs/fleet/revision/`.
+- **Teardown:** `stop-pod` → status **EXITED** (disk retained on RunPod volume).
+- **Cost:** 27.8 h × $0.44/hr ≈ **$12.21**. Project total ≈ **$153.62** (prior $141.41 + revision).
+- **Incidents:** (1) Two failed pods (no PUBLIC_KEY → no SSH). (2) ~5.5 h idle after RV1 before RV2 manually started. (3) LaunchAgent blocked (`~/Library/LaunchAgents` root-owned) — manual pull used.
+
+---
+
+## 2026-08-07 · Phase 4 analysis · Revision RV1/RV2 · ✅ COMPLETE
+- **Scope:** Deterministic analysis only (no GPU). Protocol comparability verified (breastw seed0: same split/serialization; only `n_shots=3` differs).
+- **Scripts:** `PYTHONPATH=. uv run python scripts/make_tables.py exp3_security exp2_fewshot`; `scripts/m6_stats.py` (additive §RV1 + §RV2); `scripts/make_figures.py`.
+- **Outputs:** `results/tables/exp3_security.csv` (3 UNSW likelihood rows), `results/tables/exp2_fewshot.csv`, `results/tables/m6_stats.json` (`rv1_unsw_likelihood`, `rv2_fewshot`), `results/figures/rv2_fewshot_vs_zeroshot.png`, `results/figures/rv1_unsw_likelihood.png`.
+- **Key numbers (match raw JSONs):** RV1 likelihood mean gain **7.686**, recall@1%FPR **0.302** vs prompted seed0 gain **3.989**. RV2 mean AUROC zero-shot **0.468** → few-shot **0.759** (Δ **+0.290**); likelihood **0.773** (~**95%** gap closure). Regressions: speech, vertebral.
+- **Tests:** `tests/test_revision_stats.py` added; **97 pytest green** locally.
+- **Cost:** $0 (local CPU). Project total remains ≈ **$153.62**.
+
+---
+
+## 2026-07-07 · M6 Analysis + paper §4/§5 · ✅ COMPLETE
 - **Scripts:** `scripts/m6_stats.py` (Friedman/Wilcoxon M2 verification + descriptive summaries for
   RQ3b, RQ4, RQ5, RQ7; CSV cross-check PASS) and `scripts/m6_figures.py` (two paper figures).
 - **Outputs:** `results/tables/m6_stats.json`, `results/figures/exp3_security_bars.png` (RQ4),

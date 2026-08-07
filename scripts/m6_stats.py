@@ -22,6 +22,12 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from anodet.analysis.aggregate import load_rows
 from anodet.analysis.stats import average_ranks, friedman, holm_wilcoxon
 
+# GATE_SPEC §RV2 — same 8 datasets as DA1 dissolving arm
+RV2_DATASETS = [
+    "arrhythmia", "breastw", "cardio", "ionosphere",
+    "shuttle", "speech", "vertebral", "yeast",
+]
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -301,6 +307,114 @@ def section_1e(results_root: pathlib.Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# §RV1 — UNSW likelihood arm (reviewer item 3; GATE_SPEC §RV1)
+# Descriptive: likelihood vs prompted on UNSW, recall@1%FPR + AUPRC gain.
+# ---------------------------------------------------------------------------
+
+def section_rv1(results_root: pathlib.Path) -> dict:
+    print("\n=== §RV1 — UNSW likelihood vs prompted (descriptive) ===")
+    jsons = _load_exp_jsons(results_root, "exp3_security")
+    unsw = [d for d in jsons if _meta(d).get("dataset") == "unsw"
+            and _meta(d).get("model") == "qwen2.5-3b"
+            and _meta(d).get("mode") in ("likelihood", "prompted")]
+    assert len([d for d in unsw if _meta(d)["mode"] == "likelihood"]) == 3, "Expected 3 RV1 likelihood cells"
+    assert len([d for d in unsw if _meta(d)["mode"] == "prompted"]) >= 1, "Expected M3 prompted UNSW cells"
+
+    rows = []
+    for d in sorted(unsw, key=lambda x: (_meta(x)["mode"], _meta(x)["seed"])):
+        m = _meta(d)
+        rows.append({
+            "mode": m["mode"],
+            "seed": m["seed"],
+            "auprc_gain": round(d["metrics"]["auprc_gain"], 4),
+            "recall_at_1pct_fpr": round(d["metrics"]["recall_at_1pct_fpr"], 4),
+            "r_permutations": m.get("r_permutations"),
+        })
+        print(f"  {m['mode']:12} seed{m['seed']}: gain={d['metrics']['auprc_gain']:.3f} "
+              f"recall@1%FPR={d['metrics']['recall_at_1pct_fpr']:.3f}")
+
+    lik = [r for r in rows if r["mode"] == "likelihood"]
+    pro = [r for r in rows if r["mode"] == "prompted"]
+    lik_gain_mean = float(np.mean([r["auprc_gain"] for r in lik]))
+    lik_r1_mean = float(np.mean([r["recall_at_1pct_fpr"] for r in lik]))
+    pro_gain_seed0 = next(r["auprc_gain"] for r in pro if r["seed"] == 0)
+    pro_r1_seed0 = next(r["recall_at_1pct_fpr"] for r in pro if r["seed"] == 0)
+    print(f"Likelihood mean gain={lik_gain_mean:.3f}, recall@1%FPR={lik_r1_mean:.3f}")
+    print(f"Prompted seed0 (M3 ref): gain={pro_gain_seed0:.3f}, recall@1%FPR={pro_r1_seed0:.3f}")
+
+    return {
+        "cells": rows,
+        "likelihood_mean_auprc_gain": round(lik_gain_mean, 4),
+        "likelihood_mean_recall_at_1pct_fpr": round(lik_r1_mean, 4),
+        "prompted_seed0_auprc_gain": pro_gain_seed0,
+        "prompted_seed0_recall_at_1pct_fpr": pro_r1_seed0,
+        "note": "Descriptive per-dataset security evidence (n=1 dataset). RV1 fills missing strongest LLM mode on UNSW.",
+    }
+
+
+# ---------------------------------------------------------------------------
+# §RV2 — Few-shot vs zero-shot prompted (reviewer item 1; GATE_SPEC §RV2)
+# Descriptive: ΔAUROC(few-shot − zero-shot) on 8 ODDS datasets × 3 seeds.
+# ---------------------------------------------------------------------------
+
+def section_rv2(results_root: pathlib.Path) -> dict:
+    print("\n=== §RV2 — Few-shot vs zero-shot prompted (descriptive) ===")
+    fs_rows = load_rows(str(results_root), "exp2_fewshot")
+    zs_rows = load_rows(str(results_root), "exp2_odds")
+    lk_rows = load_rows(str(results_root), "exp2_odds")
+    zs_rows = zs_rows[(zs_rows["model"] == "qwen2.5-3b") & (zs_rows["mode"] == "prompted")]
+    lk_rows = lk_rows[(lk_rows["model"] == "qwen2.5-3b") & (lk_rows["mode"] == "likelihood")]
+    fs_rows = fs_rows[fs_rows["mode"] == "prompted-fewshot"]
+
+    per_dataset = []
+    all_deltas = []
+    for ds in RV2_DATASETS:
+        zs = zs_rows[zs_rows["dataset"] == ds]["auroc"].values
+        fs = fs_rows[fs_rows["dataset"] == ds]["auroc"].values
+        lk = lk_rows[lk_rows["dataset"] == ds]["auroc"].values
+        assert len(zs) == len(fs) == len(lk) == 3, f"Expected 3 seeds each for {ds}"
+        zm, fm, lm = float(np.mean(zs)), float(np.mean(fs)), float(np.mean(lk))
+        delta = fm - zm
+        all_deltas.extend((fs - zs).tolist())
+        per_dataset.append({
+            "dataset": ds,
+            "zero_shot_auroc_mean": round(zm, 4),
+            "few_shot_auroc_mean": round(fm, 4),
+            "likelihood_auroc_mean": round(lm, 4),
+            "delta_few_minus_zero": round(delta, 4),
+            "likelihood_minus_few_shot": round(lm - fm, 4),
+        })
+        print(f"  {ds:12} zs={zm:.3f} fs={fm:.3f} lk={lm:.3f} Δfs-zs={delta:+.3f}")
+
+    mean_zs = float(np.mean([r["zero_shot_auroc_mean"] for r in per_dataset]))
+    mean_fs = float(np.mean([r["few_shot_auroc_mean"] for r in per_dataset]))
+    mean_lk = float(np.mean([r["likelihood_auroc_mean"] for r in per_dataset]))
+    mean_delta = float(np.mean(all_deltas))
+    gap_zs_lk = mean_lk - mean_zs
+    gap_fs_lk = mean_lk - mean_fs
+    gap_closure = (1.0 - abs(gap_fs_lk) / abs(gap_zs_lk)) * 100.0 if gap_zs_lk else 0.0
+
+    print(f"Mean AUROC: zero-shot={mean_zs:.3f}, few-shot={mean_fs:.3f}, likelihood={mean_lk:.3f}")
+    print(f"Mean ΔAUROC (few−zero, 24 cells)={mean_delta:+.4f}; gap closure={gap_closure:.1f}%")
+
+    regressions = [r["dataset"] for r in per_dataset if r["delta_few_minus_zero"] < 0]
+    if regressions:
+        print(f"Regressions vs zero-shot: {regressions}")
+
+    return {
+        "per_dataset": per_dataset,
+        "mean_zero_shot_auroc": round(mean_zs, 4),
+        "mean_few_shot_auroc": round(mean_fs, 4),
+        "mean_likelihood_auroc": round(mean_lk, 4),
+        "mean_delta_few_minus_zero": round(mean_delta, 4),
+        "gap_closure_pct": round(gap_closure, 1),
+        "regressions_vs_zero_shot": regressions,
+        "note": "Descriptive only (GATE_SPEC §RV2). Few-shot closes most of zero-shot→likelihood gap on 8 sets; "
+                "narrow headline claim if accepted for revision narrative.",
+    }
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -319,6 +433,8 @@ def main():
     output["rq4_security_transfer"] = section_1c(results_root)
     output["rq5_ordering"] = section_1d(results_root)
     output["rq7_triage"] = section_1e(results_root)
+    output["rv1_unsw_likelihood"] = section_rv1(results_root)
+    output["rv2_fewshot"] = section_rv2(results_root)
 
     tables_dir = output_dir / "tables"
     tables_dir.mkdir(parents=True, exist_ok=True)

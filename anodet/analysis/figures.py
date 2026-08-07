@@ -62,12 +62,22 @@ def pareto(df: pd.DataFrame, out_path: str, *, acc: str = "auroc", cost: str = "
     return p
 
 
-def per_dataset_bars(scores: pd.DataFrame, out_path: str) -> Path:
+def per_dataset_bars(scores: pd.DataFrame, out_path: str, *, ylabel: str = "metric",
+                     title: str = "Per-dataset comparison") -> Path:
     """Grouped bars: one cluster per dataset (rows), one bar per method (columns)."""
     fig, ax = plt.subplots(figsize=(2 + 0.5 * len(scores), 4))
     scores.plot(kind="bar", ax=ax)
-    ax.set_ylabel("metric"); ax.set_title("Per-dataset comparison")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
     fig.tight_layout()
     p = Path(out_path); p.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(p, dpi=300); plt.close(fig)
     return p
+
+
+def mode_comparison_bars(df: pd.DataFrame, out_path: str, *, value_col: str, group_col: str,
+                         modes: list[str], title: str, ylabel: str) -> Path:
+    """Grouped bars for one dataset group (e.g. UNSW modes or RV2 datasets × modes)."""
+    pivot = df.pivot_table(index=group_col, columns="mode", values=value_col, aggfunc="mean")
+    pivot = pivot.reindex(columns=[m for m in modes if m in pivot.columns])
+    return per_dataset_bars(pivot, out_path, ylabel=ylabel, title=title)

@@ -25,7 +25,23 @@ if [[ -z "$UV" ]]; then
   echo "ERROR: uv not on PATH"; exit 1
 fi
 
-mkdir -p "$LOG_DIR" "$HOME/Library/LaunchAgents"
+mkdir -p "$LOG_DIR"
+LA_DIR="$HOME/Library/LaunchAgents"
+if [[ ! -d "$LA_DIR" ]]; then
+  mkdir -p "$LA_DIR" || {
+    echo "ERROR: cannot create $LA_DIR"; exit 1
+  }
+fi
+if [[ ! -w "$LA_DIR" ]]; then
+  owner="$(stat -f '%Su' "$LA_DIR" 2>/dev/null || echo unknown)"
+  echo "ERROR: $LA_DIR is not writable (owner: $owner, you: $(whoami))."
+  echo "Fix once in Terminal.app, then re-run this script:"
+  echo "  sudo chown \"$(whoami):staff\" \"$LA_DIR\""
+  echo "  chmod u+rwx \"$LA_DIR\""
+  echo ""
+  echo "Fallback (no LaunchAgent): bash scripts/revision_watch_daemon.sh"
+  exit 1
+fi
 bash "$ROOT/scripts/revision_watch_daemon.sh" stop 2>/dev/null || true
 
 cat > "$PLIST" <<EOF

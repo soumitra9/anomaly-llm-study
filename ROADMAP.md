@@ -5,12 +5,12 @@ lands. Companions: [`PLAN.md`](PLAN.md) = the research design (the science); app
 `~/.claude/plans/i-need-to-plan-ancient-dawn.md`; in-repo copy: `docs/claude/plans/i-need-to-plan-ancient-dawn.md`; long-form state =
 agent memory `docs/claude/memory/project-state.md` (live copy also in `~/.claude/.../memory/`). If those ever disagree, **this file + git history win for status.**
 
-_Last updated: 2026-08-06 · Revision Phase active (Weak Accept review received)._
+_Last updated: 2026-08-07 · Revision compute + Phase 4 analysis complete._
 
 ---
 
-## TL;DR — current state (2026-08-06)
-**M1–M6 COMPLETE.** Paper drafted (`paper/draft_v1/main.pdf`, 7 pages) and **submitted**; **Weak Accept** review received. **Revision Phase active:** two new experiments pre-registered (UNSW likelihood arm + few-shot prompted), plus honest scoping on remaining review items. RunPod MCP verified 2026-08-06: **0 pods**, A40 SECURE **$0.44/hr**, CA-MTL-1 available. Project spend ≈ **$141.41** (MCP billing Jun–Aug: ~$134.29 pod GPU+disk). Tests **85 green**.
+## TL;DR — current state (2026-08-07)
+**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main.pdf`, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24); backup `results/backups/revision_20260807T212210Z.tgz`. **Phase 4 analysis COMPLETE:** tables (`exp3_security.csv`, `exp2_fewshot.csv`), `m6_stats.json` §RV1/§RV2, figures (`rv2_fewshot_vs_zeroshot.png`, `rv1_unsw_likelihood.png`). Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** narrative decision (item 1), then `draft_v1_revised` integration. RunPod: **0 running pods**. Project spend ≈ **$153.62**. Tests **97 green**.
 
 ---
 
@@ -31,7 +31,7 @@ _Last updated: 2026-08-06 · Revision Phase active (Weak Accept review received)
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
 | M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ✅ **done** | `m6_stats.py`/`m6_figures.py`; `paper/04_results.md`; `paper/05_discussion.md`; commit `c88e861` |
 | Paper | Author + submit LaTeX draft | PLAN §13 | ✅ submitted | `paper/draft_v1/main.pdf` (Jul 13) |
-| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **active** | `GATE_SPEC.md` §RV1/§RV2; `paper/draft_v1_revised/` (at integration) |
+| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **analysis done** | RV1 3/3 + RV2 24/24; Phase 4 tables/stats/figures done; `draft_v1_revised/` pending |
 
 **Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → M6 ✅ → Paper ✅ submitted → **Revision Phase**. M5 14B burst remains optional and off the critical path.
 
@@ -58,9 +58,35 @@ _Last updated: 2026-08-06 · Revision Phase active (Weak Accept review received)
 - [x] All tables regenerated via `make_tables.py`
 - [x] Pod `pyinsl4hrttusc` — stopped
 
-## Revision Phase — active (2026-08-06)
+## Revision Phase — compute complete (2026-08-07)
 
 **Verdict:** Weak Accept (4/5). Overall recommendation: paper just clears the bar; reservations on prompted baseline strength, UNSW likelihood gap, and scoping.
+
+### RV1 + RV2 results (system of record: `results/raw/`)
+
+**§RV1 — UNSW likelihood** (`exp3_security`, qwen2.5-3b, r=5, max_steps=1000, seeds 0–2):
+
+| Seed | AUPRC gain | recall@1%FPR |
+|------|------------|--------------|
+| 0 | 7.17 | 0.273 |
+| 1 | 7.67 | 0.309 |
+| 2 | 8.22 | 0.324 |
+
+vs M3 prompted UNSW seed0: gain 3.99, recall@1%FPR 0.148. Likelihood is the stronger LLM mode on UNSW.
+
+**§RV2 — Few-shot prompted** (`exp2_fewshot`, k=3 normals-only, 8 DA1 ODDS datasets × 3 seeds = 24 cells):
+
+| Metric | Zero-shot prompted | Few-shot prompted | Likelihood |
+|--------|-------------------|-------------------|------------|
+| Mean AUROC (8 sets) | 0.468 | **0.759** | 0.773 |
+
+Mean ΔAUROC (few-shot − zero-shot) = **+0.290** (24 cells). Few-shot closes **~95%** of the zero-shot→likelihood gap (0.468→0.773). **Not uniform:** large gains on breastw (+0.76), yeast (+0.63), ionosphere (+0.55); regressions on speech (−0.10) and vertebral (−0.22).
+
+**Open narrative decision (pre-registered in GATE_SPEC §RV2):** few-shot materially strengthens prompted Mode B on these 8 sets — narrow the headline "likelihood dominates prompted" to the **zero-shot expected-value instantiation** tested in M2, or report as a fifth honest finding. Artifacts: `results/tables/exp2_fewshot.csv`, `results/figures/rv2_fewshot_vs_zeroshot.png`, `m6_stats.json` keys `rv2_fewshot`.
+
+**Phase 4 artifacts:** `results/tables/exp3_security.csv` (UNSW likelihood rows), `exp2_fewshot.csv`, `m6_stats.json` (`rv1_unsw_likelihood`, `rv2_fewshot`), `results/figures/rv1_unsw_likelihood.png`, `rv2_fewshot_vs_zeroshot.png`.
+
+**Ops:** Pod `1y91hqyjou9pkx` (A40 SECURE $0.44/hr, CA-MTL-1); RV1 ~5 h/cell; RV2 ~2.9 h total fleet time; `stop-pod` 2026-08-07; pull+verify backup `revision_20260807T212210Z.tgz`.
 
 ### Reviewer feedback (verbatim)
 
@@ -101,9 +127,9 @@ Regards, The conference chairs
 
 | # | Reviewer item | Action |
 |---|---------------|--------|
-| 1 | Strengthen prompted baseline or narrow claim | **Run:** few-shot prompted (§RV2). **Scope** if gap persists. |
+| 1 | Strengthen prompted baseline or narrow claim | **Done (§RV2):** few-shot mean AUROC 0.759 vs zero-shot 0.468; **decision pending** — likely narrow claim (see results above). |
 | 2 | Checkpoint 2×2 or expand DA1 | **Scope:** DA1 already bounds at 0.0054; cite in response. |
-| 3 | UNSW likelihood arm | **Run:** Qwen2.5-3B likelihood on UNSW, r=5 (§RV1). |
+| 3 | UNSW likelihood arm | **Done (§RV1):** 3/3 seeds; likelihood beats prompted on UNSW (gain 7.2–8.2 vs 3.99). |
 | 4 | Expand security panel | **Scope:** future work (>5 datasets). |
 | 5 | Underpowered ablations (n=3) | **Scope:** label exploratory (already in draft). |
 | 6 | C3 failure unexplained | **Write:** grad-accum investigation + failing-dataset list. |
@@ -112,16 +138,16 @@ Regards, The conference chairs
 | 9 | Compute/cost table | **Write:** table from existing timing numbers. |
 | 10 | Define regime-dependent; Table III footnote | **Write:** intro + first mention. |
 
-**Pre-registered new compute:** `GATE_SPEC.md` §RV1 (UNSW likelihood, r=5, max_steps=1000, seeds 0–2) + §RV2 (few-shot prompted, k=3 normals-only, 8 ODDS datasets, qwen2.5-3b, seeds 0–2). Estimated ~$10–18 one A40 session.
+**Pre-registered compute (done):** `GATE_SPEC.md` §RV1 + §RV2. Actual revision pod cost ≈ **$12.21** (~27.8 h × $0.44/hr, includes idle gaps between phases).
 
-**RunPod preflight (2026-08-06):** MCP OK. `list-pods` → 0 pods. A40 SECURE $0.44/hr. CA-MTL-1 available. Billing Jun–Aug pods ~$134.29 total.
+**RunPod (2026-08-07):** pod `1y91hqyjou9pkx` EXITED. `list-pods` → 0 running.
 
 **Phase 0 (user):** Confirm in EDAS: Review 2?, revision deadline?, response-letter format?, CARS 2026 page limit?
 
 ---
 
 ## Immediate next actions (in order)
-1. **Revision Phase** — pre-register §RV1/§RV2; additive code; CPU smoke; then GPU session (double-confirm gated).
+1. **Narrative decision** — review Phase 4 artifacts; decide item-1 framing (narrow zero-shot claim vs fifth finding).
 2. **Integrate** — `paper/draft_v1` → `paper/draft_v1_revised`; free-win text + new results; response letter.
 3. (Optional) M5 Qwen2.5-14B burst, cost-gated ~$25–45, off critical path.
 
