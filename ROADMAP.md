@@ -10,7 +10,7 @@ _Last updated: 2026-08-07 · Revision compute + Phase 4 analysis complete._
 ---
 
 ## TL;DR — current state (2026-08-07)
-**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main.pdf`, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24). **Phase 4 analysis COMPLETE** (incl. Phase 4b significance): tables, `m6_stats.json` §RV1/§RV2 + Wilcoxon + protocol check, figures. **Revised paper COMPLETE:** `paper/draft_v1_revised/main.pdf` (**7 pages**, ≤8pp limit) addresses reviewer items 1–10; `RESPONSE_TO_REVIEWERS.md` written; UNSW likelihood reversal (0.302 beats all classical) integrated. Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** Phase 0 EDAS/venue-template verification (user action); pod teardown after backup verify. Project spend ≈ **$153.62**. Tests **98 green**.
+**M1–M6 COMPLETE.** Paper submitted (`paper/draft_v1/main_independent.pdf` — "Independent Researcher" variant, 7 pages); **Weak Accept** review received. **Revision compute COMPLETE:** RV1 (3/3) + RV2 (24/24). **Phase 4 analysis COMPLETE** (incl. Phase 4b significance): tables, `m6_stats.json` §RV1/§RV2 + Wilcoxon + protocol check, figures. **Revised paper COMPLETE:** `paper/draft_v1_revised/main_independent.pdf` (**7 pages**, ≤8pp limit) addresses reviewer items 1–10; `RESPONSE_TO_REVIEWERS.md` written; UNSW likelihood reversal (0.302 beats all classical) integrated. Pod `1y91hqyjou9pkx` **stopped** (EXITED). **Next:** Phase 0 EDAS/venue-template verification (user action); pod teardown after backup verify. Project spend ≈ **$153.62**. Tests **98 green**.
 
 ---
 
@@ -30,8 +30,8 @@ _Last updated: 2026-08-07 · Revision compute + Phase 4 analysis complete._
 | M4 | Exp 4/5/6 — ordering+binning, Pareto, two-stage triage | PLAN Exp 4–6 (RQ5–7) | ✅ **done** | 33/33 cells; rsync'd; tables+figures generated; pod stopped |
 | M5 | Paid A100 burst — Qwen3-14B scale point | PLAN §9/§9a | ⏳ | cost-gated, ~$25–45 |
 | M6 | Analysis & write-up (stats, figures) | PLAN §7/§13 | ✅ **done** | `m6_stats.py`/`m6_figures.py`; `paper/04_results.md`; `paper/05_discussion.md`; commit `c88e861` |
-| Paper | Author + submit LaTeX draft | PLAN §13 | ✅ submitted | `paper/draft_v1/main.pdf` (Jul 13) |
-| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **draft done** | RV1 3/3 + RV2 24/24; Phase 4 tables/stats/figures done; `draft_v1_revised/main.pdf` (7pp) + response letter done; Phase 0 EDAS verify pending |
+| Paper | Author + submit LaTeX draft | PLAN §13 | ✅ submitted | `paper/draft_v1/main_independent.pdf` (Jul 13; Autodesk-affiliated `main.pdf` is the unsubmitted alternate) |
+| **Revision** | Address reviewer feedback + resubmit | review response | 🔄 **draft done** | RV1 3/3 + RV2 24/24; Phase 4 tables/stats/figures done; `draft_v1_revised/main_independent.pdf` (7pp) + response letter done; Phase 0 EDAS verify pending |
 
 **Critical path:** M1 → M2 → M3 ✅ → M3.5 ✅ → M4 ✅ → M6 ✅ → Paper ✅ submitted → **Revision Phase**. M5 14B burst remains optional and off the critical path.
 
@@ -151,7 +151,7 @@ Regards, The conference chairs
 2. **Phase 0 (user, OPEN):** Confirm EDAS before resubmit: Review 2 present?, revision deadline?, required response-letter format?, confirm 8pp CARS 2026 page limit? (8pp used as working target, not yet venue-verified.)
 3. (Optional) M5 Qwen2.5-14B burst, cost-gated ~$25–45, off critical path.
 
-_(Housekeeping done: stopped pods deleted; GitHub tokens revoked. RunPod `list-pods` empty as of 2026-08-06.)_
+_(Housekeeping: M1–M4 pods deleted; GitHub tokens revoked. As of 2026-08-07 the revision pod `1y91hqyjou9pkx` is EXITED (0 running) but not yet terminated, so disk still bills — teardown pending after backup verify.)_
 
 ---
 

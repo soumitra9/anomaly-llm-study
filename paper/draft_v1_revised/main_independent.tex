@@ -179,7 +179,7 @@ SmolLM-360M likelihood scoring passed the two pre-registered aggregate gates (C1
 Mean AUROC was 0.851 vs.\ AnoLLM's reported 0.865 ($\Delta=0.0145$, C1 pass).
 Spearman rank correlation across 30 datasets was $\rho=0.875$ (C2 pass).
 Nineteen of 30 datasets fell within the pre-registered per-dataset band (C3 threshold 24/30, fail).
-The eleven out-of-band datasets were cardio, covertype, ecoli, letter, optdigits, pendigits, satellite, vowels, wbc, wine, and yeast; the deviations were bidirectional (our mean AUROC exceeded the reference on covertype, wine, ecoli, and yeast but fell short on letter, vowels, and satellite), so the shortfall is not a uniform downward bias.
+The eleven out-of-band datasets were cardio, covertype, ecoli, letter, optdigits, pendigits, satellite, vowels, wbc, wine, and yeast; the deviations were bidirectional (our mean AUROC exceeded the reference on cardio, covertype, ecoli, wine, and yeast but fell short on letter, optdigits, pendigits, satellite, vowels, and wbc), so the shortfall is not a uniform downward bias.
 Under the pre-registered decision rule, C1 and C2 were the hard-stop criteria; the replication is a credible partial reproduction.
 These checks did not identify a protocol error; candidate explanations consistent with our controls are (i) the released AnoLLM fork differing from the published configuration---a grad-accumulation (effective-batch) test moved letter and satellite by only 0.02--0.03 AUROC, insufficient to close the gap---and (ii) LoRA fine-tuning instability on small tabular datasets.
 
@@ -193,7 +193,7 @@ Thus, for ODDS-style AUROC, likelihood scoring outperforms the zero-shot expecte
 
 To test whether this advantage reflects the weakness of the zero-shot baseline rather than an intrinsic likelihood benefit (reviewer concern), we evaluated a stronger prompted baseline that prepends three normal exemplars (normals-only few-shot) on eight ODDS datasets with Qwen2.5-3B-Instruct.
 Few-shot prompting raised mean AUROC from 0.468 (zero-shot) to 0.759, closing about 95\% of the gap to likelihood scoring (0.773 on the same eight datasets).
-The residual 0.014 difference was not statistically significant (paired Wilcoxon on eight dataset means, $p=0.64$, $n=8$).
+The residual 0.014 difference was not statistically significant (paired Wilcoxon on eight dataset means, $p=0.64$, $n=8$). At $n=8$ the minimum achievable Wilcoxon $p$ is ${\approx}0.008$; the non-significant result therefore indicates the two modes are statistically indistinguishable at the available power, not that they are provably equal.
 Gains were not uniform: few-shot helped substantially on breastw, yeast, and ionosphere but regressed on speech and vertebral.
 We therefore narrow the scoring-mode claim: likelihood scoring outperforms the \emph{zero-shot} expected-value baseline used in the main A/B, but is statistically indistinguishable from a few-shot prompted baseline on these eight datasets.
 
@@ -386,6 +386,7 @@ Timing estimates for likelihood and prompted modes are RUNLOG-level aggregate ap
 Security results rest on two datasets that, at fixed 1\% FPR, point in opposite directions (classical best on credit-card fraud, Qwen likelihood best on UNSW-NB15); we therefore make no cross-dataset generalization claim.
 The likelihood-versus-prompted A/B compares base+LoRA vs.\ frozen instruct; the checkpoint-confound control bounds but does not eliminate this confound.
 Semantic-name and serialization-order ablations use $n=3$ seed pairs and are exploratory.
+The few-shot-versus-likelihood comparison rests on $n=8$ dataset means (minimum achievable Wilcoxon $p\approx0.008$); its non-significant result is likewise underpowered rather than proof of equality.
 We report implementation controls and run metadata sufficient to interpret the experiments, but do not claim artifact-level reproducibility beyond the protocol described here.
 
 \subsection{Future Work}

@@ -12,7 +12,7 @@ We rely on the pre-registered DA1 control rather than a new 2x2. DA1 LoRA-fine-t
 
 ## 3. Add the Qwen2.5-3B likelihood arm on UNSW-NB15
 
-Done, and it changes the security narrative. Qwen2.5-3B likelihood scoring on UNSW-NB15 reaches recall@1%FPR 0.302 (mean over three seeds), exceeding every classical detector (KNN 0.189, IForest 0.188, ECOD 0.161, PCA 0.099) and the prompted baseline (0.151). This reverses the ordering seen on credit-card fraud, where classical detectors dominate. On the secondary AUPRC-gain view the UNSW ordering is mixed. We updated Table III (now reports the UNSW likelihood cell), the regime-summary table (Table I, split into per-dataset rows), the abstract, Section IV-D, and the Discussion. We frame this strictly per-dataset and draw no cross-dataset conclusion.
+Done, and it changes the security narrative. Qwen2.5-3B likelihood scoring on UNSW-NB15 reaches recall@1%FPR 0.302 (mean over three seeds), exceeding every classical detector (KNN 0.189, IForest 0.188, ECOD 0.161, PCA 0.099) and the prompted baseline (0.151). This reverses the ordering seen on credit-card fraud, where classical detectors dominate. On the secondary AUPRC-gain view the UNSW ordering is mixed. We updated Table III (now reports the UNSW likelihood cell), the regime-summary table (Table I, split into per-dataset rows), the abstract, Section IV-E, and the Discussion. We frame this strictly per-dataset and draw no cross-dataset conclusion.
 
 ## 4. Expand the security panel beyond two datasets
 
@@ -20,7 +20,7 @@ We agree this is the right long-term step and have kept it as future work. We no
 
 ## 5. Increase seeds for the ablations, or label them exploratory
 
-We label them exploratory. The semantic-name and serialization-order ablations use n=3 seed pairs (minimum achievable Wilcoxon p=0.25); the manuscript reports them as descriptive, exploratory evidence and draws no conclusion from them (Sections IV-C, IV-E, and Limitations).
+We label them exploratory. The semantic-name and serialization-order ablations use n=3 seed pairs (minimum achievable Wilcoxon p=0.25); the manuscript reports them as descriptive, exploratory evidence and draws no conclusion from them (Sections IV-D, IV-F, and Limitations).
 
 ## 6. Investigate the C3 failure
 
@@ -32,11 +32,11 @@ We added a prominent scale-limitation sentence next to the scale claim (Section 
 
 ## 8. Test more than one domain ordering, or state the single-instance caveat
 
-We added the caveat next to the ordering result (Section IV-E): a single hand-designed ordering per dataset cannot rule out that some other informed ordering helps; we tested one domain ordering, not the space of informed orderings.
+We added the caveat next to the ordering result (Section IV-F): a single hand-designed ordering per dataset cannot rule out that some other informed ordering helps; we tested one domain ordering, not the space of informed orderings.
 
 ## 9. Add a compute/cost table alongside Fig. 4
 
-Added (Table V, next to the Pareto figure). It reports approximate wall time per 1,000 test rows per method with an explicit provenance column: the ODDS likelihood and prompted timings are RUNLOG-level aggregate approximations (flat per-mode constants), while the triage timing is measured per cell. We were transparent that per-dataset per-mode wall clock is not available for the ODDS likelihood/prompted modes, consistent with the approximation disclosure already in Sections IV and V.
+Added (Table IV, next to the Pareto figure). It reports approximate wall time per 1,000 test rows per method with an explicit provenance column: the ODDS likelihood and prompted timings are RUNLOG-level aggregate approximations (flat per-mode constants), while the triage timing is measured per cell. We were transparent that per-dataset per-mode wall clock is not available for the ODDS likelihood/prompted modes, consistent with the approximation disclosure already in Sections IV and V.
 
 ## 10. Define "regime-dependent"; surface the Table III footnote
 
