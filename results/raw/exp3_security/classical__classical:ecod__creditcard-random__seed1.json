@@ -1,0 +1,70 @@
+{
+  "cost": {},
+  "extra": {
+    "flagged_leakage": null,
+    "split": "random"
+  },
+  "key": "classical__classical:ecod__creditcard-random__seed1",
+  "metrics": {
+    "auprc_gain": 87.63820934917278,
+    "precision_at_topN": 0.5587320507328701,
+    "recall_at_1pct_fpr": 0.6788617886178862,
+    "recall_at_1pct_fpr_ci": [
+      0.6356045374383347,
+      0.7199532266356428
+    ],
+    "recall_at_topN": 0.18292682926829268
+  },
+  "n_rows_expected": 20492,
+  "n_rows_scored": 20492,
+  "run_metadata": {
+    "checkpoint_kind": null,
+    "dataset": "creditcard-random",
+    "dataset_content_hash": "sha256:9c472f19f1199d8366c7991f304b8a1c34349d8b82168d9cf4ea39aeb60e0996",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.8.0-65-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "2bcfc7c27f487881959422d56f9d91b5fca38313",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp3_security",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "classical:ecod",
+    "model": "classical",
+    "precision": null,
+    "r_permutations": null,
+    "rendered_prompt_hash": null,
+    "seed": 1,
+    "serialization_template_hash": null,
+    "split_index_hash": null,
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1783262953
+}

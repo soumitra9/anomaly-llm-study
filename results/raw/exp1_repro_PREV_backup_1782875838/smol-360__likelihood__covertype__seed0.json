@@ -1,0 +1,77 @@
+{
+  "cost": {},
+  "extra": {
+    "batch_size": 48,
+    "binning": "standard",
+    "max_steps": 2000,
+    "n_splits": 5,
+    "score_batch_size": 48,
+    "setting": "semi_supervised",
+    "test_anomaly_rate": 0.019023809194033157
+  },
+  "key": "smol-360__likelihood__covertype__seed0",
+  "metrics": {
+    "auprc": 0.12764314693002027,
+    "auprc_gain": 6.709652395486374,
+    "auroc": 0.9105300221594732,
+    "r_sensitivity_auroc": {
+      "5": 0.9149520032876014,
+      "8": 0.9147121913328429,
+      "10": 0.9105300221594732
+    },
+    "recall_at_1pct_fpr": 0.09028030578813251
+  },
+  "n_rows_expected": 144398,
+  "n_rows_scored": 144398,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "covertype",
+    "dataset_content_hash": "sha256:a8718ab48b1c8aabb74c3981c4b2dbaddd33790b748dd716d9695a9ef4383c94",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": "a051ba450743ea5a57175be305212464fb7bdc16",
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.5.0-45-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "device_used": "cuda",
+      "engine": "hf",
+      "git_dirty": true,
+      "git_sha": "d2b6061667153e3facb935227847b5db29853bf0",
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp1_repro",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "likelihood",
+    "model": "smol-360",
+    "precision": "bf16",
+    "r_permutations": 10,
+    "rendered_prompt_hash": null,
+    "seed": 0,
+    "serialization_template_hash": null,
+    "split_index_hash": "sha256:8da5186f5cbd1b4bb6ecd78db91e4863bb698a975076647254f92fec4e7af1b8",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1782859106
+}

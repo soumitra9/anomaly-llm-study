@@ -1,0 +1,5 @@
+dataset,model,mode,auprc_gain_mean,auprc_gain_std,auroc_mean,auroc_std,recall_at_1fpr_mean,recall_at_1fpr_std,n_seeds
+creditcard-temporal,ecod,classical,78.39949472323333,,0.9334531504065111,,0.6544715447154471,,1
+creditcard-temporal,iforest,classical,55.992984583264764,,0.9295305894309016,,0.5934959349593496,,1
+creditcard-temporal,knn,classical,70.38880170698793,,0.8969636178861837,,0.7134146341463414,,1
+creditcard-temporal,pca,classical,67.65193088632111,,0.9218445121951272,,0.6361788617886179,,1

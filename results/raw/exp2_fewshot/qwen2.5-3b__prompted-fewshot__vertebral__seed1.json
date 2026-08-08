@@ -1,0 +1,73 @@
+{
+  "cost": {},
+  "extra": {
+    "device_used": "cuda",
+    "distinct_levels": 135,
+    "wall_seconds": 12.128622770309448
+  },
+  "key": "qwen2.5-3b__prompted-fewshot__vertebral__seed1",
+  "metrics": {
+    "auprc": 0.20396515164849655,
+    "auprc_gain": 0.9178431824182345,
+    "auroc": 0.4765079365079365,
+    "recall_at_1pct_fpr": 0.0
+  },
+  "n_rows_expected": 135,
+  "n_rows_scored": 135,
+  "run_metadata": {
+    "checkpoint_kind": "instruct",
+    "dataset": "vertebral",
+    "dataset_content_hash": "sha256:63d57fa120025dc44e2d0f0847e516415dcbda7ace3588a555e0d670f71e8378",
+    "dataset_version_id": null,
+    "decode_config": {
+      "n_levels": 10,
+      "n_shots": 3,
+      "scorer": "expected_value",
+      "shot_seed": 1,
+      "temperature": 0
+    },
+    "env": {
+      "anollm_submodule_sha": null,
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.5.0-45-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": null,
+      "git_sha": null,
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp2_fewshot",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "prompted-fewshot",
+    "model": "qwen2.5-3b",
+    "precision": "bf16",
+    "r_permutations": null,
+    "rendered_prompt_hash": "c164e5ccfc671bdb",
+    "seed": 1,
+    "serialization_template_hash": "94c73ced1a8f6868",
+    "split_index_hash": "sha256:f6cc5cb632e50533d8972a5895d397e70be4fd2d12458ca9e22d641af6054071",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1786128427
+}

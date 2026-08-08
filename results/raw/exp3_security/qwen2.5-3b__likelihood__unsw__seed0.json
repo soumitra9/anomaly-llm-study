@@ -1,0 +1,85 @@
+{
+  "cost": {},
+  "extra": {
+    "flagged_leakage": {},
+    "max_steps": 1000,
+    "split": null,
+    "wall_seconds": 18008.363047122955
+  },
+  "key": "qwen2.5-3b__likelihood__unsw__seed0",
+  "metrics": {
+    "auprc_gain": 7.166264235230182,
+    "precision_at_topN": 0.8418673948081151,
+    "recall_at_1pct_fpr": 0.2727398205659075,
+    "recall_at_1pct_fpr_ci": [
+      0.2625085938343309,
+      0.2831542031541124
+    ],
+    "recall_at_topN": 0.013112491373360938
+  },
+  "n_rows_expected": 47245,
+  "n_rows_scored": 47245,
+  "run_metadata": {
+    "checkpoint_kind": "base",
+    "dataset": "unsw",
+    "dataset_content_hash": "sha256:e93749e2172e8d6d5128a52ad2b476dbfa13f8ea458ab1903fd819d0d3dca4c2",
+    "dataset_version_id": null,
+    "decode_config": null,
+    "env": {
+      "anollm_submodule_sha": null,
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.5.0-45-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": null,
+      "git_sha": null,
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp3_security",
+    "hf_revision": null,
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.1,
+      "rank": 8,
+      "target_modules": [
+        "q_proj",
+        "o_proj",
+        "k_proj",
+        "v_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "mode": "likelihood",
+    "model": "qwen2.5-3b",
+    "precision": "bf16",
+    "r_permutations": 5,
+    "rendered_prompt_hash": null,
+    "seed": 0,
+    "serialization_template_hash": null,
+    "split_index_hash": null,
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1786058241
+}

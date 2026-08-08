@@ -37,8 +37,10 @@ paper/**/*.aux
 paper/**/*.log
 paper/**/*.blg
 
-# Experiment results (local only)
-results/
+# Experiment results — TEMP tracked for revision resubmit (~2026-08-09); restore `results/` line after
+# results/
+results/logs/
+results/**/.DS_Store
 
 # Keep these tracked:
 !.gitignore

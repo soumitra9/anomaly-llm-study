@@ -1,0 +1,73 @@
+{
+  "cost": {},
+  "extra": {
+    "device_used": "cuda",
+    "distinct_levels": 10039,
+    "wall_seconds": 709.1925361156464
+  },
+  "key": "qwen2.5-3b__prompted-fewshot__shuttle__seed2",
+  "metrics": {
+    "auprc": 0.9619366384879524,
+    "auprc_gain": 7.206716416629765,
+    "auroc": 0.9873923451316702,
+    "recall_at_1pct_fpr": 0.9532896610652236
+  },
+  "n_rows_expected": 26304,
+  "n_rows_scored": 26304,
+  "run_metadata": {
+    "checkpoint_kind": "instruct",
+    "dataset": "shuttle",
+    "dataset_content_hash": "sha256:d011a5ae3eda047b000078e4ba15115f8a4c8c3e1d0b2814826b99da8b9f4117",
+    "dataset_version_id": null,
+    "decode_config": {
+      "n_levels": 10,
+      "n_shots": 3,
+      "scorer": "expected_value",
+      "shot_seed": 2,
+      "temperature": 0
+    },
+    "env": {
+      "anollm_submodule_sha": null,
+      "device": {
+        "cuda": "12.1",
+        "gpu": "NVIDIA A40",
+        "machine": "x86_64",
+        "platform": "Linux-6.5.0-45-generic-x86_64-with-glibc2.39",
+        "python": "3.10.18",
+        "torch_cuda_available": true,
+        "torch_mps_available": false
+      },
+      "engine": "hf",
+      "git_dirty": null,
+      "git_sha": null,
+      "lib_versions": {
+        "accelerate": "1.14.0",
+        "datasets": "2.20.0",
+        "numpy": "1.26.4",
+        "pandas": "2.2.3",
+        "peft": "0.11.1",
+        "pyod": "2.0.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.13.1",
+        "torch": "2.3.1",
+        "transformers": "4.48.2"
+      },
+      "logprob_parity_status": null,
+      "uv_lock_hash": "sha256:65a2d6c1e0a46732b5258ebfa6c5d5f0d65e458c108149fb5062397209c2907e"
+    },
+    "experiment": "exp2_fewshot",
+    "hf_revision": null,
+    "lora": null,
+    "mode": "prompted-fewshot",
+    "model": "qwen2.5-3b",
+    "precision": "bf16",
+    "r_permutations": null,
+    "rendered_prompt_hash": "c164e5ccfc671bdb",
+    "seed": 2,
+    "serialization_template_hash": "94c73ced1a8f6868",
+    "split_index_hash": "sha256:1fd00a7ffc07504391453caac9508f7d6f0f64f43ca480961e06fe742c6ad23c",
+    "subsample_index_hash": null
+  },
+  "status": "complete",
+  "timestamp_unix": 1786121843
+}
