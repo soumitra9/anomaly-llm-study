@@ -28,17 +28,26 @@ RV2_DATASETS = [
     "shuttle", "speech", "vertebral", "yeast",
 ]
 
-# ODDS catalog dimensions for RV2 regression pattern (static; TODO: verify-vs-ODDS primary source).
-RV2_ODDS_SHAPES: dict[str, dict[str, float]] = {
-    "arrhythmia": {"n_samples": 452, "n_features": 274, "anomaly_pct": 14.6},
-    "breastw": {"n_samples": 683, "n_features": 9, "anomaly_pct": 35.0},
-    "cardio": {"n_samples": 1831, "n_features": 21, "anomaly_pct": 9.6},
-    "ionosphere": {"n_samples": 351, "n_features": 33, "anomaly_pct": 35.9},
-    "shuttle": {"n_samples": 49097, "n_features": 9, "anomaly_pct": 7.2},
-    "speech": {"n_samples": 3686, "n_features": 400, "anomaly_pct": 1.7},
-    "vertebral": {"n_samples": 240, "n_features": 6, "anomaly_pct": 12.5},
-    "yeast": {"n_samples": 1484, "n_features": 8, "anomaly_pct": 34.2},
-}
+def _odds_shape_asloaded(name: str) -> dict[str, float]:
+    """As-loaded ODDS shape for the data we actually scored (derived at runtime).
+
+    Computed from ``anodet.data.load_odds`` so the regression descriptors can never drift
+    from the scored data. This is deliberately the *as-loaded* shape, not the published
+    ODDS catalog shape; the two can differ (e.g. the fork drops ionosphere's constant
+    attribute, giving 32 features rather than the published 33). ``anomaly_pct`` is the
+    full-dataset rate (train+test); under the normals-only-train protocol all anomalies
+    are in test, so a test-only rate would be inflated and is deliberately not used.
+    """
+    from anodet.data.odds import load_odds
+
+    d = load_odds(name)
+    n_samples = int(len(d["X_train"]) + len(d["X_test"]))
+    n_anom = int(d["y_train"].sum() + d["y_test"].sum())
+    return {
+        "n_samples": n_samples,
+        "n_features": int(d["X_test"].shape[1]),
+        "anomaly_pct": round(100.0 * n_anom / n_samples, 2),
+    }
 
 RV2_PROTOCOL_FIELDS = (
     "dataset_content_hash",
@@ -533,36 +542,48 @@ def section_rv2(results_root: pathlib.Path) -> dict:
     print(f"Wilcoxon sensitivity (n=24 cells, non-independent): p={wilcoxon_sensitivity['p_raw']:.4f} "
           f"[footnote only]")
 
-    # Regression pattern vs static ODDS shapes.
-    shape_rows = []
-    for r in per_dataset:
-        ds = r["dataset"]
-        shape = RV2_ODDS_SHAPES[ds]
-        shape_rows.append({
-            "dataset": ds,
-            "delta_few_minus_zero": r["delta_few_minus_zero"],
-            "regressed": r["delta_few_minus_zero"] < 0,
-            **shape,
-        })
-    deltas = np.array([s["delta_few_minus_zero"] for s in shape_rows])
-    n_feat = np.array([s["n_features"] for s in shape_rows])
-    n_samp = np.array([s["n_samples"] for s in shape_rows])
-    anom = np.array([s["anomaly_pct"] for s in shape_rows])
+    # Regression pattern vs as-loaded ODDS shapes, derived at runtime (never hardcoded).
+    # If the ODDS data cache is unavailable, skip rather than fall back to stale values.
+    try:
+        shape_rows = []
+        for r in per_dataset:
+            ds = r["dataset"]
+            shape_rows.append({
+                "dataset": ds,
+                "delta_few_minus_zero": r["delta_few_minus_zero"],
+                "regressed": r["delta_few_minus_zero"] < 0,
+                **_odds_shape_asloaded(ds),
+            })
+    except Exception as exc:  # data cache missing — do not substitute stale shapes
+        regression_analysis = {
+            "per_dataset": [],
+            "shape_source_note": f"SKIPPED: as-loaded ODDS shapes unavailable ({type(exc).__name__}).",
+            "regressors": regressions,
+            "pattern_note": "Regression analysis skipped: ODDS data cache not available to derive shapes.",
+        }
+    else:
+        deltas = np.array([s["delta_few_minus_zero"] for s in shape_rows])
+        n_feat = np.array([s["n_features"] for s in shape_rows])
+        n_samp = np.array([s["n_samples"] for s in shape_rows])
+        anom = np.array([s["anomaly_pct"] for s in shape_rows])
 
-    def _spearman(x, y) -> dict:
-        rho, p = spearmanr(x, y)
-        return {"rho": round(float(rho), 4), "p": round(float(p), 4)}
+        def _spearman(x, y) -> dict:
+            rho, p = spearmanr(x, y)
+            return {"rho": round(float(rho), 4), "p": round(float(p), 4)}
 
-    regression_analysis = {
-        "per_dataset": shape_rows,
-        "shape_source_note": "Static ODDS catalog dimensions (TODO: verify-vs-ODDS primary PDF/source).",
-        "spearman_delta_vs_n_features": _spearman(deltas, n_feat),
-        "spearman_delta_vs_n_samples": _spearman(deltas, n_samp),
-        "spearman_delta_vs_anomaly_pct": _spearman(deltas, anom),
-        "regressors": regressions,
-        "pattern_note": "Regressions speech (highest n_features≈400) and vertebral (lowest n_samples≈240, "
-                        "n_features≈6) sit at shape extremes; n=8 — descriptive only, no causal claim.",
-    }
+        regression_analysis = {
+            "per_dataset": shape_rows,
+            "shape_source_note": ("As-loaded ODDS shapes derived at runtime from "
+                                  "anodet.data.load_odds (self-verifying). n_features and anomaly_pct "
+                                  "reflect the scored data and may differ from published ODDS catalog "
+                                  "values (e.g. ionosphere 32 vs published 33 features)."),
+            "spearman_delta_vs_n_features": _spearman(deltas, n_feat),
+            "spearman_delta_vs_n_samples": _spearman(deltas, n_samp),
+            "spearman_delta_vs_anomaly_pct": _spearman(deltas, anom),
+            "regressors": regressions,
+            "pattern_note": "Regressions speech (largest n_features) and vertebral (smallest n_samples) "
+                            "sit at shape extremes; n=8 — descriptive only, no causal claim.",
+        }
     print(f"Spearman Δ(few−zero) vs n_features: rho={regression_analysis['spearman_delta_vs_n_features']['rho']}")
 
     return {

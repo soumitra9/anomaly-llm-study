@@ -662,7 +662,7 @@
           "regressed": false,
           "n_samples": 683,
           "n_features": 9,
-          "anomaly_pct": 35.0
+          "anomaly_pct": 34.99
         },
         {
           "dataset": "cardio",
@@ -670,14 +670,14 @@
           "regressed": false,
           "n_samples": 1831,
           "n_features": 21,
-          "anomaly_pct": 9.6
+          "anomaly_pct": 9.61
         },
         {
           "dataset": "ionosphere",
           "delta_few_minus_zero": 0.5472,
           "regressed": false,
           "n_samples": 351,
-          "n_features": 33,
+          "n_features": 32,
           "anomaly_pct": 35.9
         },
         {
@@ -686,7 +686,7 @@
           "regressed": false,
           "n_samples": 49097,
           "n_features": 9,
-          "anomaly_pct": 7.2
+          "anomaly_pct": 7.15
         },
         {
           "dataset": "speech",
@@ -694,7 +694,7 @@
           "regressed": true,
           "n_samples": 3686,
           "n_features": 400,
-          "anomaly_pct": 1.7
+          "anomaly_pct": 1.65
         },
         {
           "dataset": "vertebral",
@@ -710,10 +710,10 @@
           "regressed": false,
           "n_samples": 1484,
           "n_features": 8,
-          "anomaly_pct": 34.2
+          "anomaly_pct": 6.4
         }
       ],
-      "shape_source_note": "Static ODDS catalog dimensions (TODO: verify-vs-ODDS primary PDF/source).",
+      "shape_source_note": "As-loaded ODDS shapes derived at runtime from anodet.data.load_odds (self-verifying). n_features and anomaly_pct reflect the scored data and may differ from published ODDS catalog values (e.g. ionosphere 32 vs published 33 features).",
       "spearman_delta_vs_n_features": {
         "rho": -0.1677,
         "p": 0.6915
@@ -723,14 +723,14 @@
         "p": 0.8665
       },
       "spearman_delta_vs_anomaly_pct": {
-        "rho": 0.6667,
-        "p": 0.071
+        "rho": 0.3095,
+        "p": 0.4556
       },
       "regressors": [
         "speech",
         "vertebral"
       ],
-      "pattern_note": "Regressions speech (highest n_features\u2248400) and vertebral (lowest n_samples\u2248240, n_features\u22486) sit at shape extremes; n=8 \u2014 descriptive only, no causal claim."
+      "pattern_note": "Regressions speech (largest n_features) and vertebral (smallest n_samples) sit at shape extremes; n=8 \u2014 descriptive only, no causal claim."
     },
     "note": "Primary Wilcoxon uses 8 dataset-mean AUROCs (Demsar/M2 convention). Cell-level Wilcoxon is a non-independent sensitivity check only."
   }

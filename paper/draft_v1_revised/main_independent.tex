@@ -195,6 +195,7 @@ To test whether this advantage reflects the weakness of the zero-shot baseline r
 Few-shot prompting raised mean AUROC from 0.468 (zero-shot) to 0.759, closing about 95\% of the gap to likelihood scoring (0.773 on the same eight datasets).
 The residual 0.014 difference was not statistically significant (paired Wilcoxon on eight dataset means, $p=0.64$, $n=8$). At $n=8$ the minimum achievable Wilcoxon $p$ is ${\approx}0.008$; the non-significant result therefore indicates the two modes are statistically indistinguishable at the available power, not that they are provably equal.
 Gains were not uniform: few-shot helped substantially on breastw, yeast, and ionosphere but regressed on speech and vertebral.
+Notably, speech and vertebral are also the only two of the eight datasets where likelihood scoring itself is at or below chance (AUROC 0.469 and 0.375); the few-shot regressions coincide with the datasets where LLM likelihood scoring has essentially no signal, rather than indicating a weakness specific to few-shot prompting.
 We therefore narrow the scoring-mode claim: likelihood scoring outperforms the \emph{zero-shot} expected-value baseline used in the main A/B, but is statistically indistinguishable from a few-shot prompted baseline on these eight datasets.
 
 Table~\ref{tab:rq2} summarizes condition means.

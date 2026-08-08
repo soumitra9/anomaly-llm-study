@@ -72,7 +72,11 @@ def test_rv1_and_rv2_stats_sections():
     ra = rv2["regression_analysis"]
     assert set(ra["regressors"]) == {"speech", "vertebral"}
     assert len(ra["per_dataset"]) == 8
-    assert "TODO: verify-vs-ODDS" in ra["shape_source_note"]
+    # Shapes are derived at runtime from load_odds (self-verifying), not hardcoded.
+    assert "load_odds" in ra["shape_source_note"]
+    shapes = {s["dataset"]: s for s in ra["per_dataset"]}
+    assert shapes["ionosphere"]["n_features"] == 32  # as-loaded: fork drops the constant attribute
+    assert shapes["yeast"]["anomaly_pct"] == pytest.approx(6.4, abs=0.1)  # fork variant, not 34.2
 
 
 @pytest.mark.skipif(not _has_revision_cells(), reason="revision JSONs not present locally")
